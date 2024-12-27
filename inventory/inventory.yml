@@ -2,9 +2,6 @@
 all:
   children:
     rpi:
-      vars:
-        ansible_user: pi
-        ansible_port: 22
       hosts:
         "10.0.20.[150:152]": 
         
