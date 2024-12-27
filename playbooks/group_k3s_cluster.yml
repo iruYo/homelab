@@ -1,0 +1,15 @@
+- name: Dynamically group hosts into k3s_cluster
+  hosts: rpi
+  tasks:
+    - name: Add hosts to k3s_cluster/server group
+      ansible.builtin.group_by:
+        key: "server"
+
+    - name: Show constructed groups
+      ansible.builtin.debug:
+        var: groups
+
+#    - name: Add the last host to k3s_cluster/agent group
+#      ansible.builtin.group_by:
+#        key: "agent"
+#      when: ansible_host == "10.0.20.152"
