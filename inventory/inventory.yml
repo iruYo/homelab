@@ -3,5 +3,8 @@ all:
   children:
     rpi:
       hosts:
-        "10.0.20.[150:152]": 
-        
+        "10.0.20.[150:152]": #pi[0:2].k3s.local.youriulbri.ch
+    k3s_cluster:
+      children:
+        server:
+        agent:
