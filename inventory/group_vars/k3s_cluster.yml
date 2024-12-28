@@ -1,7 +1,7 @@
 k3s_version: v1.31.4+k3s1
 k3s_master_taint: "{{ true if groups['node'] | default([]) | length >= 1 else false }}"
 k3s_node_ip: "{{ ansible_default_ipv4.address }}"
-cluster_context: production
+cluster_context: home
 token: "zYMTWVa8vM2p0Xv65BSOauZgvPwjiKBnJe7I1R0t+Kqz026jogVjJlRak5dGQbWnXwo6QhdpHY6GZdN/N0PD5g=="
 api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] | default(groups['server'][0]) }}"
 apiserver_endpoint: 10.0.20.10
@@ -15,7 +15,6 @@ kube_vip_arp: true
 extra_args: >-
   --node-ip={{ k3s_node_ip }}
 #  {{ '--flannel-iface=' + flannel_iface if calico_iface is not defined and cilium_iface is not defined else '' }}
-
 
 extra_server_args: >-
   {{ extra_args }}
