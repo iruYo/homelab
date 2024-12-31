@@ -1,0 +1,6 @@
+---
+- import_playbook: upgrade_rpis.yml
+- import_playbook: group_k3s_cluster.yml
+- import_playbook: setup_k3s_cluster.yml
+- import_playbook: k3s.orchestration.site #iruyo.k3s.site
+#- import_playbook: cluster_install_flux.yml

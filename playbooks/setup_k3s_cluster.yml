@@ -1,0 +1,28 @@
+---
+- name: Setup k3s and dependencies on cluster nodes
+  hosts: k3s_cluster
+  gather_facts: true
+  become: true
+
+  tasks:
+    - name: Update package cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install packages
+      ansible.builtin.apt:
+        pkg:
+        - jq
+        - open-iscsi
+        - cryptsetup 
+    
+    - name: Make sure iscsid is started and enabled
+      systemd:
+        name: iscsid
+        state: started
+        enabled: true
+    
+    - name: Add the iscsi_tcp module
+      community.general.modprobe:
+        name: iscsi_tcp
+        state: present
