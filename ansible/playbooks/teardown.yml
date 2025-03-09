@@ -1,0 +1,12 @@
+---
+- name: Tear down k3s cluster
+  ansible.builtin.import_playbook: iruyo.k3s.reset
+
+- name: Reboot after teardown
+  hosts: k3s_cluster
+  become: true
+  tasks:
+    - name: Reboot cluster nodes
+      ansible.builtin.reboot:
+        post_reboot_delay: 10
+        reboot_timeout: 60

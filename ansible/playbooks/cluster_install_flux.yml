@@ -1,0 +1,22 @@
+---
+- name: Install FluxCD in k3s cluster
+  hosts: localhost
+  tasks:
+    - name: Ensure Flux CLI is installed
+      ansible.builtin.shell: |
+        if ! command -v flux &>/dev/null; then
+          curl -s https://fluxcd.io/install.sh | sudo bash
+        fi
+      args:
+        ansible.builtin.executable: /bin/bash
+
+    - name: Bootstrap FluxCD on k3s cluster
+      ansible.builtin.shell: |
+        flux bootstrap git \
+          --url=ssh://git@github.com/iruYo/flux-manifests.git \
+          --branch=main \
+          --path=clusters/home
+      args:
+        ansible.builtin.executable: /bin/bash
+
+# GITHUB KEY!

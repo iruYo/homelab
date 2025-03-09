@@ -1,0 +1,25 @@
+k3s_version: v1.31.4+k3s1
+cluster_context: home
+token: "zYMTWVa8vM2p0Xv65BSOauZgvPwjiKBnJe7I1R0t+Kqz026jogVjJlRak5dGQbWnXwo6QhdpHY6GZdN/N0PD5g=="
+vip: 10.0.20.10
+api_endpoint: "{{ vip }}"
+
+kube_vip_tag_version: v0.8.7
+kube_vip_arp: false
+kube_vip_bgp: true
+
+kube_vip_bgp_as: 64520
+kube_vip_bgp_peeras: 64521
+kube_vip_bgp_peeraddress: 10.0.1.1
+kube_vip_bgp_routerinterface: "{{ interface }}"
+
+extra_args: >-
+  --node-ip={{ ansible_default_ipv4.address }}
+  --flannel-iface={{ interface }}
+
+extra_server_args: >-
+  {{ extra_args }}
+  --tls-san {{ vip }}
+  --disable servicelb
+  --disable traefik
+  --disable local-storage
