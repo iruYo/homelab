@@ -1,12 +1,22 @@
 ---
 all:
   children:
-    rpi:
+    pi:
       hosts:
-        "10.0.20.[150:152]":
+        pi0:
+          hostname: pi0
+          ip: 10.0.20.150
+          mac: 2c:cf:67:1c:b5:f8
+        pi1:
+          hostname: pi1
+          ip: 10.0.20.151
+          mac: 2c:cf:67:2d:e8:d0
+        pi2:
+          hostname: pi2
+          ip: 10.0.20.152
+          mac: 2c:cf:67:96:fe:4d
     k3s_cluster:
       children:
-        server:
+        k3s_master:
           hosts:
-            "10.0.20.[150:152]":
-        agent:
+            pi[0:2]:
