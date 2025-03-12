@@ -1,0 +1,19 @@
+---
+- name: Disable dphys-swapfile swap
+  ansible.builtin.command: dphys-swapfile swapoff
+  when: "'dphys-swapfile' in ansible_facts.packages"
+
+- name: Uninstall dphys-swapfile swap
+  ansible.builtin.command: dphys-swapfile uninstall
+  when: "'dphys-swapfile' in ansible_facts.packages"
+
+- name: Remove dphys-swapfile from startup
+  ansible.builtin.command: update-rc.d dphys-swapfile remove
+
+- name: Purge dphys-swapfile package
+  ansible.builtin.apt:
+    name: dphys-swapfile
+    state: absent
+    purge: yes
+    autoclean: yes
+    autoremove: yes

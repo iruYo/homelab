@@ -1,0 +1,22 @@
+---
+- name: Install cluster packages
+  ansible.builtin.apt:
+    name: "{{ cluster_packages }}"
+    update_cache: true
+    state: present
+
+- name: Make sure iscsid is started and enabled
+  ansible.builtin.systemd:
+    name: iscsid
+    state: started
+    enabled: true
+
+- name: Enable the iscsi_tcp module
+  community.general.modprobe:
+    name: iscsi_tcp
+    state: present
+
+- name: Enable the dm-crypt module
+  community.general.modprobe:
+    name: dm-crypt
+    state: present

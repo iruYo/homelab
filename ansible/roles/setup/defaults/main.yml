@@ -1,0 +1,5 @@
+---
+cluster_packages:
+  - jq
+  - open-iscsi
+  - cryptsetup
