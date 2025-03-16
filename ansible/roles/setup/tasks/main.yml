@@ -3,10 +3,6 @@
   ansible.builtin.package_facts:
     manager: auto
 
-- name: Execute RPi specific setup tasks
+- name: Execute Pi specific setup tasks
   ansible.builtin.include_tasks: pi_tasks.yml
   when: "'pi' in group_names"
-
-- name: Execute k3s cluster specific setup tasks
-  ansible.builtin.include_tasks: k3s_cluster_tasks.yml
-  when: "'k3s_cluster' in group_names"
