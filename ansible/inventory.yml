@@ -6,17 +6,30 @@ all:
         pi0:
           hostname: pi0
           ip: 10.0.20.150
+          ansible_host: 10.0.20.150
           mac: 2c:cf:67:1c:b5:f8
         pi1:
           hostname: pi1
           ip: 10.0.20.151
+          ansible_host: 10.0.20.151
           mac: 2c:cf:67:2d:e8:d0
         pi2:
           hostname: pi2
           ip: 10.0.20.152
+          ansible_host: 10.0.20.152
           mac: 2c:cf:67:96:fe:4d
+    tiny:
+      hosts:
+        tiny0:
+          hostname: tiny0
+          ip: 10.0.20.160
+          ansible_host: 10.0.20.160
+          mac: e8:6a:64:a4:7c:11    
     k3s_cluster:
       children:
         k3s_master:
           hosts:
             pi[0:2]:
+        k3s_agent:
+          hosts:
+            tiny0:
