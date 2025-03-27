@@ -30,6 +30,11 @@ all:
           ip: 10.0.20.161
           ansible_host: 10.0.20.161
           mac: f8:75:a4:c5:8c:73
+        tiny2:
+          hostname: tiny2
+          ip: 10.0.20.162
+          ansible_host: 10.0.20.162
+          mac: e8:6a:64:db:38:21
     k3s_cluster:
       children:
         k3s_master:
@@ -37,4 +42,4 @@ all:
             pi[0:2]:
         k3s_agent:
           hosts:
-            tiny[0:1]:
+            tiny[0:2]:
