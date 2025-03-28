@@ -1,0 +1,111 @@
+---
+- name: Detect if multiple masters (HA) are defined
+  ansible.builtin.set_fact:
+    k3s_ha: true
+  when:
+    - groups['k3s_master'] is defined
+    - groups['k3s_master'] | length > 1
+
+- name: Prints two lines of messages, but only if there is an environment value set
+  ansible.builtin.debug:
+    var: hostvars[groups['k3s_master'][0]]
+
+- name: Set first master ip
+  ansible.builtin.set_fact:
+    k3s_first_ip: "{{ hostvars[groups['k3s_master'][0]]['ansible_host'] }}"
+
+- name: Create k3s configuration directory
+  ansible.builtin.file:
+    path: "{{ k3s_config_dir }}"
+    state: directory
+
+- name: Generate k3s token file on all nodes
+  ansible.builtin.copy:
+    content: "{{ k3s_token }}"
+    dest: "{{ k3s_token_file }}"
+    mode: 0600
+
+- name: Copy k3s configuration file
+  ansible.builtin.template:
+    src: "templates/config.yml.j2"
+    dest: "{{ k3s_config_file }}"
+    mode: 0644
+
+- name: Get k3s installed version
+  ansible.builtin.command: k3s --version
+  register: k3s_version_output
+  changed_when: false
+  ignore_errors: true
+
+- name: Set k3s installed version
+  when: k3s_version_output.rc == 0
+  ansible.builtin.set_fact:
+    installed_k3s_version: "{{ k3s_version_output.stdout_lines[0].split(' ')[2] }}"
+
+- name: Install k3s if not installed or outdated
+  when: ( k3s_version_output.rc != 0 or installed_k3s_version is version(k3s_version, '<') )
+  block:
+    - name: Download k3s install script
+      ansible.builtin.get_url:
+        url: https://get.k3s.io/
+        timeout: 120
+        dest: /usr/local/bin/k3s-install.sh
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Run k3s install script
+      ansible.builtin.command:
+        cmd: /usr/local/bin/k3s-install.sh
+      environment:
+        INSTALL_K3S_SKIP_START: "true"
+        INSTALL_K3S_VERSION: "{{ k3s_version }}"
+      changed_when: true
+
+- name: Start first master node
+  when: inventory_hostname == groups['k3s_master'][0]
+  block:
+    - name: Enable k3s service
+      include_tasks: enable_k3s_service.yml
+    
+    - name: Check that the control plane is available to accept connections
+      ansible.builtin.wait_for:
+        port: '6443'
+        host: "{{ inventory_hostname }}"
+        delay: 5
+        sleep: 5
+        timeout: 300
+
+- name: Start other master node
+  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
+  include_tasks: enable_k3s_service.yml
+
+- name: Setup kubectl
+  block:
+    - name: Create .kube directory 
+      ansible.builtin.file:
+        path: ~{{ ansible_user }}/.kube
+        state: directory
+        owner: "{{ ansible_user }}"
+        mode: "u=rwx,g=rx,o="
+
+    - name: Copy kube config file to user directory
+      ansible.builtin.copy:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: ~{{ ansible_user }}/.kube/config
+        remote_src: true
+        owner: "{{ ansible_user }}"
+        mode: "u=rw,g=,o="
+
+    - name: Configure KUBECONFIG
+      ansible.builtin.lineinfile:
+        path: ~{{ ansible_user }}/.bashrc
+        regexp: 'export KUBECONFIG=~/.kube/config'
+        line: 'export KUBECONFIG=~/.kube/config'
+        state: present
+
+    - name: Configure kubectl autocomplete
+      ansible.builtin.lineinfile:
+        path: ~{{ ansible_user }}/.bashrc
+        regexp: '\.\s+<\(kubectl completion bash\)'
+        line: ". <(kubectl completion bash)"

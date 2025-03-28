@@ -11,13 +11,13 @@
         update_cache: true
         cache_valid_time: 3600
     - name: Check if a reboot is needed
-      stat:
+      ansible.builtin.stat:
         path: /var/run/reboot-required
         get_checksum: false
       register: reboot_required_file
 
     - name: Reboot host if needed
-      reboot:
+      ansible.builtin.reboot:
         msg: "Reboot initiated for updates"
         connect_timeout: 5
         reboot_timeout: 300
