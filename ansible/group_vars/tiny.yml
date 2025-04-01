@@ -1,0 +1,3 @@
+---
+ansible_user: tiny
+ansible_port: 22
