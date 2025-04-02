@@ -1,3 +1,5 @@
 ---
 ansible_user: pi
 ansible_port: 22
+
+iface: eth0
