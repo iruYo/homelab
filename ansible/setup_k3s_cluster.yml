@@ -12,3 +12,28 @@
   become: true
   roles:
     - role: k3s/prerequisites
+
+- name: Install K3S master node
+  hosts: k3s_master
+  gather_facts: true
+  become: true
+  roles:
+    - role: k3s/master
+
+- name: Get Kubernets config file
+  hosts: k3s_master
+  tasks:
+    - name: Get k3s config file
+      run_once: true
+      become: true
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "~/.kube/config"
+        flat: true
+
+    - name: Change server address in kubeconfig on control node
+      run_once: true
+      ansible.builtin.shell: |
+        KUBECONFIG=~/.kube/config kubectl config set-cluster default --server=https://{{ k3s_api_vip }}:6443
+      delegate_to: 127.0.0.1
+      become: false
