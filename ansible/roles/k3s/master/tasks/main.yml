@@ -6,10 +6,6 @@
     - groups['k3s_master'] is defined
     - groups['k3s_master'] | length > 1
 
-- name: Prints two lines of messages, but only if there is an environment value set
-  ansible.builtin.debug:
-    var: hostvars[groups['k3s_master'][0]]
-
 - name: Set first master ip
   ansible.builtin.set_fact:
     k3s_first_ip: "{{ hostvars[groups['k3s_master'][0]]['ansible_host'] }}"
