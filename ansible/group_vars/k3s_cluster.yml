@@ -37,6 +37,4 @@ kube_vip_bgp_peeras: 64521
 kube_vip_bgp_peeraddress: 10.0.1.1
 kube_vip_bgp_routerinterface: "{{ iface }}"
 
-cilium_values: "--wait --set k8sServiceHost={{ k3s_api_vip }} --set k8sServicePort={{ k3s_api_port }} --set kubeProxyReplacement=true --set=ipam.operator.clusterPoolIPv4PodCIDRList=10.42.0.0/16 --kubeconfig ~/.kube/config"
-
 fluxcd_version: "v2.5.1"

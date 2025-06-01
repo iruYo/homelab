@@ -1,17 +1,23 @@
 ---
-- name: Check if Cilium is installed
+- name: Add cilium helm repo
   run_once: true
-  ignore_errors: true
   delegate_to: 127.0.0.1
   become: false
-  ansible.builtin.command: 
-    cmd: kubectl get daemonset cilium -n kube-system
-  register: cilium_installed
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: "https://helm.cilium.io/"
 
-- name: Install cilium
+
+- name: Deploy Cilium chart
   run_once: true
   delegate_to: 127.0.0.1
   become: false
-  when: cilium_installed.rc != 0
-  ansible.builtin.command:
-    cmd: "cilium install {{ cilium_values }}"
+  kubernetes.core.helm:
+    name: cilium
+    chart_ref: cilium/cilium
+    namespace: kube-system
+    values:
+      k8sServiceHost: "{{ k3s_api_vip }}"
+      k8sServicePort: "{{ k3s_api_port }}"
+      kubeProxyReplacement: true
+      ipam.operator.clusterPoolIPv4PodCIDRList: ["10.42.0.0/16"]
