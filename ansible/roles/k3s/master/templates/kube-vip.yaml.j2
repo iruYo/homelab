@@ -28,7 +28,7 @@ spec:
         - name: bgp_enable
           value: "{{ 'true' if kube_vip_bgp | default(true) | bool else 'false' }}"
         - name: port
-          value: "6443"
+          value: "{{ k3s_api_port }}"
         - name: vip_subnet
           value: "32"
         - name: cp_enable

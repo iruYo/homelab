@@ -1,6 +1,7 @@
 ---
 k3s_version: v1.33.1+k3s1
 k3s_api_vip: 10.0.20.10
+k3s_api_port: 6443
 k3s_token: "zYMTWVa8vM2p0Xv65BSOauZgvPwjiKBnJe7I1R0t+Kqz026jogVjJlRak5dGQbWnXwo6QhdpHY6GZdN/N0PD5g=="
 k3s_server_config:
   flannel-backend: none
@@ -36,6 +37,6 @@ kube_vip_bgp_peeras: 64521
 kube_vip_bgp_peeraddress: 10.0.1.1
 kube_vip_bgp_routerinterface: "{{ iface }}"
 
-cilium_values: "--wait --set k8sServiceHost={{ k3s_api_vip }} --set k8sServicePort=6443 --set kubeProxyReplacement=true --set=ipam.operator.clusterPoolIPv4PodCIDRList=10.42.0.0/16 --kubeconfig ~/.kube/config"
+cilium_values: "--wait --set k8sServiceHost={{ k3s_api_vip }} --set k8sServicePort={{ k3s_api_port }} --set kubeProxyReplacement=true --set=ipam.operator.clusterPoolIPv4PodCIDRList=10.42.0.0/16 --kubeconfig ~/.kube/config"
 
 fluxcd_version: "v2.5.1"
