@@ -18,6 +18,11 @@ all:
           ip: 10.0.20.152
           ansible_host: 10.0.20.152
           mac: 2c:cf:67:96:fe:4d
+        pi3:
+          hostname: pi3
+          ip: 10.0.20.153
+          ansible_host: 10.0.20.152
+          #mac: 2c:cf:67:
     tiny:
       hosts:
         tiny0:
@@ -43,3 +48,6 @@ all:
         k3s_agent:
           hosts:
             tiny[0:2]:
+    vault:
+      hosts:
+        pi3:
