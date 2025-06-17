@@ -21,8 +21,13 @@ all:
         pi3:
           hostname: pi3
           ip: 10.0.20.153
-          ansible_host: 10.0.20.152
-          #mac: 2c:cf:67:
+          ansible_host: 10.0.20.153
+          mac: 2c:cf:67:76:f1:c5
+        pi4:
+          hostname: pi4
+          ip: 10.0.20.154
+          ansible_host: 10.0.20.154
+          mac: e4:5f:01:c6:a7:a0
     tiny:
       hosts:
         tiny0:
@@ -51,3 +56,4 @@ all:
     vault:
       hosts:
         pi3:
+        
