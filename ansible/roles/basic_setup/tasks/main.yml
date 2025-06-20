@@ -6,3 +6,9 @@
 - name: Execute Pi specific setup tasks
   ansible.builtin.include_tasks: pi_tasks.yml
   when: "'pi' in group_names"
+
+- name: Perform dist-upgrade
+  ansible.builtin.include_tasks: tasks/dist-upgrade.yml
+  when:
+    - ansible_facts.pkg_mgr == 'apt'
+    - ansible_facts.os_family == 'Debian'
