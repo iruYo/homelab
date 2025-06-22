@@ -1,0 +1,14 @@
+---
+- name: Teardown docker
+  hosts: k3s_agent
+  vars:
+    docker_edition: 'ce'
+    docker_packages_state: absent
+    docker_install_compose_plugin: false
+    docker_compose_package: docker-compose-plugin
+    docker_compose_package_state: absent
+    docker_users:
+      - "{{ ansible_user }}"
+  become: true
+  roles:
+    - geerlingguy.docker
