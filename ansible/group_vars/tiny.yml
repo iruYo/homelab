@@ -2,4 +2,4 @@
 ansible_user: tiny
 ansible_port: 22
 
-iface: eno1
+iface: enp1s0f1
