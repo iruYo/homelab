@@ -59,4 +59,6 @@ all:
     vault:
       hosts:
         pi3:
-        
+    ntp:
+      hosts:
+        pi3:
