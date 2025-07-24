@@ -1,0 +1,5 @@
+---
+gpsd_devices: "/dev/ttyAMA0 /dev/pps0"
+gpsd_baud: "115200"
+gpsd_options: "-n -s {{ gpsd_baud }} --badtime"
+gpsd_daemon: "true"

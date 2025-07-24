@@ -1,0 +1,14 @@
+---
+- name: Setup ntp server
+  hosts: ntp
+  module_defaults:
+    ansible.builtin.reboot:
+      msg: "Reboot initiated for updates"
+      connect_timeout: 5
+      reboot_timeout: 300
+      pre_reboot_delay: 0
+      post_reboot_delay: 30
+  gather_facts: true
+  become: true
+  roles:
+    - role: ntp

@@ -1,0 +1,12 @@
+---
+- name: Copy chrony configuration file
+  ansible.builtin.copy:
+    src: chrony.conf
+    dest: /etc/chrony/chrony.conf
+    mode: 0644
+
+- name: Enable chrony service
+  ansible.builtin.service:
+    name: chrony
+    state: restarted
+    enabled: true

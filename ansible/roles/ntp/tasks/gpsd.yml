@@ -1,0 +1,31 @@
+---
+- name: Copy gpsd configuration file
+  ansible.builtin.template:
+    src: "templates/gpsd.j2"
+    dest: "/etc/default/gpsd"
+    owner: root
+    group: root
+    mode: 0644
+
+# Chrony has to run before gpsd does
+- name: Enable gpsd service
+  ansible.builtin.service:
+    name: gpsd
+    state: stopped
+    enabled: true
+  
+- name: Create a gpsd.service override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/gpsd.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy gpsd.service override
+  ansible.builtin.copy:
+    src: gpsd_override.conf
+    dest: /etc/systemd/system/gpsd.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0644

@@ -1,0 +1,125 @@
+---
+- name: Install requirements
+  ansible.builtin.apt:
+    name:
+      - pps-tools
+      - gpsd
+      - gpsd-clients
+      - setserial
+      - chrony
+    state: present
+    update_cache: true
+    
+- name: Enable hardware serial and disable console
+  ansible.builtin.shell: |
+    raspi-config nonint do_serial_hw 0
+    raspi-config nonint do_serial_cons 1
+
+- name: "Adjust config.txt for GPS HAT"
+  ansible.builtin.lineinfile:
+    dest: /boot/firmware/config.txt
+    regexp: "^{{ item }}"
+    line: '{{ item }}'
+  register: modify_config
+  with_items: 
+    - "dtoverlay=pps-gpio,gpiopin=18,capture_clear"
+    - "dtoverlay=disable-bt"
+    - "dtparam=uart0=on"
+    - "enable_uart=1"
+
+- name: Ensure dynamic tics are disabled in cmdline.txt
+  ansible.builtin.replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+    replace: '\1 {{ item }}'
+  register: modify_cmdline
+  with_items:
+  - "nohz=off"
+
+- name: Ensure no serial console in cmdline.txt
+  ansible.builtin.replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^(.*)\b({{ item }})\b(\s+)?(.*)$'
+    replace: '\1 \4'
+  register: modify_cmdline
+  with_items:
+    - "console=serial0,115200"
+
+- name: "Add pps-gpio to modules"
+  ansible.builtin.lineinfile:
+    dest: /etc/modules
+    regexp: "^{{ item }}"
+    line: '{{ item }}'
+  register: modify_modules
+  with_items: 
+    - "pps-gpio"
+
+- name: Disable hciuart service
+  ansible.builtin.service:
+    name: hciuart
+    state: stopped
+    enabled: false
+
+- name: Reboot if boot config was changed
+  ansible.builtin.reboot:
+  when: >
+    modify_config is changed
+    or modify_cmdline is changed
+    or modify_modules is changed
+
+- name: Setup gpsd
+  ansible.builtin.include_tasks: gpsd.yml
+
+- name: Setup chrony
+  ansible.builtin.include_tasks: chrony.yml
+  
+- name: Start gpsd
+  ansible.builtin.service:
+    name: gpsd
+    state: restarted
+
+#log tracking measurements statistics
+
+#sudo systemctl disable hciuart
+#sudo usermod -a -G dialout $USER
+
+#sudo apt install linuxptp
+
+#add /etc/systemd/system/ptp_nic_coalesce.service
+#[Unit]
+#Description=NIC coalesce minimize
+#Requires=network.target
+#After=network.target
+#[Service]
+#ExecStart=/usr/sbin/ethtool -C eth0 tx-usecs 4 rx-usecs 4
+#Type=oneshot
+#[Install]
+#WantedBy=multi-user.target
+
+#sudo systemctl enable ptp_nic_coalesce.service
+#sudo systemctl start ptp_nic_coalesce.service
+
+#ptp-gm.conf
+#[global]
+# extra logging
+#verbose               1
+# use hardware timestamping (alternative is software, which isn't nearly as accurate/precise)
+#time_stamping         hardware
+# you can specify a "domain number", which is analogus to VLAN
+#domainNumber          0
+# force this node to act as a master (won't revert to slave).
+#masterOnly            1
+# priority settings, 128 is default. lower numbers are higher priority in case there are multiple grandmasters
+#priority1             128
+# clockClass=6 for GNSS reference
+# other classes = https://documentation.nokia.com/srlinux/24-10/books/network-synchronization/ieee-1588-ptp.html
+#clockClass            6
+# timeSource is where time comes from - 0x10 is "atomic clock" which is a bit sus for us but not ultimately wrong
+# https://support.spirent.com/csc30/s/article/FAQ14011
+#timeSource            0x10
+# log output to a file, summary interval is 2^x, so 1 = 2^1 = every 2 seconds
+# can also output with -m
+# summary_interval     1
+# logfile             /var/log/ptp4l.log
+
+#sudo ptp4l -f ptp-gm.conf -i eth0
