@@ -1,0 +1,15 @@
+---
+# 50% at 40°C, 75% at 50°C, 100% at 60°C
+raspi_bootstrap_fan_curve:
+  - { key: 'fan_temp0',       value: '40000' }
+  - { key: 'fan_temp0_hyst',  value: '5000' }
+  - { key: 'fan_temp0_speed', value: '128' }
+  - { key: 'fan_temp1',       value: '50000' }
+  - { key: 'fan_temp1_hyst',  value: '5000' }
+  - { key: 'fan_temp1_speed', value: '191' }
+  - { key: 'fan_temp2',       value: '60000' }
+  - { key: 'fan_temp2_hyst',  value: '5000' }
+  - { key: 'fan_temp2_speed', value: '255' }
+  - { key: 'fan_temp3',       value: '60000' }
+  - { key: 'fan_temp3_hyst',  value: '5000' }
+  - { key: 'fan_temp3_speed', value: '255' }

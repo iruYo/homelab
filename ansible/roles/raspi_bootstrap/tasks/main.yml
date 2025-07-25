@@ -1,0 +1,38 @@
+---
+- name: Get list of installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Ensure no swapfile is used
+  when: "'dphys-swapfile' in ansible_facts.packages"
+  block:
+    - name: Disable dphys-swapfile swap
+      ansible.builtin.command: dphys-swapfile swapoff
+    - name: Uninstall dphys-swapfile swap
+      ansible.builtin.command: dphys-swapfile uninstall
+    - name: Remove dphys-swapfile from startup
+      ansible.builtin.command: update-rc.d dphys-swapfile remove
+    - name: Purge dphys-swapfile package
+      ansible.builtin.apt:
+        name: dphys-swapfile
+        state: absent
+        purge: yes
+        autoclean: yes
+        autoremove: yes
+  notify: reboot
+
+- name: Enable cgroup in config.txt
+  ansible.builtin.lineinfile:
+    path: /boot/firmware/cmdline.txt
+    backrefs: true
+    regexp: '^((?!.*\bcgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\b).*)$'
+    line: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
+  notify: reboot
+
+- name: Add explicit fan curve to config.txt
+  ansible.builtin.lineinfile:
+    path: /boot/firmware/config.txt
+    regexp: '^dtparam={{ item.key }}='
+    line: 'dtparam={{ item.key }}={{ item.value }}'
+  loop: "{{ raspi_bootstrap_fan_curve }}"
+  notify: reboot
