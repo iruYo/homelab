@@ -20,7 +20,7 @@
     dest: /boot/firmware/config.txt
     regexp: "^{{ item }}"
     line: '{{ item }}'
-  register: modify_config
+  notify: reboot
   with_items: 
     - "dtoverlay=pps-gpio,gpiopin=18,capture_clear"
     - "dtoverlay=disable-bt"
@@ -32,7 +32,7 @@
     path: /boot/firmware/cmdline.txt
     regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
     replace: '\1 {{ item }}'
-  register: modify_cmdline
+  notify: reboot
   with_items:
   - "nohz=off"
 
@@ -41,7 +41,7 @@
     path: /boot/firmware/cmdline.txt
     regexp: '^(.*)\b({{ item }})\b(\s+)?(.*)$'
     replace: '\1 \4'
-  register: modify_cmdline
+  notify: reboot
   with_items:
     - "console=serial0,115200"
 
@@ -50,7 +50,7 @@
     dest: /etc/modules
     regexp: "^{{ item }}"
     line: '{{ item }}'
-  register: modify_modules
+  notify: reboot
   with_items: 
     - "pps-gpio"
 
@@ -59,13 +59,6 @@
     name: hciuart
     state: stopped
     enabled: false
-
-- name: Reboot if boot config was changed
-  ansible.builtin.reboot:
-  when: >
-    modify_config is changed
-    or modify_cmdline is changed
-    or modify_modules is changed
 
 - name: Setup gpsd
   ansible.builtin.include_tasks: gpsd.yml
