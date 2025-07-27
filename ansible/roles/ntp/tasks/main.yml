@@ -7,6 +7,7 @@
       - gpsd-clients
       - setserial
       - chrony
+      - linuxptp
     state: present
     update_cache: true
     
@@ -71,48 +72,20 @@
     name: gpsd
     state: restarted
 
-#log tracking measurements statistics
+- name: Copy grandmaster ptp configuration
+  ansible.builtin.copy:
+    src: ptp-gm.conf
+    dest: /etc/ptp4-gm.conf
+    mode: 0644
+  notify: reboot
 
-#sudo systemctl disable hciuart
-#sudo usermod -a -G dialout $USER
-
-#sudo apt install linuxptp
-
-#add /etc/systemd/system/ptp_nic_coalesce.service
-#[Unit]
-#Description=NIC coalesce minimize
-#Requires=network.target
-#After=network.target
-#[Service]
-#ExecStart=/usr/sbin/ethtool -C eth0 tx-usecs 4 rx-usecs 4
-#Type=oneshot
-#[Install]
-#WantedBy=multi-user.target
-
-#sudo systemctl enable ptp_nic_coalesce.service
-#sudo systemctl start ptp_nic_coalesce.service
-
-#ptp-gm.conf
-#[global]
-# extra logging
-#verbose               1
-# use hardware timestamping (alternative is software, which isn't nearly as accurate/precise)
-#time_stamping         hardware
-# you can specify a "domain number", which is analogus to VLAN
-#domainNumber          0
-# force this node to act as a master (won't revert to slave).
-#masterOnly            1
-# priority settings, 128 is default. lower numbers are higher priority in case there are multiple grandmasters
-#priority1             128
-# clockClass=6 for GNSS reference
-# other classes = https://documentation.nokia.com/srlinux/24-10/books/network-synchronization/ieee-1588-ptp.html
-#clockClass            6
-# timeSource is where time comes from - 0x10 is "atomic clock" which is a bit sus for us but not ultimately wrong
-# https://support.spirent.com/csc30/s/article/FAQ14011
-#timeSource            0x10
-# log output to a file, summary interval is 2^x, so 1 = 2^1 = every 2 seconds
-# can also output with -m
-# summary_interval     1
-# logfile             /var/log/ptp4l.log
-
-#sudo ptp4l -f ptp-gm.conf -i eth0
+- name: Setup grandmaster services
+  include_role:
+    name: common
+    tasks_from: setup_service
+  loop:
+    - ptp_nic_coalesce
+    - ptp4l-gm
+    - phc2sys-gm
+  loop_control:
+    loop_var: service_name
