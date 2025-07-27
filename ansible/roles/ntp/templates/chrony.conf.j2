@@ -1,8 +1,13 @@
+server 0.de.pool.ntp.org
+server 1.de.pool.ntp.org
+server 2.de.pool.ntp.org
+server 3.de.pool.ntp.org
+
 maxupdateskew 100.0
 rtcsync
 makestep 1 3
 
-allow
+allow {{ chrony_ntp_subnet }}
 hwtimestamp *
 
 refclock SOCK /run/chrony.ttyAMA0.sock refid GPS noselect

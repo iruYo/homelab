@@ -1,5 +1,9 @@
 ---
-gpsd_devices: "/dev/ttyAMA0 /dev/pps0"
-gpsd_baud: "115200"
-gpsd_options: "-n -s {{ gpsd_baud }} --badtime"
+device_tty: "ttyAMA0"
+device_baud: "115200"
+
+gpsd_devices: "/dev/{{ device_tty }} /dev/pps0"
+gpsd_options: "-n -s {{ device_baud }} --badtime"
 gpsd_daemon: "true"
+
+chrony_ntp_subnet: "10.0.0.0/8"
