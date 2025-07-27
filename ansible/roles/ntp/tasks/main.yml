@@ -25,7 +25,9 @@
   with_items: 
     - "dtoverlay=pps-gpio,gpiopin=18,capture_clear"
     - "dtoverlay=disable-bt"
+    - "dtoverlay=disable-wifi"
     - "dtparam=uart0=on"
+    - "dtparam=rtc=off"
     - "enable_uart=1"
 
 - name: Ensure dynamic tics are disabled in cmdline.txt
