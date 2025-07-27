@@ -1,0 +1,21 @@
+---
+- name: Install satpulse
+  ansible.builtin.apt:
+    deb: https://github.com/jclark/satpulse/releases/download/v{{ satpulse_version }}/satpulse_{{ satpulse_version }}_arm64.deb
+    state: present
+
+- name: Copy satpulse configuration file
+  ansible.builtin.template:
+    src: "templates/satpulse.toml.j2"
+    dest: /etc/satpulse.toml
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Enable satpulse service
+  ansible.builtin.service:
+    name: "satpulse@{{ device_tty }}"
+    state: started
+    enabled: true
+  
+# Todo: Finish setup

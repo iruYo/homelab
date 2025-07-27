@@ -1,0 +1,14 @@
+[phc]
+interface = "eth0"
+
+[serial]
+speed = {{ device_baud }}
+
+[gps]
+config = true
+
+[ptp]
+ptp4l.udsAddress = "/var/run/ptp4l"
+
+[ntp]
+sock.path = "/var/run/chrony.satpulse.sock"

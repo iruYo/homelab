@@ -74,6 +74,10 @@
     name: gpsd
     state: restarted
 
+- name: Setup satpulse
+  ansible.builtin.include_tasks: satpulse.yml
+  when: satpulse_enabled
+
 - name: Copy grandmaster ptp configuration
   ansible.builtin.copy:
     src: ptp-gm.conf
