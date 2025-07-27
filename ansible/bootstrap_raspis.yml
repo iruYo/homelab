@@ -1,8 +1,0 @@
----
-- name: Bootstrap Raspberry Pis 
-  hosts: pi
-  gather_facts: true
-  become: true
-  roles:
-    - role: common
-    - role: raspi_bootstrap

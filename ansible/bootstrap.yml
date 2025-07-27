@@ -1,0 +1,15 @@
+---
+- name: Setup ntp server
+  hosts: ntp
+  gather_facts: true
+  become: true
+  roles:
+    - role: ntp
+
+- name: Bootstrap Hosts
+  hosts: pi
+  gather_facts: true
+  become: true
+  roles:
+    - role: bootstrap
+

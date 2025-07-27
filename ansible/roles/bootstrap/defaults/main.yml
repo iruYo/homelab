@@ -1,6 +1,8 @@
 ---
-# 50% at 40°C, 75% at 50°C, 100% at 60°C
-raspi_bootstrap_fan_curve:
+bootstrap_packages:
+  - chrony
+  
+bootstrap_pi_fan_curve: # 50% at 40°C, 75% at 50°C, 100% at 60°C
   - { key: 'fan_temp0',       value: '40000' }
   - { key: 'fan_temp0_hyst',  value: '5000' }
   - { key: 'fan_temp0_speed', value: '128' }

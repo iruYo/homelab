@@ -1,8 +1,4 @@
 ---
-- name: Get list of installed packages
-  ansible.builtin.package_facts:
-    manager: auto
-
 - name: Ensure no swapfile is used
   when: "'dphys-swapfile' in ansible_facts.packages"
   block:
@@ -34,5 +30,5 @@
     path: /boot/firmware/config.txt
     regexp: '^dtparam={{ item.key }}='
     line: 'dtparam={{ item.key }}={{ item.value }}'
-  loop: "{{ raspi_bootstrap_fan_curve }}"
+  loop: "{{ bootstrap_pi_fan_curve }}"
   notify: reboot

@@ -1,0 +1,18 @@
+---
+- name: Get list of installed packages
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ bootstrap_packages }}"
+    update_cache: true
+    state: present
+
+- name: Bootstrap Pis
+  ansible.builtin.include_tasks: pi_tasks.yml
+  when: "'pi' in group_names"
+
+- name: Bootstrap Tinys
+  ansible.builtin.include_tasks: tiny_tasks.yml
+  when: "'tiny' in group_names"
