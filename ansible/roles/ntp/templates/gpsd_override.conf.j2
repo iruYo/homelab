@@ -1,0 +1,6 @@
+[Unit]
+After=chronyd.service
+
+[Service]
+ExecStartPre=/usr/bin/stty -F /dev/{{ device_tty }} {{ device_baud }}
+ExecStartPre=/usr/bin/setserial /dev/{{ device_tty }} low_latency
