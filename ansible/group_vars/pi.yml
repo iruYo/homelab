@@ -4,3 +4,4 @@ ansible_port: 22
 ansible_python_interpreter: /usr/bin/python3
 
 iface: eth0
+ptp_clock: ptp0
