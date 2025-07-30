@@ -1,18 +1,4 @@
 ---
-- name: Setup prerequistes for k3s cluster nodes
-  hosts: k3s_cluster
-  module_defaults:
-    ansible.builtin.reboot:
-      msg: "Reboot initiated for updates"
-      connect_timeout: 5
-      reboot_timeout: 300
-      pre_reboot_delay: 0
-      post_reboot_delay: 30
-  gather_facts: true
-  become: true
-  roles:
-    - role: k3s/prerequisites # noqa: role-name[path]
-
 - name: Install k3s master node
   hosts: k3s_master
   gather_facts: true
@@ -25,7 +11,7 @@
   tasks:
     - name: Get k3s config file
       run_once: true
-  become: true
+      become: true
       ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
         dest: "~/.kube/config"

@@ -1,3 +1,5 @@
 ---
 dependencies:
+  - role: common
   - role: bootstrap
+  - role: k3s/prerequisites # noqa: role-name[path]
