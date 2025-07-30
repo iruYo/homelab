@@ -21,7 +21,7 @@
     dest: /boot/firmware/config.txt
     regexp: "^{{ item }}"
     line: '{{ item }}'
-  notify: reboot
+  notify: Reboot
   with_items:
     - "dtoverlay=pps-gpio,gpiopin=18,capture_clear"
     - "dtoverlay=disable-bt"
@@ -35,7 +35,7 @@
     path: /boot/firmware/cmdline.txt
     regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
     replace: '\1 {{ item }}'
-  notify: reboot
+  notify: Reboot
   with_items:
     - "nohz=off"
 
@@ -44,7 +44,7 @@
     path: /boot/firmware/cmdline.txt
     regexp: '^(.*)\b({{ item }})\b(\s+)?(.*)$'
     replace: '\1 \4'
-  notify: reboot
+  notify: Reboot
   with_items:
     - "console=serial0,115200"
 
@@ -53,7 +53,7 @@
     dest: /etc/modules
     regexp: "^{{ item }}"
     line: '{{ item }}'
-  notify: reboot
+  notify: Reboot
   with_items:
     - "pps-gpio"
 
@@ -85,7 +85,7 @@
     owner: root
     group: root
     mode: "0644"
-  notify: reboot
+  notify: Reboot
 
 - name: Setup grandmaster services
   ansible.builtin.include_role:

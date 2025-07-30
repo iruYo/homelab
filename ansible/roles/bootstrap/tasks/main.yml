@@ -19,7 +19,7 @@
         owner: root
         group: root
         mode: "0755"
-      notify: reboot
+      notify: Reboot
 
     - name: Enable ptp4l-client service
       ansible.builtin.service:
@@ -43,7 +43,7 @@
         owner: root
         group: root
         mode: "0644"
-      notify: reboot
+      notify: Reboot
 
     - name: Copy reflock conf
       ansible.builtin.template:
@@ -52,7 +52,7 @@
         owner: root
         group: root
         mode: "0644"
-      notify: reboot
+      notify: Reboot
 
     - name: Enable chrony service
       ansible.builtin.service:

@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: 0755
-  notify: reboot
+  notify: Reboot
 
 - name: Enable {{ service_name }} service
   ansible.builtin.service:

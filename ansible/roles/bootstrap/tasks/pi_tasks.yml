@@ -1,7 +1,7 @@
 ---
 - name: Ensure no swapfile is used
   when: "'dphys-swapfile' in ansible_facts.packages"
-  notify: reboot
+  notify: Reboot
   block:
     - name: Disable dphys-swapfile swap
       ansible.builtin.command: dphys-swapfile swapoff
@@ -23,7 +23,7 @@
     backrefs: true
     regexp: '^((?!.*\bcgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory\b).*)$'
     line: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
-  notify: reboot
+  notify: Reboot
 
 - name: Add explicit fan curve to config.txt
   ansible.builtin.lineinfile:
@@ -31,4 +31,4 @@
     regexp: '^dtparam={{ item.key }}='
     line: 'dtparam={{ item.key }}={{ item.value }}'
   loop: "{{ bootstrap_pi_fan_curve }}"
-  notify: reboot
+  notify: Reboot
