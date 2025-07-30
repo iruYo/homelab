@@ -11,11 +11,6 @@
     state: present
     update_cache: true
 
-- name: Enable hardware serial and disable console
-  ansible.builtin.shell: |
-    raspi-config nonint do_serial_hw 0
-    raspi-config nonint do_serial_cons 1
-
 - name: "Adjust config.txt for GPS HAT"
   ansible.builtin.lineinfile:
     dest: /boot/firmware/config.txt
@@ -39,14 +34,15 @@
   with_items:
     - "nohz=off"
 
-- name: Ensure no serial console in cmdline.txt
+- name: Ensure no console in cmdline.txt
   ansible.builtin.replace:
     path: /boot/firmware/cmdline.txt
     regexp: '^(.*)\b({{ item }})\b(\s+)?(.*)$'
     replace: '\1 \4'
   notify: Reboot
   with_items:
-    - "console=serial0,115200"
+    - "console=serial0,[0-9]+"
+    - "console=ttyAMA0,[0-9]+"
 
 - name: "Add pps-gpio to modules"
   ansible.builtin.lineinfile:
