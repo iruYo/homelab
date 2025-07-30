@@ -5,10 +5,19 @@
   block:
     - name: Disable dphys-swapfile swap
       ansible.builtin.command: dphys-swapfile swapoff
+      register: bootstrap_swapoff_output
+      changed_when: bootstrap_swapoff_output.rc != 0
+
     - name: Uninstall dphys-swapfile swap
       ansible.builtin.command: dphys-swapfile uninstall
+      register: bootstrap_uninstall_output
+      changed_when: bootstrap_uninstall_output.rc != 0
+
     - name: Remove dphys-swapfile from startup
       ansible.builtin.command: update-rc.d dphys-swapfile remove
+      register: bootstrap_remove_output
+      changed_when: bootstrap_remove_output.rc != 0
+
     - name: Purge dphys-swapfile package
       ansible.builtin.apt:
         name: dphys-swapfile
