@@ -18,7 +18,7 @@
         dest: /etc/systemd/system/ptp4l-client.service
         owner: root
         group: root
-        mode: 0755
+        mode: "0755"
       notify: reboot
 
     - name: Enable ptp4l-client service
@@ -34,7 +34,7 @@
         state: directory
         owner: root
         group: root
-        mode: 0755
+        mode: "0755"
 
     - name: Copy chrony system configuration to wait for ptp device
       ansible.builtin.template:
@@ -42,7 +42,7 @@
         dest: "/etc/systemd/system/chrony.service.d/chrony-wantsptp.conf"
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
       notify: reboot
 
     - name: Copy reflock conf
@@ -51,7 +51,7 @@
         dest: /etc/chrony/conf.d/refclock.conf
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
       notify: reboot
 
     - name: Enable chrony service
@@ -59,7 +59,7 @@
         name: chrony
         state: restarted
         enabled: true
-  
+
 - name: Bootstrap Pis
   ansible.builtin.include_tasks: pi_tasks.yml
   when: "'pi' in group_names"

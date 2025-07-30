@@ -45,6 +45,9 @@ all:
           ip: 10.0.20.162
           ansible_host: 10.0.20.162
           mac: e8:6a:64:db:38:21
+    runner:
+      hosts:
+        pi4:
     k3s_cluster:
       children:
         k3s_master:
@@ -53,9 +56,6 @@ all:
         k3s_agent:
           hosts:
             tiny[0:2]:
-    runner:
-      hosts:
-        pi4:
     vault:
       hosts:
         pi3:

@@ -1,2 +1,2 @@
 ---
-gpsd_socket: "/var/run/gpsd.sock"
+ntp_gpsd_socket: "/var/run/gpsd.sock"

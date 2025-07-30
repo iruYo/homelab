@@ -1,5 +1,5 @@
 ---
-cluster_packages:
+k3s_packages:
   - jq
   - open-iscsi
   - cryptsetup

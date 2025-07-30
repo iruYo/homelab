@@ -5,7 +5,7 @@
     dest: "/etc/default/gpsd"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
 
 # Chrony has to run before gpsd does
 - name: Enable gpsd service
@@ -13,14 +13,14 @@
     name: gpsd
     state: stopped
     enabled: true
-  
+
 - name: Create a gpsd.service override directory
   ansible.builtin.file:
     path: /etc/systemd/system/gpsd.service.d
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
 
 - name: Copy gpsd.service override
   ansible.builtin.template:
@@ -28,4 +28,4 @@
     dest: /etc/systemd/system/gpsd.service.d/override.conf
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"

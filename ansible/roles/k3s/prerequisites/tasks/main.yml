@@ -5,7 +5,7 @@
 
 - name: Install cluster packages
   ansible.builtin.apt:
-    name: "{{ cluster_packages }}"
+    name: "{{ k3s_packages }}"
     update_cache: true
     state: present
 

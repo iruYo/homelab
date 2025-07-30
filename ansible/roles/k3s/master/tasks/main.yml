@@ -14,18 +14,25 @@
   ansible.builtin.file:
     path: "{{ k3s_config_dir }}"
     state: directory
+    owner: root
+    group: root
+    mode: "0755"
 
-- name: Generate k3s token file on all nodes
+- name: Copy k3s token file
   ansible.builtin.copy:
     content: "{{ k3s_token }}"
     dest: "{{ k3s_token_file }}"
-    mode: 0600
+    owner: root
+    group: root
+    mode: "0600"
 
 - name: Copy k3s configuration file
   ansible.builtin.template:
     src: "templates/config.yaml.j2"
     dest: "{{ k3s_config_file }}"
-    mode: 0644
+    owner: root
+    group: root
+    mode: "0644"
 
 - name: Get k3s installed version
   ansible.builtin.command: k3s --version
@@ -36,23 +43,23 @@
 - name: Set k3s installed version
   when: k3s_version_output.rc == 0
   ansible.builtin.set_fact:
-    installed_k3s_version: "{{ k3s_version_output.stdout_lines[0].split(' ')[2] }}"
+    k3s_installed_version: "{{ k3s_version_output.stdout_lines[0].split(' ')[2] }}"
 
 - name: Deploy kube-vip on first master node
   when: inventory_hostname == groups['k3s_master'][0]
   ansible.builtin.include_tasks: deploy_kube_vip.yml
 
 - name: Install k3s if not installed or outdated
-  when: ( k3s_version_output.rc != 0 or installed_k3s_version is version(k3s_version, '<') )
+  when: ( k3s_version_output.rc != 0 or k3s_installed_version is version(k3s_version, '<') )
   block:
     - name: Download k3s install script
       ansible.builtin.get_url:
         url: https://get.k3s.io/
-        timeout: 120
         dest: /usr/local/bin/k3s-install.sh
         owner: root
         group: root
         mode: "0755"
+        timeout: 120
 
     - name: Run k3s install script
       ansible.builtin.command:
@@ -66,9 +73,9 @@
   when: inventory_hostname == groups['k3s_master'][0]
   block:
     - name: Enable k3s service
-      include_tasks: enable_k3s_service.yml
-    
-    - name: Check that the control plane is available to accept connections
+      ansible.builtin.include_tasks: enable_k3s_service.yml
+
+    - name: Check that the control plane is available
       ansible.builtin.wait_for:
         port: "{{ k3s_api_port }}"
         host: "{{ inventory_hostname }}"
@@ -78,16 +85,16 @@
 
 - name: Start other master node
   when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
-  include_tasks: enable_k3s_service.yml
+  ansible.builtin.include_tasks: enable_k3s_service.yml
 
 - name: Setup kubectl
   block:
-    - name: Create .kube directory 
+    - name: Create .kube directory
       ansible.builtin.file:
         path: ~{{ ansible_user }}/.kube
         state: directory
         owner: "{{ ansible_user }}"
-        mode: "u=rwx,g=rx,o="
+        mode: "0750"
 
     - name: Copy kube config file to user directory
       ansible.builtin.copy:
@@ -95,7 +102,7 @@
         dest: ~{{ ansible_user }}/.kube/config
         remote_src: true
         owner: "{{ ansible_user }}"
-        mode: "u=rw,g=,o="
+        mode: "0600"
 
     - name: Configure KUBECONFIG
       ansible.builtin.lineinfile:

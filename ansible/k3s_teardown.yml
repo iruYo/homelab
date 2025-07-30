@@ -15,7 +15,7 @@
         cmd: k3s-agent-uninstall.sh
         removes: /var/lib/rancher/k3s/*
 
-    - name: Remove user kube directory 
+    - name: Remove user kube directory
       ansible.builtin.file:
         path: ~{{ ansible_user }}/.kube
         state: absent

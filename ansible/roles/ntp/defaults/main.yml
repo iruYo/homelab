@@ -1,12 +1,12 @@
 ---
-device_tty: "ttyAMA0"
-device_baud: "115200"
+ntp_device_tty: "ttyAMA0"
+ntp_device_baud: "115200"
 
-gpsd_devices: "/dev/{{ device_tty }} /dev/pps0"
-gpsd_options: "-n -s {{ device_baud }} --badtime"
-gpsd_daemon: "true"
+ntp_gpsd_devices: "/dev/{{ ntp_device_tty }} /dev/pps0"
+ntp_gpsd_options: "-n -s {{ ntp_device_baud }} --badtime"
+ntp_gpsd_daemon: "true"
 
-chrony_ntp_subnet: "10.0.0.0/8"
+ntp_chrony_subnet: "10.0.0.0/8"
 
-satpulse_enabled: false
-satpulse_version: "20250516"
+ntp_satpulse_enabled: false
+ntp_satpulse_version: "20250516"

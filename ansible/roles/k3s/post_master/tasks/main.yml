@@ -7,7 +7,6 @@
     name: cilium
     repo_url: "https://helm.cilium.io/"
 
-
 - name: Deploy Cilium chart
   run_once: true
   delegate_to: 127.0.0.1

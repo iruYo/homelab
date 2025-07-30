@@ -10,12 +10,12 @@
     dest: /etc/satpulse.toml
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
 
 - name: Enable satpulse service
   ansible.builtin.service:
     name: "satpulse@{{ device_tty }}"
     state: started
     enabled: true
-  
+
 # Todo: Finish setup

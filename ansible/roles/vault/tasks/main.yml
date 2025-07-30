@@ -1,0 +1,19 @@
+---
+# Add verfication
+- name: Install vault
+  ansible.builtin.apt:
+    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_arm64.deb"
+
+# Setup Yubikey to use retired key slots
+# https://github.com/OpenSC/OpenSC/issues/3287#issuecomment-3123551187
+- name: Copy vault configiration file
+  ansible.builtin.template:
+    src: config.j2
+    dest: /etc/openbao/config.hcl
+    mode: '0640'
+    notify: restart
+
+- name: Enable vault service
+  ansible.builtin.service:
+    name: openbao
+    enabled: true

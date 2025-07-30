@@ -3,6 +3,7 @@ bootstrap_packages:
   - chrony
   - linuxptp
 
+# yamllint disable rule:commas
 bootstrap_pi_fan_curve: # 50% at 40°C, 75% at 50°C, 100% at 60°C
   - { key: 'fan_temp0',       value: '40000' }
   - { key: 'fan_temp0_hyst',  value: '5000' }
@@ -16,3 +17,4 @@ bootstrap_pi_fan_curve: # 50% at 40°C, 75% at 50°C, 100% at 60°C
   - { key: 'fan_temp3',       value: '60000' }
   - { key: 'fan_temp3_hyst',  value: '5000' }
   - { key: 'fan_temp3_speed', value: '255' }
+# yamllint enable rule:commas

@@ -1,6 +1,7 @@
 ---
 - name: Ensure no swapfile is used
   when: "'dphys-swapfile' in ansible_facts.packages"
+  notify: reboot
   block:
     - name: Disable dphys-swapfile swap
       ansible.builtin.command: dphys-swapfile swapoff
@@ -12,10 +13,9 @@
       ansible.builtin.apt:
         name: dphys-swapfile
         state: absent
-        purge: yes
-        autoclean: yes
-        autoremove: yes
-  notify: reboot
+        purge: true
+        autoclean: true
+        autoremove: true
 
 - name: Enable cgroup in config.txt
   ansible.builtin.lineinfile:

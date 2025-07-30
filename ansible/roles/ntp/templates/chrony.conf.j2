@@ -8,7 +8,7 @@ maxupdateskew 100.0
 rtcsync
 makestep 1 3
 
-allow {{ chrony_ntp_subnet }}
+allow {{ ntp_chrony_subnet }}
 hwtimestamp *
 
 refclock SOCK /run/chrony.ttyAMA0.sock refid GPS noselect

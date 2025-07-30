@@ -10,7 +10,7 @@
       - linuxptp
     state: present
     update_cache: true
-    
+
 - name: Enable hardware serial and disable console
   ansible.builtin.shell: |
     raspi-config nonint do_serial_hw 0
@@ -22,7 +22,7 @@
     regexp: "^{{ item }}"
     line: '{{ item }}'
   notify: reboot
-  with_items: 
+  with_items:
     - "dtoverlay=pps-gpio,gpiopin=18,capture_clear"
     - "dtoverlay=disable-bt"
     - "dtoverlay=disable-wifi"
@@ -37,7 +37,7 @@
     replace: '\1 {{ item }}'
   notify: reboot
   with_items:
-  - "nohz=off"
+    - "nohz=off"
 
 - name: Ensure no serial console in cmdline.txt
   ansible.builtin.replace:
@@ -54,7 +54,7 @@
     regexp: "^{{ item }}"
     line: '{{ item }}'
   notify: reboot
-  with_items: 
+  with_items:
     - "pps-gpio"
 
 - name: Disable hciuart service
@@ -68,7 +68,7 @@
 
 - name: Setup chrony
   ansible.builtin.include_tasks: chrony.yml
-  
+
 - name: Start gpsd
   ansible.builtin.service:
     name: gpsd
@@ -76,17 +76,19 @@
 
 - name: Setup satpulse
   ansible.builtin.include_tasks: satpulse.yml
-  when: satpulse_enabled
+  when: ntp_satpulse_enabled
 
 - name: Copy grandmaster ptp configuration
   ansible.builtin.copy:
     src: ptp-gm.conf
     dest: /etc/ptp4-gm.conf
-    mode: 0644
+    owner: root
+    group: root
+    mode: "0644"
   notify: reboot
 
 - name: Setup grandmaster services
-  include_role:
+  ansible.builtin.include_role:
     name: common
     tasks_from: setup_service
   loop:

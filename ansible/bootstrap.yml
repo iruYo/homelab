@@ -7,9 +7,8 @@
     - role: ntp
 
 - name: Bootstrap Hosts
-  hosts: pi
+  hosts: all
   gather_facts: true
   become: true
   roles:
     - role: bootstrap
-
