@@ -1,5 +1,4 @@
 ---
 collections:
-  - name: ansible.posix.sysctl
   - name: community.general
   - name: kubernetes.core
