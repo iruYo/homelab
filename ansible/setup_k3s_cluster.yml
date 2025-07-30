@@ -20,16 +20,30 @@
   roles:
     - role: k3s/master # noqa: role-name[path]
 
-- name: Fetch config
-  ansible.builtin.import_playbook: fetch_config.yml
-
-# noqa: role-name[path]
-- name: Post-Install k3s master node
+- name: Get Kubernets config file
   hosts: k3s_master
-  gather_facts: true
+  tasks:
+    - name: Get k3s config file
+      run_once: true
   become: true
-  roles:
-    - role: k3s/post_master # noqa: role-name[path]
+      ansible.builtin.fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: "~/.kube/config"
+        flat: true
+
+    - name: Change server address in kubeconfig on control node
+      run_once: true
+      ansible.builtin.shell: |
+        KUBECONFIG=~/.kube/config kubectl config set-cluster default --server=https://{{ k3s_api_vip }}:{{ k3s_api_port }}
+      delegate_to: 127.0.0.1
+      become: false
+
+#- name: Post-Install k3s master node
+#  hosts: k3s_master
+#  gather_facts: true
+#  become: true
+#  roles:
+#    - role: k3s/post_master # noqa: role-name[path]
 
 - name: Install k3s agent nodes
   hosts: k3s_agent
