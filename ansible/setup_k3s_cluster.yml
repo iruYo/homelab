@@ -1,5 +1,5 @@
 ---
-- name: Install k3s master node
+- name: Install K3s master node
   hosts: k3s_master
   gather_facts: true
   become: true
@@ -9,7 +9,7 @@
 - name: Get Kubernets config file
   hosts: k3s_master
   tasks:
-    - name: Get k3s config file
+    - name: Get K3s config file
       run_once: true
       become: true
       ansible.builtin.fetch:
@@ -24,14 +24,14 @@
       delegate_to: 127.0.0.1
       become: false
 
-#- name: Post-Install k3s master node
+#- name: Post-Install K3s master node
 #  hosts: k3s_master
 #  gather_facts: true
 #  become: true
 #  roles:
 #    - role: k3s/post_master # noqa: role-name[path]
 
-- name: Install k3s agent nodes
+- name: Install K3s agent nodes
   hosts: k3s_agent
   gather_facts: true
   become: true

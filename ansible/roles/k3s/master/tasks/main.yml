@@ -10,7 +10,7 @@
   ansible.builtin.set_fact:
     k3s_first_ip: "{{ hostvars[groups['k3s_master'][0]]['ansible_host'] }}"
 
-- name: Create k3s configuration directory
+- name: Create K3s configuration directory
   ansible.builtin.file:
     path: "{{ k3s_config_dir }}"
     state: directory
@@ -18,7 +18,7 @@
     group: root
     mode: "0755"
 
-- name: Copy k3s token file
+- name: Copy K3s token file
   ansible.builtin.copy:
     content: "{{ k3s_token }}"
     dest: "{{ k3s_token_file }}"
@@ -26,7 +26,7 @@
     group: root
     mode: "0600"
 
-- name: Copy k3s configuration file
+- name: Copy K3s configuration file
   ansible.builtin.template:
     src: "templates/config.yaml.j2"
     dest: "{{ k3s_config_file }}"
@@ -34,25 +34,25 @@
     group: root
     mode: "0644"
 
-- name: Get k3s installed version
+- name: Get K3s installed version
   ansible.builtin.command: k3s --version
   register: k3s_version_output
   changed_when: false
   ignore_errors: true
 
-- name: Set k3s installed version
+- name: Set K3s installed version
   when: k3s_version_output.rc == 0
   ansible.builtin.set_fact:
     k3s_installed_version: "{{ k3s_version_output.stdout_lines[0].split(' ')[2] }}"
 
-- name: Deploy kube-vip on first master node
+- name: Deploy kube-vip manifests on first master node
   when: inventory_hostname == groups['k3s_master'][0]
   ansible.builtin.include_tasks: deploy_kube_vip.yml
 
-- name: Install k3s if not installed or outdated
-  when: ( k3s_version_output.rc != 0 or k3s_installed_version is version(k3s_version, '<') )
+- name: Install or update K3s
+  when: k3s_version_output.rc != 0 or k3s_installed_version is version(k3s_version, '<')
   block:
-    - name: Download k3s install script
+    - name: Download K3s install script
       ansible.builtin.get_url:
         url: https://get.k3s.io/
         dest: /usr/local/bin/k3s-install.sh
@@ -61,7 +61,7 @@
         mode: "0755"
         timeout: 120
 
-    - name: Run k3s install script
+    - name: Run K3s install script
       ansible.builtin.command:
         cmd: /usr/local/bin/k3s-install.sh
       environment:
@@ -72,7 +72,7 @@
 - name: Start first master node
   when: inventory_hostname == groups['k3s_master'][0]
   block:
-    - name: Enable k3s service
+    - name: Enable K3s service
       ansible.builtin.include_tasks: enable_k3s_service.yml
 
     - name: Check that the control plane is available
