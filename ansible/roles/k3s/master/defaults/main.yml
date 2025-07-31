@@ -1,6 +1,14 @@
 ---
-k3s_token: secret
 k3s_version: v1.33.3+k3s1
-k3s_api_vip: ""
+k3s_api_vip: 10.0.20.10
 k3s_api_port: 6443
+k3s_token: "secret"
 k3s_server_config: ""
+
+k3s_fluxcd_version: "v2.5.1"
+
+k3s_kubevip_version: "v0.9.1"
+k3s_kubevipbgp_as: 64520
+k3s_kubevipbgp_peeras: 64521
+k3s_kubevipbgp_peeraddress: 10.0.1.1
+k3s_kubevipbgp_routerinterface: "{{ iface }}"

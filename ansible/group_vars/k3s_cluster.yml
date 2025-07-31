@@ -1,5 +1,5 @@
 ---
-k3s_version: v1.33.1+k3s1
+k3s_version: v1.33.3+k3s1
 k3s_api_vip: 10.0.20.10
 k3s_api_port: 6443
 k3s_token: "zYMTWVa8vM2p0Xv65BSOauZgvPwjiKBnJe7I1R0t+Kqz026jogVjJlRak5dGQbWnXwo6QhdpHY6GZdN/N0PD5g=="
@@ -10,7 +10,7 @@ k3s_server_config:
   disable-kube-proxy: true
   embedded-registry: true
   tls-san:
-    - "{{ k3s_api_vip }}" 
+    - "{{ k3s_api_vip }}"
   disable:
     - coredns
     - local-storage
@@ -29,12 +29,10 @@ k3s_server_config:
   kube-scheduler-arg:
     - 'bind-address=0.0.0.0'
 
-kube_vip_version: "v0.9.1"
-kube_vip_arp: false
-kube_vip_bgp: true
-kube_vip_bgp_as: 64520
-kube_vip_bgp_peeras: 64521
-kube_vip_bgp_peeraddress: 10.0.1.1
-kube_vip_bgp_routerinterface: "{{ iface }}"
+k3s_fluxcd_version: "v2.5.1"
 
-fluxcd_version: "v2.5.1"
+k3s_kubevip_version: "v0.9.1"
+k3s_kubevipbgp_as: 64520
+k3s_kubevipbgp_peeras: 64521
+k3s_kubevipbgp_peeraddress: 10.0.1.1
+k3s_kubevipbgp_routerinterface: "{{ iface }}"
