@@ -12,7 +12,6 @@ k3s_server_config:
   tls-san:
     - "{{ k3s_api_vip }}"
   disable:
-    - coredns
     - local-storage
     - servicelb
     - traefik
