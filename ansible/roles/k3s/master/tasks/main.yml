@@ -1,4 +1,13 @@
 ---
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ k3s_master_packages }}"
+    update_cache: true
+    state: present
+
+- name: Setup Helm repo
+  ansible.builtin.include_tasks: setup_helm_repo.yml
+
 - name: Detect if multiple masters (HA) are defined
   ansible.builtin.set_fact:
     k3s_ha: true
@@ -45,9 +54,12 @@
   ansible.builtin.set_fact:
     k3s_installed_version: "{{ k3s_version_output.stdout_lines[0].split(' ')[2] }}"
 
-- name: Deploy kube-vip manifests on first master node
-  when: inventory_hostname == groups['k3s_master'][0]
-  ansible.builtin.include_tasks: deploy_kube_vip.yml
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: ~{{ ansible_user }}/.kube
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: "0750"
 
 - name: Install or update K3s
   when: k3s_version_output.rc != 0 or k3s_installed_version is version(k3s_version, '<')
@@ -69,50 +81,38 @@
         INSTALL_K3S_VERSION: "{{ k3s_version }}"
       changed_when: true
 
-- name: Start first master node
-  when: inventory_hostname == groups['k3s_master'][0]
-  block:
     - name: Enable K3s service
-      ansible.builtin.include_tasks: enable_k3s_service.yml
+      ansible.builtin.systemd:
+        name: k3s
+        state: stopped
+        enabled: true
 
-    - name: Check that the control plane is available
-      ansible.builtin.wait_for:
-        port: "{{ k3s_api_port }}"
-        host: "{{ inventory_hostname }}"
-        delay: 5
-        sleep: 5
-        timeout: 300
+- name: Bootstrap cluster on first master
+  when: inventory_hostname == groups['k3s_master'][0]
+  ansible.builtin.include_tasks: bootstrap.yml
 
-- name: Start other master node
-  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
-  ansible.builtin.include_tasks: enable_k3s_service.yml
+# - name: Start other master node
+#  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
+#  ansible.builtin.include_tasks: enable_k3s_service.yml
 
 - name: Setup kubectl
+  when: inventory_hostname == groups['k3s_master'][0] # temporary
+  ansible.builtin.include_tasks: setup_kubectl.yml
+
+- name: Make cluster available locally
+  when: inventory_hostname == groups['k3s_master'][0]
   block:
-    - name: Create .kube directory
-      ansible.builtin.file:
-        path: ~{{ ansible_user }}/.kube
-        state: directory
-        owner: "{{ ansible_user }}"
-        mode: "0750"
-
-    - name: Copy kube config file to user directory
-      ansible.builtin.copy:
+    - name: Fetch .kube config file
+      become: true
+      ansible.builtin.fetch:
         src: /etc/rancher/k3s/k3s.yaml
-        dest: ~{{ ansible_user }}/.kube/config
-        remote_src: true
-        owner: "{{ ansible_user }}"
-        mode: "0600"
+        dest: "~/.kube/config"
+        flat: true
 
-    - name: Configure KUBECONFIG
-      ansible.builtin.lineinfile:
-        path: ~{{ ansible_user }}/.bashrc
-        regexp: 'export KUBECONFIG=~/.kube/config'
-        line: 'export KUBECONFIG=~/.kube/config'
-        state: present
-
-    - name: Configure kubectl autocomplete
-      ansible.builtin.lineinfile:
-        path: ~{{ ansible_user }}/.bashrc
-        regexp: '\.\s+<\(kubectl completion bash\)'
-        line: ". <(kubectl completion bash)"
+    - name: Change server address in .kube config to vip
+      delegate_to: localhost
+      become: false
+      ansible.builtin.shell: |
+        KUBECONFIG=~/.kube/config kubectl config set-cluster default --server=https://{{ k3s_api_vip }}:{{ k3s_api_port }}
+      register: setup_kubectl_output
+      changed_when: setup_kubectl_output.rc != 0

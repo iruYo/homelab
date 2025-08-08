@@ -1,0 +1,21 @@
+---
+- name: Copy .kube config file to user directory
+  ansible.builtin.copy:
+    src: "{{ k3s_kubeconfig_file }}"
+    dest: ~{{ ansible_user }}/.kube/config
+    remote_src: true
+    owner: "{{ ansible_user }}"
+    mode: "0600"
+
+- name: Add KUBECONFIG environment variable to .bashrc
+  ansible.builtin.lineinfile:
+    path: ~{{ ansible_user }}/.bashrc
+    regexp: 'export KUBECONFIG=~/.kube/config'
+    line: 'export KUBECONFIG=~/.kube/config'
+    state: present
+
+#- name: Configure kubectl autocomplete
+#  ansible.builtin.lineinfile:
+#    path: ~{{ ansible_user }}/.bashrc
+#    regexp: '\.\s+<\(kubectl completion bash\)'
+#    line: ". <(kubectl completion bash)"

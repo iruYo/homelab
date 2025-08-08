@@ -1,4 +1,5 @@
 ---
 k3s_config_dir: "/etc/rancher/k3s"
 k3s_config_file: "{{ k3s_config_dir }}/config.yaml" # Keep this a .yaml file! Not .yml!
+k3s_kubeconfig_file: "{{ k3s_config_dir }}/k3s.yaml"
 k3s_token_file: "{{ k3s_config_dir }}/cluster-token"

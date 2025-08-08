@@ -1,0 +1,17 @@
+kubeProxyReplacement: true
+
+k8sServiceHost: localhost
+k8sServicePort: {{ k3s_api_port }}
+
+hubble:
+  enabled: false
+externalIPs:
+  enabled: true
+nodePort:
+  enabled: true
+loadBalancer:
+  algorithm: maglev
+ipam:
+  mode: "kubernetes"
+envoy:
+  enabled: false
