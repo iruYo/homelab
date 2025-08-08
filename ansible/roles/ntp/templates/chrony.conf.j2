@@ -12,4 +12,4 @@ allow {{ ntp_chrony_subnet }}
 hwtimestamp *
 
 refclock SOCK /run/chrony.ttyAMA0.sock refid GPS noselect
-refclock SOCK /run/chrony.pps0.sock refid PPS lock GPS trust
+refclock SOCK /run/chrony.pps0.sock refid PPS lock GPS trust poll 1
