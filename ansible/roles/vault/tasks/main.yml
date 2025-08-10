@@ -1,19 +1,47 @@
 ---
-# Add verfication
+# Todo: Add verfication
 - name: Install vault
   ansible.builtin.apt:
-    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_arm64.deb"
+    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
 
-# Setup Yubikey to use retired key slots
-# https://github.com/OpenSC/OpenSC/issues/3287#issuecomment-3123551187
+- name: Check if vault key exists
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      pkcs11-tool --list-objects | grep {{ vault_key_label }}
+    executable: /bin/bash
+  register: vault_key_exists
+  changed_when: false
+
+- name: Generate vault key in HSM
+  when: vault_key_exists.rc != 0
+  ansible.builtin.shell: |
+    pkcs11-tool --module {{ vault_pkcs11_lib }} --keypairgen --key-type rsa:4096 \
+    --pin {{ hsm_user_pin }} --token-label {{ vault_token_label }} --label {{ vault_key_label }} --sensitive
+  register: vault_keygen
+  changed_when: vault_keygen.rc == 0
+  failed_when: vault_keygen.rc != 0
+  no_log: true
+
+- name: Ensure openbao etc directory exists
+  ansible.builtin.file:
+    path: "/etc/openbao"
+    state: directory
+    owner: openbao
+    group: openbao
+    mode: "0755"
+
 - name: Copy vault configiration file
   ansible.builtin.template:
     src: config.j2
-    dest: /etc/openbao/config.hcl
-    mode: '0640'
-    notify: restart
+    dest: /etc/openbao/openbao.hcl
+    owner: openbao
+    group: openbao
+    mode: "0644"
 
 - name: Enable vault service
   ansible.builtin.service:
     name: openbao
+    state: restarted
     enabled: true
+    daemon_reload: true

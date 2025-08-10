@@ -1,0 +1,2 @@
+---
+hsm_user_pin: "{{ vault_hsm_user_pin }}"

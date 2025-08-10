@@ -1,0 +1,7 @@
+---
+vault_version: 2.3.1
+vault_packages:
+  - opensc
+
+vault_token_label: "vault (UserPIN)"
+vault_key_label: "vault1"
