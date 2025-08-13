@@ -86,17 +86,21 @@
         name: k3s
         state: stopped
         enabled: true
+        daemon_reload: true
 
 - name: Bootstrap cluster on first master
   when: inventory_hostname == groups['k3s_master'][0]
   ansible.builtin.include_tasks: bootstrap.yml
 
-# - name: Start other master node
-#  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
-#  ansible.builtin.include_tasks: enable_k3s_service.yml
+- name: Start other master node
+  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
+  ansible.builtin.systemd:
+    name: k3s
+    state: restarted
+    enabled: true
+    daemon_reload: true
 
 - name: Setup kubectl
-  when: inventory_hostname == groups['k3s_master'][0] # temporary
   ansible.builtin.include_tasks: setup_kubectl.yml
 
 - name: Make cluster available locally
