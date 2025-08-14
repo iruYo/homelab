@@ -73,7 +73,7 @@
 
     - name: Install flux-instance Helm chart
       kubernetes.core.helm:
-        name: fluxcd
+        name: fluxcd-instance
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
         namespace: flux-system
         values: "{{ lookup('template', 'fluxcd_values.yml.j2') | from_yaml }}"
