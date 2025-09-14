@@ -1,8 +1,9 @@
 ---
-# Todo: Add verfication
-- name: Install vault
+- name: Install vault packages
   ansible.builtin.apt:
-    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
+    name: "{{ vault_packages }}"
+    update_cache: true
+    state: present
 
 - name: Check if vault key exists
   ansible.builtin.shell:
@@ -12,6 +13,7 @@
     executable: /bin/bash
   register: vault_key_exists
   changed_when: false
+  no_log: true
 
 - name: Generate vault key in HSM
   when: vault_key_exists.rc != 0
@@ -22,6 +24,11 @@
   changed_when: vault_keygen.rc == 0
   failed_when: vault_keygen.rc != 0
   no_log: true
+
+# Todo: Add verfication
+- name: Install vault
+  ansible.builtin.apt:
+    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
 
 - name: Ensure openbao etc directory exists
   ansible.builtin.file:
@@ -39,7 +46,7 @@
     group: openbao
     mode: "0644"
 
-- name: Enable vault service
+- name: Enable vault server service
   ansible.builtin.service:
     name: openbao
     state: restarted
