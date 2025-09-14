@@ -1,7 +1,6 @@
 ---
-vault_version: 2.4.1
 vault_packages:
   - opensc
 
-vault_token_label: "vault (UserPIN)"
+vault_version: 2.4.1
 vault_key_label: "vault1"
