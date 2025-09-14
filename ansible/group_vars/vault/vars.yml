@@ -1,2 +1,5 @@
 ---
+vault_version: 2.4.1
+vault_key_label: "vault1"
+
 hsm_user_pin: "{{ vault_hsm_user_pin }}"

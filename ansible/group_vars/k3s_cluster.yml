@@ -1,4 +1,8 @@
 ---
+#######
+# k3s
+#######
+
 k3s_version: v1.33.3+k3s1
 k3s_api_vip: 10.0.20.10
 k3s_api_port: 6443
@@ -28,7 +32,8 @@ k3s_server_config:
   kube-scheduler-arg:
     - 'bind-address=0.0.0.0'
 
-k3s_fluxcd_version: "v2.5.1"
+k3s_fluxoperator_version: "v0.26.0"
+k3s_fluxcd_version: "2.6.x"
 
 k3s_kubevip_version: "v0.9.1"
 k3s_kubevipbgp_as: 64520
