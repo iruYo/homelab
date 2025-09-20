@@ -1,0 +1,49 @@
+acl internal {
+    {{ cidr_block }};
+};
+
+options {
+    directory "{{ dns_cache_dir }}";
+
+    dnssec-validation auto;
+    recursion no;
+
+    allow-query { internal; };
+};
+
+logging {
+    channel default_log {
+        file "{{ dns_log_dir }}/default" versions 3 size 20m;
+        print-time yes;
+        print-category yes;
+        print-severity yes;
+        severity info;
+    };
+    channel xfer_log {
+        file "{{ dns_log_dir }}/transfers" versions 3 size 20m;
+        print-time yes;
+        print-category yes;
+        print-severity yes;
+        severity info;
+    };
+    channel notify_log {
+        file "{{ dns_log_dir }}/notify" versions 3 size 5m;
+        print-time yes;
+        print-category yes;
+        print-severity yes;
+        severity info;
+    };
+    channel dnssec_log {
+        file "{{ dns_log_dir }}/dnssec" versions 3 size 5m;
+        print-time yes;
+        print-category yes;
+        print-severity yes;
+        severity info;
+    };
+
+    category default { default_log; };
+    category xfer-in { xfer_log; };
+    category xfer-out { xfer_log; };
+    category notify { notify_log; };
+    category dnssec { dnssec_log; };
+};

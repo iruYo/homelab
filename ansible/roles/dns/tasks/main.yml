@@ -1,0 +1,3 @@
+---
+- name: Setup bind9
+  ansible.builtin.include_tasks: setup_bind9.yml

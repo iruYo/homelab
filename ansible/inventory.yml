@@ -53,6 +53,10 @@ all:
         k3s_agent:
           hosts:
             tiny[0:2]:
+    dns:
+      hosts:
+        pi3:
+        pi4:
     vault:
       hosts:
         pi3:

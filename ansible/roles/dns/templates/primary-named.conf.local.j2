@@ -1,0 +1,19 @@
+{% for zone in dns_zones %}
+zone "{{ zone.name }}" {
+    type master;
+    file "{{ dns_zone_dir }}/db.{{ zone.name }}";
+{%  if dns_secondary_ips|default() %}
+    allow-transfer {
+{%   for ip in dns_secondary_ips %}
+        {{ ip }};
+{%   endfor %}
+    };
+
+    also-notify {
+{%   for ip in dns_secondary_ips %}
+        {{ ip }};
+{%   endfor %}
+    };
+{%  endif %}
+};
+{% endfor %}

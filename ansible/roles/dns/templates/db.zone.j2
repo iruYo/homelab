@@ -1,0 +1,24 @@
+{% set zone=item %}
+$TTL {{ zone.ttl|default('2d') }}
+$ORIGIN {{ zone.name }}.
+
+@            IN      SOA  ns1.{{ zone.name }}. youri.ulbrich.web.de. (
+                                                {{ now(utc=true,fmt='%Y%m%d%H') }}
+                                                {{ zone.refresh|default('12h') }}
+                                                {{ zone.retry|default('15m') }}
+                                                {{ zone.expire|default('3w') }}
+                                                {{ zone.minimum|default('2h') }}
+                                                )
+{% for host in groups['dns'] -%}
+{% set sub = 'ns' ~ loop.index %}
+             IN      NS   {{ sub }}.{{ zone.name }}.
+{% endfor %}
+
+{% for host in groups['dns'] -%}
+{% set sub = 'ns' ~ loop.index %}
+{{ '%-12s' | format(sub) }} IN      A    {{ hostvars[host].ansible_host }}
+{% endfor %}
+
+{% for host in groups['all'] | sort -%}
+{{ '%-12s' | format(hostvars[host].hostname) }} IN      A    {{ hostvars[host].ansible_host }}
+{% endfor %}
