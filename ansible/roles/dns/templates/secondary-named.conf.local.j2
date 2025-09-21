@@ -1,7 +1,8 @@
 {% for zone in dns_zones %}
 zone "{{ zone.name }}" {
-    type slave;
-    masters { {{ dns_primary_ip }}; };
+    type secondary;
+    notify no;
+    primaries { {{ dns_primary_ip }}; };
     file "{{ dns_cache_dir }}/db.{{ zone.name }}";
 };
 {% endfor %}
