@@ -6,3 +6,6 @@ dns_zones:
     retry: 15m
     expire: 3w
     minimum: 2h
+    services: # Corresponds to inventory group for CNAME records
+      - vault
+      - ntp
