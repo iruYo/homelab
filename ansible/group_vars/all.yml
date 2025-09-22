@@ -1,5 +1,7 @@
 ---
-domain: home.youriulbri.ch
+domain: youriulbri.ch
+home_domain: "home.{{ domain }}"
+
 cidr_block: 10.0.0.0/16
 
 system_timezone: Europe/Berlin
