@@ -4,4 +4,6 @@ home_domain: "home.{{ domain }}"
 
 cidr_block: 10.0.0.0/16
 
+mail: youri.ulbrich@web.de
+
 system_timezone: Europe/Berlin
