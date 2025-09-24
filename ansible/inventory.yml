@@ -27,7 +27,7 @@ all:
           hostname: pi4
           ip: 10.0.20.154
           ansible_host: 10.0.20.154
-          mac: e4:5f:01:c6:a7:a0
+          mac: e4:5f:01:c6:a7:9f
     tiny:
       hosts:
         tiny0:
