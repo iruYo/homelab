@@ -83,12 +83,47 @@
     mode: "0644"
   notify: Reboot
 
+- name: Setup coalesce service, if possible
+  block:
+    - name: Fetch data from ethtool
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -o pipefail
+          ethtool -c eth0 | sed -nr "s/^{{ item }}:[[:space:]](.+)/\1/p"
+      loop:
+        - rx-usecs
+        - tx-usecs
+      register: ntp_coalesce_usecs
+      changed_when: false
+
+    - name: Set rx_usecs and tx_usecs facts
+      ansible.builtin.set_fact:
+        ntp_rx_usecs: "{{ (ntp_coalesce_usecs.results | selectattr('item', '==', 'rx-usecs') | map(attribute='stdout') | list)[0] | default('') }}"
+        ntp_tx_usecs: "{{ (ntp_coalesce_usecs.results | selectattr('item', '==', 'tx-usecs') | map(attribute='stdout') | list)[0] | default('') }}"
+
+    - name: Copy coalesce service configuration
+      ansible.builtin.template:
+        src: "ptp_nic_coalesce.service.j2"
+        dest: /etc/systemd/system/ptp_nic_coalesce.service
+        owner: root
+        group: root
+        mode: "0755"
+      when: ntp_rx_usecs != "n/a" or ntp_tx_usecs != "n/a"
+      notify: Reboot
+
+    - name: Reload coalesce service
+      ansible.builtin.systemd_service:
+        name: ptp_nic_coalesce.service
+        state: reloaded
+        enabled: true
+        daemon_reload: true
+
 - name: Setup grandmaster services
   ansible.builtin.include_role:
     name: common
     tasks_from: setup_service
   loop:
-    - ptp_nic_coalesce
     - ptp4l-gm
     - phc2sys-gm
   loop_control:

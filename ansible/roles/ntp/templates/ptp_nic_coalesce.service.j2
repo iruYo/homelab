@@ -4,7 +4,8 @@ Requires=network.target
 After=network.target
 
 [Service]
-ExecStart=/usr/sbin/ethtool -C eth0 tx-usecs 4 rx-usecs 4
+ExecStart=/usr/sbin/ethtool -C eth0{% if ntp_tx_usecs != 'n/a' %} tx-usecs 4{% endif %}{% if ntp_rx_usecs != 'n/a' %} rx-usecs 4{% endif %}
+
 Type=oneshot
 
 [Install]
