@@ -1,6 +1,6 @@
 ---
 ntp_device_tty: "ttyAMA0"
-ntp_device_baud: "9600"
+ntp_device_baud: "115200"
 
 ntp_gpsd_devices: "/dev/{{ ntp_device_tty }} /dev/pps0"
 ntp_gpsd_options: "-n -s {{ ntp_device_baud }} --badtime"
