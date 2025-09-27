@@ -28,11 +28,9 @@
 - name: Ensure dynamic tics are disabled in cmdline.txt
   ansible.builtin.replace:
     path: /boot/firmware/cmdline.txt
-    regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
-    replace: '\1 {{ item }}'
+    regexp: '^([\w](?!.*\bnohz=off\b).*)$'
+    replace: '\1 nohz=off'
   notify: Reboot
-  with_items:
-    - "nohz=off"
 
 - name: Ensure no console in cmdline.txt
   ansible.builtin.replace:
@@ -47,11 +45,9 @@
 - name: "Add pps-gpio to modules"
   ansible.builtin.lineinfile:
     dest: /etc/modules
-    regexp: "^{{ item }}"
-    line: '{{ item }}'
+    regexp: "^pps-gpio"
+    line: 'pps-gpio'
   notify: Reboot
-  with_items:
-    - "pps-gpio"
 
 - name: Disable hciuart service
   ansible.builtin.service:
