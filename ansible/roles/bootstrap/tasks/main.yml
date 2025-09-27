@@ -12,6 +12,25 @@
 - name: Setup clients to get time from ntp server
   when: "'ntp' not in group_names"
   block:
+    - name: Install ntp packages
+      ansible.builtin.apt:
+        name: "{{ bootstrap_ntp_packages }}"
+        update_cache: true
+        state: present
+
+    - name: Fetch used ptp clock from ethtool
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -o pipefail
+          ethtool -T {{ iface }} | sed -nr "s/^PTP Hardware Clock:[[:space:]](.+)/\1/p"
+      register: bootstrap_clock_check_result
+      changed_when: false
+
+    - name: Set ptp clock
+      ansible.builtin.set_fact:
+        bootstrap_ptp_clock: "ptp{{ bootstrap_clock_check_result.stdout }}"
+
     - name: Copy ptp4l-client service configuration
       ansible.builtin.template:
         src: "templates/ptp4l-client.service.j2"

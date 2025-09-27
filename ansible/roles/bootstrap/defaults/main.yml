@@ -1,7 +1,10 @@
 ---
-bootstrap_packages:
+bootstrap_packages: []
+
+bootstrap_ntp_packages:
   - chrony
   - linuxptp
+  - ethtool
 
 # yamllint disable rule:commas
 bootstrap_pi_fan_curve: # 50% at 40°C, 75% at 50°C, 100% at 60°C
