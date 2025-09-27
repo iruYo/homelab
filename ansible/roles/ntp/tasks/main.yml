@@ -1,13 +1,7 @@
 ---
 - name: Install requirements
   ansible.builtin.apt:
-    name:
-      - pps-tools
-      - gpsd
-      - gpsd-clients
-      - setserial
-      - chrony
-      - linuxptp
+    name: "{{ ntp_packages }}"
     state: present
     update_cache: true
 

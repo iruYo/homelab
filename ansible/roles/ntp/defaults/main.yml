@@ -1,4 +1,13 @@
 ---
+ntp_packages:
+  - pps-tools
+  - gpsd
+  - gpsd-clients
+  - setserial
+  - chrony
+  - linuxptp
+  - ethtool
+
 ntp_device_tty: "ttyAMA0"
 ntp_device_baud: "9600"
 
