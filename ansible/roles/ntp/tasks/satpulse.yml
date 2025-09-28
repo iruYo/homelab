@@ -13,6 +13,22 @@
     mode: "0644"
   notify: Reload satpulse
 
+- name: Stop satpulse service for survey in
+  ansible.builtin.service:
+    name: "satpulse@{{ ntp_device_tty }}"
+    state: stopped
+
+- name: Start survey in
+  ansible.builtin.shell: >
+    satpulsetool gps
+    -d /dev/{{ ntp_device_tty }}
+    -s {{ ntp_device_baud }}
+    --survey
+    --survey-time {{ ntp_satpulse_survey_time }}
+    --survey-acc {{ ntp_satpulse_survey_acc }}
+  register: ntp_satpulse_survey_result
+  changed_when: true
+
 - name: Enable satpulse service
   ansible.builtin.service:
     name: "satpulse@{{ ntp_device_tty }}"

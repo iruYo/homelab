@@ -8,3 +8,6 @@ ntp_gpsd_daemon: "true"
 
 ntp_satpulse_enabled: true
 ntp_satpulse_version: "20250516"
+ntp_satpulse_proxy_port: 321
+ntp_satpulse_survey_time: 3600 # 1 hour
+ntp_satpulse_survey_acc: 3.0
