@@ -1,0 +1,5 @@
+---
+- name: Restart ptp4l-client
+  ansible.builtin.service:
+    name: ptp4l-client
+    state: restarted

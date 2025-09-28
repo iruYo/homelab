@@ -7,14 +7,7 @@
     group: root
     mode: "0644"
 
-# Chrony has to run before gpsd does
-- name: Enable gpsd service
-  ansible.builtin.service:
-    name: gpsd
-    state: stopped
-    enabled: true
-
-- name: Create a gpsd.service override directory
+- name: Ensure gpsd.service override directory exists
   ansible.builtin.file:
     path: /etc/systemd/system/gpsd.service.d
     state: directory
@@ -29,3 +22,5 @@
     owner: root
     group: root
     mode: "0644"
+
+# Handle enablement of service outside to check if satpulse is used

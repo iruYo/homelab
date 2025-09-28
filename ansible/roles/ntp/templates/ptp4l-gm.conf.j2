@@ -1,0 +1,17 @@
+[global]
+verbose                 1
+time_stamping           hardware
+# Trixie change master to server!
+# serverOnly            1
+# ptp_minor_version     0
+masterOnly              1
+priority1               128
+clockClass              6
+hwts_filter             full
+summary_interval        1
+logfile                 /var/log/ptp4l.log
+{% if ntp_satpulse_enabled %}
+tx_timestamp_timeout    100
+
+[{{ iface }}]
+{% endif %}

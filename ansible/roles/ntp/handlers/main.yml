@@ -1,0 +1,15 @@
+---
+- name: Restart ptp4l-gm
+  ansible.builtin.service:
+    name: ptp4l-gm
+    state: restarted
+
+- name: Reload coalesce
+  ansible.builtin.service:
+    name: ptp4l
+    state: reloaded
+
+- name: Reload satpulse
+  ansible.builtin.service:
+    name: satpulse
+    state: reloaded

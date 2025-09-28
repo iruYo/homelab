@@ -1,7 +1,8 @@
 [phc]
-interface = "eth0"
+interface = "{{ iface }}"
 
 [serial]
+device = "/dev/{{ ntp_device_tty }}"
 speed = {{ ntp_device_baud }}
 
 [gps]

@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/sbin/ptp4l -f /etc/ptp4-gm.conf -i eth0
+ExecStart=/usr/sbin/ptp4l -f /etc/ptp4l-gm.conf -i eth0
 Restart=always
 RestartSec=3
 

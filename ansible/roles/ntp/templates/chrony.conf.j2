@@ -8,8 +8,12 @@ maxupdateskew 100.0
 rtcsync
 makestep 1 3
 
-allow {{ ntp_chrony_subnet }}
+allow {{ cidr_block }}
 hwtimestamp *
 
+{% if ntp_satpulse_enabled %}
+refclock SOCK /var/run/chrony.satpulse.sock poll 2 filter 4 refid GNSS
+{% else %}
 refclock SOCK /run/chrony.ttyAMA0.sock refid GPS noselect
 refclock SOCK /run/chrony.pps0.sock refid PPS lock GPS trust poll 1
+{% endif %}

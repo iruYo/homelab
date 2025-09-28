@@ -38,16 +38,16 @@
         owner: root
         group: root
         mode: "0755"
-      notify: Reboot
+      notify: Restart ptp4l-client
 
-    - name: Enable ptp4l-client service
+    - name: Ensure ptp4l-client service
       ansible.builtin.service:
         name: ptp4l-client
         state: started
         enabled: true
 
     # https://github.com/jclark/rpi-cm4-ptp-guide/issues/4
-    - name: Create override directory for chrony.service
+    - name: Ensure override directory for chrony.service exists
       ansible.builtin.file:
         path: "/etc/systemd/system/chrony.service.d"
         state: directory
@@ -62,7 +62,7 @@
         owner: root
         group: root
         mode: "0644"
-      notify: Reboot
+      notify: Restart chrony
 
     - name: Copy reflock conf
       ansible.builtin.template:
@@ -71,13 +71,14 @@
         owner: root
         group: root
         mode: "0644"
-      notify: Reboot
+      notify: Restart chrony
 
-    - name: Enable chrony service
-      ansible.builtin.service:
+    - name: Ensure chrony service
+      ansible.builtin.systemd:
         name: chrony
-        state: restarted
+        state: started
         enabled: true
+        daemon_reload: true
 
 - name: Bootstrap Pis
   ansible.builtin.include_tasks: pi_tasks.yml

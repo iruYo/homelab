@@ -1,0 +1,23 @@
+- name: Copy grandmaster ptp configuration
+  ansible.builtin.template:
+    src: "templates/ptp4l-gm.conf.j2"
+    dest: /etc/ptp4l-gm.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart ptp4l-gm
+
+- name: Copy ptp4l-gm service configuration
+  ansible.builtin.copy:
+    src: "ptp4l-gm.service"
+    dest: /etc/systemd/system/ptp4l-gm.service
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Ensure ptp4l-gm service
+  ansible.builtin.systemd_service:
+    name: ptp4l-gm.service
+    state: started
+    enabled: true
+    daemon_reload: true

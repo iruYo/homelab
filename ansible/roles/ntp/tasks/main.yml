@@ -5,6 +5,24 @@
     state: present
     update_cache: true
 
+- name: Ensure gpsd services are disabled for now
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - gpsd
+    - gpsd.socket
+
+- name: Copy chrony configuration file
+  ansible.builtin.template:
+    src: "templates/chrony.conf.j2"
+    dest: "/etc/chrony/chrony.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chrony
+
 - name: "Adjust config.txt for GPS HAT"
   ansible.builtin.lineinfile:
     dest: /boot/firmware/config.txt
@@ -49,72 +67,46 @@
     state: stopped
     enabled: false
 
-- name: Setup gpsd
-  ansible.builtin.include_tasks: gpsd.yml
-
-- name: Setup chrony
-  ansible.builtin.include_tasks: chrony.yml
-
-- name: Start gpsd
-  ansible.builtin.service:
-    name: gpsd
-    state: restarted
-
-- name: Setup satpulse
-  ansible.builtin.include_tasks: satpulse.yml
-  when: ntp_satpulse_enabled
-
-- name: Copy grandmaster ptp configuration
-  ansible.builtin.copy:
-    src: ptp-gm.conf
-    dest: /etc/ptp4-gm.conf
-    owner: root
-    group: root
-    mode: "0644"
-  notify: Reboot
+- name: Reboot to make hardware available
+  ansible.builtin.meta: flush_handlers
 
 - name: Setup coalesce service, if possible
+  ansible.builtin.include_tasks: coalesce.yml
+
+- name: Setup ptp4l grandmaster service
+  ansible.builtin.include_tasks: ptp4l.yml
+
+- name: Setup satpulse backend
+  when: ntp_satpulse_enabled
+  ansible.builtin.include_tasks: satpulse.yml
+
+- name: Setup gpsd configuration
+  ansible.builtin.include_tasks: gpsd.yml
+
+- name: Setup non-satpulse backend
+  when: not ntp_satpulse_enabled
   block:
-    - name: Fetch data from ethtool
-      ansible.builtin.shell:
-        executable: /bin/bash
-        cmd: |
-          set -o pipefail
-          ethtool -c eth0 | sed -nr "s/^{{ item }}:[[:space:]](.+)/\1/p"
+    - name: Ensure gpsd services
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+        daemon_reload: true
       loop:
-        - rx-usecs
-        - tx-usecs
-      register: ntp_coalesce_usecs
-      changed_when: false
+        - gpsd
+        - gpsd.socket
 
-    - name: Set rx_usecs and tx_usecs facts
-      ansible.builtin.set_fact:
-        ntp_rx_usecs: "{{ (ntp_coalesce_usecs.results | selectattr('item', '==', 'rx-usecs') | map(attribute='stdout') | list)[0] | default('') }}"
-        ntp_tx_usecs: "{{ (ntp_coalesce_usecs.results | selectattr('item', '==', 'tx-usecs') | map(attribute='stdout') | list)[0] | default('') }}"
-
-    - name: Copy coalesce service configuration
-      ansible.builtin.template:
-        src: "ptp_nic_coalesce.service.j2"
-        dest: /etc/systemd/system/ptp_nic_coalesce.service
+    - name: Copy phc2sys-gm service configuration
+      ansible.builtin.copy:
+        src: "phc2sys-gm.service"
+        dest: /etc/systemd/system/phc2sys-gm.service
         owner: root
         group: root
         mode: "0755"
-      when: ntp_rx_usecs != "n/a" or ntp_tx_usecs != "n/a"
-      notify: Reboot
 
-    - name: Reload coalesce service
+    - name: Ensure phc2sys-gm service
       ansible.builtin.systemd_service:
-        name: ptp_nic_coalesce.service
-        state: reloaded
+        name: phc2sys-gm.service
+        state: started
         enabled: true
         daemon_reload: true
-
-- name: Setup grandmaster services
-  ansible.builtin.include_role:
-    name: common
-    tasks_from: setup_service
-  loop:
-    - ptp4l-gm
-    - phc2sys-gm
-  loop_control:
-    loop_var: service_name

@@ -6,5 +6,5 @@ ntp_gpsd_devices: "/dev/{{ ntp_device_tty }} /dev/pps0"
 ntp_gpsd_options: "-n -s {{ ntp_device_baud }} --badtime"
 ntp_gpsd_daemon: "true"
 
-ntp_satpulse_enabled: false
+ntp_satpulse_enabled: true
 ntp_satpulse_version: "20250516"
