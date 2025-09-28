@@ -13,3 +13,7 @@ ptp4l.udsAddress = "/var/run/ptp4l"
 
 [ntp]
 sock.path = "/var/run/chrony.satpulse.sock"
+
+[[proxy.tcp]]
+listen = ":{{ ntp_satpulse_proxy_port }}"
+protocol = "UBX"
