@@ -3,4 +3,4 @@ ansible_user: tiny
 ansible_port: 22
 ansible_python_interpreter: /usr/bin/python3
 
-iface: enp1s0f1
+iface: enp1s0f1np1
