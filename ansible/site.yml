@@ -1,17 +1,24 @@
 ---
-- name: Setup ntp server
-  hosts: ntp
-  gather_facts: true
-  become: true
-  roles:
-    - role: ntp
-
 - name: Bootstrap Hosts
   hosts: all
   gather_facts: true
   become: true
   roles:
     - role: bootstrap
+
+- name: Setup dns server
+  hosts: dns
+  gather_facts: true
+  become: true
+  roles:
+    - role: dns
+
+- name: Setup ntp server
+  hosts: ntp
+  gather_facts: true
+  become: true
+  roles:
+    - role: ntp
 
 - name: Setup vault
   hosts: vault
