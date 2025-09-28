@@ -5,6 +5,26 @@
     update_cache: true
     state: present
 
+- name: Ensure DDNS key exists
+  block:
+    - name: Ensure keys directory exists
+      ansible.builtin.file:
+        path: "{{ dns_keys_dir }}"
+        state: directory
+        owner: "bind"
+        group: "bind"
+        mode: "02750"
+
+    - name: Determine if DDNS key already exists
+      ansible.builtin.stat:
+        path: "{{ dns_keys_dir }}/{{ dns_update_key }}.key"
+      register: dns_key_file
+
+    - name: Generate DDNS key
+      ansible.builtin.shell: "tsig-keygen -a hmac-sha512 {{ dns_update_key }} > {{ dns_keys_dir }}/{{ dns_update_key }}.key"
+      changed_when: true
+      when: not dns_key_file.stat.exists
+
 - name: Set primary dns ip
   ansible.builtin.set_fact:
     dns_primary_ip: "{{ hostvars[groups['dns'][0]]['ansible_host'] }}"

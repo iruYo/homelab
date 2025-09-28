@@ -11,6 +11,8 @@ options {
     allow-query { internal; };
 };
 
+include "{{ dns_keys_dir }}/{{ dns_update_key }}.key";
+
 logging {
     channel default_log {
         file "{{ dns_log_dir }}/default" versions 3 size 20m;

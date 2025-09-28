@@ -2,18 +2,23 @@
 zone "{{ zone.name }}" {
     type primary;
     file "{{ dns_zone_dir }}/db.{{ zone.name }}";
-{%  if dns_secondary_ips|default() %}
+
     allow-transfer {
-{%   for ip in dns_secondary_ips %}
+        key "{{ dns_update_key }}";
+{%  for ip in dns_secondary_ips %}
         {{ ip }};
-{%   endfor %}
+{%  endfor %}
     };
 
+{%  if dns_secondary_ips|default() %}
     also-notify {
 {%   for ip in dns_secondary_ips %}
         {{ ip }};
 {%   endfor %}
     };
 {%  endif %}
+    update-policy {
+        grant {{ dns_update_key }} zonesub any;
+    };
 };
 {% endfor %}

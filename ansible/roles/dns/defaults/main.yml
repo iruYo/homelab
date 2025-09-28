@@ -5,7 +5,9 @@ dns_packages:
 
 dns_config_dir: /etc/bind
 dns_zone_dir: "{{ dns_config_dir }}"
+dns_keys_dir: "{{ dns_config_dir }}/keys"
 dns_cache_dir: /var/cache/bind
 dns_log_dir: /var/log/named
 
+dns_update_key: ddns
 dns_zones: []
