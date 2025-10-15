@@ -22,7 +22,6 @@
     --pin {{ hsm_user_pin }} --token-label {{ vault_token_label }} --label {{ vault_key_label }} --sensitive
   register: vault_keygen
   changed_when: vault_keygen.rc == 0
-  failed_when: vault_keygen.rc != 0
   no_log: true
 
 # Todo: Add verfication
