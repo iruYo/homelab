@@ -21,6 +21,9 @@
       });
   notify: Reboot # Go hard with reboot here, otherwise pkcs11 doesn't not pick up on new rules
 
+- name: Reload pcscd/polkit, if needed
+  ansible.builtin.meta: flush_handlers
+
 - name: Check if vault key exists
   ansible.builtin.shell:
     cmd: |
