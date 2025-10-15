@@ -5,6 +5,22 @@
     update_cache: true
     state: present
 
+- name: Allow vault user to access pcscd
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/polkit-1/rules.d/49-pcscd-access.rules
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      polkit.addRule(function(action, subject) {
+        if ((action.id == "org.debian.pcsc-lite.access_pcsc" || action.id == "org.debian.pcsc-lite.access_card")
+          && subject.user == "openbao") {
+          return polkit.Result.YES;
+        }
+      });
+  notify: Reboot # Go hard with reboot here, otherwise pkcs11 doesn't not pick up on new rules
+
 - name: Check if vault key exists
   ansible.builtin.shell:
     cmd: |
