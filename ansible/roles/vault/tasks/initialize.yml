@@ -1,0 +1,69 @@
+---
+- name: Copy gpg key for vault key encryption
+  ansible.builtin.copy:
+    src: pub.asc
+    dest: /tmp/pub.asc
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Start vault initialization
+  ansible.builtin.command: |
+    bao operator init \
+      -recovery-pgp-keys="/tmp/pub.asc,/tmp/pub.asc,/tmp/pub.asc,/tmp/pub.asc,/tmp/pub.asc"
+  register: vault_init
+  no_log: true
+  changed_when: false
+
+- name: Set recovery keys and initial root token
+  ansible.builtin.set_fact:
+    vault_root_token: "{{ (vault_init.stdout | regex_findall('Initial Root Token:\\s*(\\S+)', multiline=True) | first) }}"
+    vault_recovery_keys: "{{ vault_init.stdout | regex_findall('Recovery Key \\d+:\\s*(\\S+)', multiline=True) }}"
+  no_log: true
+
+- name: Write root key to to local file
+  delegate_to: localhost
+  run_once: true
+  ansible.builtin.copy:
+    dest: "{{ inventory_dir }}/vault"
+    content: |
+      recovery_keys:
+      {% for key in vault_recovery_keys %}
+        - {{ key }}
+      {% endfor %}
+    mode: "0600"
+  no_log: true
+
+- name: Remove gpg key
+  ansible.builtin.file:
+    path: /tmp/pub.asc
+    state: absent
+
+- name: Setup autounseal for cluster vault
+  environment:
+    VAULT_TOKEN: "{{ vault_root_token }}"
+  block:
+    - name: Enable transit secrets engine
+      ansible.builtin.command: bao secrets enable transit
+      changed_when: true
+
+    - name: Create autounseal key
+      ansible.builtin.command: bao write -f transit/keys/autounseal
+      changed_when: true
+
+    - name: Create autounseal policy
+      ansible.builtin.shell: |
+        bao policy write autounseal -<<'EOF'
+        path "transit/encrypt/autounseal" {
+          capabilities = [ "update" ]
+        }
+
+        path "transit/decrypt/autounseal" {
+          capabilities = [ "update" ]
+        }
+        EOF
+      changed_when: true
+
+# https://developer.hashicorp.com/vault/tutorials/auto-unseal/autounseal-transit
+# Setup VAULT_TOKEN for cluster vault
+# Kill root key

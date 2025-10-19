@@ -84,30 +84,9 @@
   when: vault_init_status.rc is defined
 
 - name: Initialize vault
+  environment:
+    VAULT_ADDR: http://127.0.0.1:8200 # Temporary until TLS
   when: vault_init_needed
   block:
-    - name: Copy gpg key for vault key encryption
-      ansible.builtin.copy:
-        src: pub.asc
-        dest: /tmp/pub.asc
-        owner: root
-        group: root
-        mode: "0644"
-
-
-# Todo:
-# Init
-
-# bao secrets enable transit
-# vault write -f transit/keys/autounseal
-# vault policy write autounseal -<<EOF
-#path "transit/encrypt/autounseal" {
-#   capabilities = [ "update" ]
-#}
-#
-#path "transit/decrypt/autounseal" {
-#   capabilities = [ "update" ]
-#}
-#EOF
-
-# Kill root key
+    - name: Initialize vault
+      ansible.builtin.include_tasks: initialize.yml
