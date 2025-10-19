@@ -1,31 +1,15 @@
 ---
-- name: Bootstrap Hosts
-  hosts: all
-  gather_facts: true
-  become: true
-  roles:
-    - role: bootstrap
+- name: Setup external resources
+  import_playbook: setup_external.yml
 
 - name: Setup dns server
-  hosts: dns
-  gather_facts: true
-  become: true
-  roles:
-    - role: dns
+  import_playbook: setup_dns_server.yml
 
 - name: Setup ntp server
-  hosts: ntp
-  gather_facts: true
-  become: true
-  roles:
-    - role: ntp
+  import_playbook: setup_ntp_server.yml
 
 - name: Setup vault
-  hosts: vault
-  gather_facts: true
-  become: true
-  roles:
-    - role: vault
+  import_playbook: setup_vault.yml
 
-- name: Setup K3s cluster
+- name: Setup k3s cluster
   import_playbook: setup_k3s_cluster.yml
