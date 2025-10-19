@@ -4,3 +4,6 @@ vault_packages:
 
 vault_version: 2.4.1
 vault_key_label: "vault1"
+
+vault_cert_path: ""
+vault_cert_key_path: ""

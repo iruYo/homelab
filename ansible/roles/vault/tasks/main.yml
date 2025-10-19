@@ -47,13 +47,16 @@
   ansible.builtin.apt:
     deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
 
-- name: Ensure vault configuration directory exists
+- name: Ensure vault configuration directories exist
   ansible.builtin.file:
-    path: "{{ vault_config_dir }}"
+    path: "{{ item }}"
     state: directory
     owner: openbao
     group: openbao
     mode: "0755"
+  with_items:
+    - "{{ vault_config_dir }}"
+    - "{{ vault_tls_dir }}"
 
 - name: Copy vault configuration file
   ansible.builtin.template:
@@ -62,6 +65,17 @@
     owner: openbao
     group: openbao
     mode: "0644"
+
+- name: Copy vault certificate files
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ vault_tls_dir }}"
+    owner: openbao
+    group: openbao
+    mode: "0644"
+  with_items:
+    - "{{ vault_cert_key_path }}"
+    - "{{ vault_cert_path }}"
 
 - name: Reload vault server service
   ansible.builtin.service:
@@ -77,15 +91,26 @@
   changed_when: false
   failed_when: vault_init_status.rc == 1
 
-- name: Set fact if vault initialization is needed
-  ansible.builtin.set_fact:
-    vault_init_needed: "{{ vault_init_status.rc == 2 }}"
-  when: vault_init_status.rc is defined
+- name: Ensure VAULT_ADDR is in .bashrc for default user
+  become_user: "{{ ansible_user }}"
+  become: true
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    regexp: '^export VAULT_ADDR='
+    line: 'export VAULT_ADDR="https://{{ vault_hostname }}:8200"'
+    state: present
+
+- name: Ensure host entry for local access exists
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.0\.1\s+{{ vault_hostname }}$'
+    line: '127.0.0.1 {{ vault_hostname }}'
+    state: present
 
 - name: Initialize vault
   environment:
-    VAULT_ADDR: http://127.0.0.1:8200 # Temporary until TLS
-  when: vault_init_needed
+    VAULT_ADDR: "https://{{ vault_hostname }}:8200"
+  when: vault_init_status.rc == 2
   block:
     - name: Initialize vault
       ansible.builtin.include_tasks: initialize.yml

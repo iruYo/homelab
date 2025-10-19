@@ -1,5 +1,6 @@
 ---
 vault_config_dir: "/etc/openbao"
+vault_tls_dir: "{{ vault_config_dir }}/tls"
 
 vault_pkcs11_lib: "/usr/lib/{{ ansible_architecture }}-linux-gnu/pkcs11/opensc-pkcs11.so"
 vault_token_label: "vault"

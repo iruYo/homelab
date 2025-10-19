@@ -32,3 +32,23 @@
               subzones:
                 - "home"
         state: present
+
+    - name: Ensure certificates exist
+      ansible.builtin.command: |
+        certbot certonly \
+        --dns-route53
+        --server https://acme-v02.api.letsencrypt.org/directory \
+        --agree-tos \
+        --non-interactive \
+        --rsa-key-size 4096 \
+        -m {{ mail }} \
+        -d {{ item }}
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+      register: certbot_create
+      changed_when:
+        - certbot_create.rc==0
+        - '"Certificate not yet due for renewal; no action taken." not in certbot_create.stdout'
+      with_items:
+        - "vault.{{ domain }}"
