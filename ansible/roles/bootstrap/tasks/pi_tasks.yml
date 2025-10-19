@@ -39,6 +39,7 @@
     path: /boot/firmware/config.txt
     regexp: '^dtparam={{ item.key }}='
     line: 'dtparam={{ item.key }}={{ item.value }}'
+    insertafter: '^\[all\]'
   loop: "{{ bootstrap_pi_fan_curve }}"
   notify: Reboot
 
