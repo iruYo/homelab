@@ -6,7 +6,6 @@
     state: present
 
 - name: Allow vault user to access pcscd
-  become: true
   ansible.builtin.copy:
     dest: /etc/polkit-1/rules.d/49-pcscd-access.rules
     owner: root
@@ -48,18 +47,18 @@
   ansible.builtin.apt:
     deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
 
-- name: Ensure openbao etc directory exists
+- name: Ensure vault configuration directory exists
   ansible.builtin.file:
-    path: "/etc/openbao"
+    path: "{{ vault_config_dir }}"
     state: directory
     owner: openbao
     group: openbao
     mode: "0755"
 
-- name: Copy vault configiration file
+- name: Copy vault configuration file
   ansible.builtin.template:
     src: config.j2
-    dest: /etc/openbao/openbao.hcl
+    dest: "{{ vault_config_dir }}/openbao.hcl"
     owner: openbao
     group: openbao
     mode: "0644"
