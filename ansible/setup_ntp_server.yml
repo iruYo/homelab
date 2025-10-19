@@ -1,0 +1,7 @@
+---
+- name: Setup ntp server
+  hosts: ntp
+  gather_facts: true
+  become: true
+  roles:
+    - role: ntp
