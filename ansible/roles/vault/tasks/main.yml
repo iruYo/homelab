@@ -84,13 +84,6 @@
     enabled: true
     daemon_reload: true
 
-- name: Check if vault is initialized
-  ansible.builtin.command: openbao operator init -status
-  register: vault_init_status
-  no_log: true
-  changed_when: false
-  failed_when: vault_init_status.rc == 1
-
 - name: Ensure VAULT_ADDR is in .bashrc for default user
   become_user: "{{ ansible_user }}"
   become: true
@@ -107,10 +100,17 @@
     line: '127.0.0.1 {{ vault_hostname }}'
     state: present
 
-- name: Initialize vault
+- name: Initialize vault, if needed
   environment:
     VAULT_ADDR: "https://{{ vault_hostname }}:8200"
-  when: vault_init_status.rc == 2
   block:
+    - name: Check if vault is initialized
+      ansible.builtin.command: bao operator init -status
+      register: vault_init_status
+      no_log: true
+      changed_when: false
+      failed_when: vault_init_status.rc == 1
+
     - name: Initialize vault
+      when: vault_init_status.rc == 2
       ansible.builtin.include_tasks: initialize.yml
