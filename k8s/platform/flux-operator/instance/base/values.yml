@@ -1,0 +1,14 @@
+---
+instance:
+  distribution:
+    version: 2.7.x
+  cluster:
+    networkPolicy: false
+  components:
+    - source-controller
+    - kustomize-controller
+    - helm-controller
+    - notification-controller
+  commonMetadata:
+    labels:
+      app.kubernetes.io/name: flux
