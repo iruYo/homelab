@@ -56,10 +56,9 @@ all:
     dns:
       hosts:
         pi3:
-        pi4:
     vault:
       hosts:
         pi3:
     ntp:
       hosts:
-        pi3:
+        pi4:
