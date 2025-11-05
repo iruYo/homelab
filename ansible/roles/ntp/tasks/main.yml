@@ -66,6 +66,7 @@
     name: hciuart
     state: stopped
     enabled: false
+  when: "'hciuart.service' in ansible_facts.services"
 
 - name: Reboot to make hardware available
   ansible.builtin.meta: flush_handlers
