@@ -1,0 +1,3 @@
+---
+- name: Gathering service facts
+  ansible.builtin.service_facts:
