@@ -1,2 +1,3 @@
 makestep 1 20
-refclock PHC /dev/{{ bootstrap_ptp_clock }} poll 0 delay 0.0 trust
+leapsectz right/UTC
+refclock PHC /dev/{{ bootstrap_ptp_clock }} poll 0 delay 0.0 trust tai
