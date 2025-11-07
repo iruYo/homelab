@@ -5,7 +5,7 @@ serverOnly              1
 ptp_minor_version       0
 priority1               128
 clockClass              6
-hwts_filter             full
+# hwts_filter             full Not supported on CM4/Pi 4 IO PoE Waveshare Board
 summary_interval        1
 {% if ntp_satpulse_enabled %}
 tx_timestamp_timeout    100
