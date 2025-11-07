@@ -31,6 +31,15 @@
       ansible.builtin.set_fact:
         bootstrap_ptp_clock: "ptp{{ bootstrap_clock_check_result.stdout }}"
 
+    - name: Copy ptp4l-client configuration
+      ansible.builtin.copy:
+        src: "ptp4l-client.conf"
+        dest: /etc/ptp4l-client.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart ptp4l-client
+
     - name: Copy ptp4l-client service configuration
       ansible.builtin.template:
         src: "templates/ptp4l-client.service.j2"

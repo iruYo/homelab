@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/sbin/ptp4l -i {{ iface }} -m --summary_interval 1
+ExecStart=/usr/sbin/ptp4l -f /etc/ptp4l-client.conf -i {{ iface }}
 Restart=always
 RestartSec=3
 
