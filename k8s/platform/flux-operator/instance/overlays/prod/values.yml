@@ -4,7 +4,7 @@ instance:
     url: https://github.com/iruYo/homelab.git
     ref: refs/heads/main
     path: k8s/clusters/prod
-    interval: 1h
+    interval: 5m
   kustomize:
     patches:
       - target:
