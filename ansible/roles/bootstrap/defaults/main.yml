@@ -1,5 +1,8 @@
 ---
-bootstrap_packages: []
+bootstrap_packages:
+  - curl
+  - gpg
+  - apt-transport-https
 
 bootstrap_ntp_packages:
   - chrony
