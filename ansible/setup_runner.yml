@@ -1,0 +1,6 @@
+---
+- name: Setup runner
+  hosts: runner
+  gather_facts: true
+  roles:
+    - role: runner

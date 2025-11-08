@@ -1,0 +1,5 @@
+---
+- name: Copy file gpg.conf
+  ansible.builtin.copy:
+    src: gpg.conf
+    dest: ~/.gnupg/gpg.conf
