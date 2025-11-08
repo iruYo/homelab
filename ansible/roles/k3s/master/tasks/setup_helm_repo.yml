@@ -1,20 +1,20 @@
 ---
 - name: Download Helm signing key
   ansible.builtin.get_url:
-    url: https://baltocdn.com/helm/signing.asc
-    dest: /tmp/signing.asc
+    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
+    dest: /tmp/gpgkey
     owner: root
     group: root
     mode: "0644"
 
 - name: Dearmor Helm signing key
   ansible.builtin.shell: |
-      gpg --dearmor < /tmp/signing.asc > /usr/share/keyrings/helm.gpg
+      gpg --dearmor < /tmp/gpgkey > /usr/share/keyrings/helm.gpg
   changed_when: false
   no_log: true
 
 - name: Add Helm apt repo
   ansible.builtin.apt_repository:
-    repo: "deb [arch={{ common_architecture[ansible_architecture] }} signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" # yamllint disable-line rule:line-length
+    repo: "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" # yamllint disable-line rule:line-length
     filename: helm-stable-debian
     state: present
