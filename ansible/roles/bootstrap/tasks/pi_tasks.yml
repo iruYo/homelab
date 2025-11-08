@@ -58,7 +58,7 @@
   when: bootstrap_is_pi5
   ansible.builtin.blockinfile:
     path: /boot/firmware/config.txt
-    block: |
+    block: |-
       [board-type=0x17]
       over_voltage_delta=50000
       arm_freq=2500
@@ -68,7 +68,7 @@
   when: bootstrap_is_pi5
   ansible.builtin.blockinfile:
     path: /boot/firmware/config.txt
-    block: |
+    block: |-
       dtparam=pciex1
       dtparam=pciex1_gen=3
     insertafter: '^\[all\]'
