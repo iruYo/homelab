@@ -54,7 +54,7 @@
     bootstrap_is_pi5: "{{ bootstrap_pi5_check.rc == 0 }}"
   when: bootstrap_pi5_check.rc is defined
 
-- name: Overvoltage Raspberry Pi 5 for SSD compatability
+- name: Overvolt Raspberry Pi 5 for SSD compatability
   when: bootstrap_is_pi5
   ansible.builtin.blockinfile:
     path: /boot/firmware/config.txt
