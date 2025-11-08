@@ -26,4 +26,4 @@ spec:
   valuesFrom:
   - kind: ConfigMap
     name: flux-operator-helm-values
-    valuesKey: base-values.yaml
+    valuesKey: base-values.yml

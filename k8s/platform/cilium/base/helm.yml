@@ -24,4 +24,4 @@ spec:
   valuesFrom:
   - kind: ConfigMap
     name: cilium-helm-values
-    valuesKey: base-values.yaml
+    valuesKey: base-values.yml

@@ -3,4 +3,4 @@
   value:
     kind: ConfigMap
     name: cilium-helm-values
-    valuesKey: overlay-values.yaml
+    valuesKey: overlay-values.yml
