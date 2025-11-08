@@ -1,12 +1,12 @@
 ---
+- name: Setup Helm repo
+  ansible.builtin.include_tasks: setup_helm_repo.yml
+
 - name: Install packages
   ansible.builtin.apt:
     name: "{{ k3s_master_packages }}"
     update_cache: true
     state: present
-
-- name: Setup Helm repo
-  ansible.builtin.include_tasks: setup_helm_repo.yml
 
 - name: Detect if multiple masters (HA) are defined
   ansible.builtin.set_fact:
