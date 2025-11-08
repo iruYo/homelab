@@ -76,7 +76,7 @@
         name: fluxcd-instance
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
         namespace: flux-system
-        values: "{{ lookup('template', 'fluxcd_values.yml.j2') | from_yaml }}"
+        values: "{{ lookup('template', 'flux-instance_values.yml.j2') | from_yaml }}"
 
 #    - name: Wait for fluxcd helmreleases CRD
 #      kubernetes.core.k8s_info:
