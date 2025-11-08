@@ -2,6 +2,7 @@
 instance:
   distribution:
     version: 2.7.x
+    registry: ghcr.io/fluxcd
   cluster:
     networkPolicy: false
   components:
