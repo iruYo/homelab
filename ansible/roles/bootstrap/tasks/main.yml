@@ -96,3 +96,6 @@
 - name: Bootstrap Tinys
   ansible.builtin.include_tasks: tiny_tasks.yml
   when: "'tiny' in group_names"
+
+- name: Ensure changes stick for future roles
+  ansible.builtin.meta: flush_handlers
