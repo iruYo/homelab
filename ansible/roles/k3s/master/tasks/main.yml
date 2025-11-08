@@ -116,7 +116,8 @@
     - name: Change server address in .kube config to vip
       delegate_to: localhost
       become: false
-      ansible.builtin.shell: |
-        KUBECONFIG=~/.kube/config kubectl config set-cluster default --server=https://{{ k3s_api_vip }}:{{ k3s_api_port }}
-      register: setup_kubectl_output
-      changed_when: setup_kubectl_output.rc != 0
+      ansible.builtin.lineinfile:
+          path: "~/.kube/config"
+          regexp: '^(\s+server: )https?://.*$'
+          line: '\1https://{{ k3s_api_vip }}:{{ k3s_api_port }}'
+          backrefs: true
