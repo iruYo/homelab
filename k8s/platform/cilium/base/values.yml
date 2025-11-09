@@ -19,6 +19,9 @@ loadBalancer:
 envoy:
   enabled: false
 
+l2announcements:
+  enabled: true
+
 ipam:
   operator:
     clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # k3s default range
