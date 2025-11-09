@@ -11,5 +11,8 @@
 - name: Setup vault
   import_playbook: setup_vault.yml
 
-- name: Setup k3s cluster
-  import_playbook: setup_k3s_cluster.yml
+- name: Setup k3s master
+  import_playbook: setup_k3s_master.yml
+
+- name: Setup k3s agent
+  import_playbook: setup_k3s_agent.yml
