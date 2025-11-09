@@ -20,7 +20,7 @@ spec:
     cleanupOnFail: true
     remediation:
       strategy: rollback
-      retries: 3
+      retries: -1
   valuesFrom:
   - kind: ConfigMap
     name: cilium-helm-values
