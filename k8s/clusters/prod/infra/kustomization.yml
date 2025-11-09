@@ -5,3 +5,4 @@ resources:
   - cert-manager.yml
   - cilium.yml
   - flux-operator.yml
+  - longhorn.yml

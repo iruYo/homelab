@@ -1,0 +1,21 @@
+ingress:
+  enabled: true
+
+global:
+  nodeSelector:
+    storage: enabled
+
+longhornManager:
+  nodeSelector:
+    storage: enabled
+
+longhornDriver:
+  nodeSelector:
+    storage: enabled
+
+metrics:
+  serviceMonitor:
+    enabled: true
+
+defaultSettings:
+  systemManagedComponentsNodeSelector: "storage:enabled"
