@@ -3,19 +3,19 @@ ingress:
 
 global:
   nodeSelector:
-    storage: enabled
+    storage: "true"
 
 longhornManager:
   nodeSelector:
-    storage: enabled
+    storage: "true"
 
 longhornDriver:
   nodeSelector:
-    storage: enabled
+    storage: "true"
 
 metrics:
   serviceMonitor:
     enabled: false
 
 defaultSettings:
-  systemManagedComponentsNodeSelector: "storage:enabled"
+  systemManagedComponentsNodeSelector: "storage:true"
