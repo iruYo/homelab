@@ -15,7 +15,7 @@ longhornDriver:
 
 metrics:
   serviceMonitor:
-    enabled: true
+    enabled: false
 
 defaultSettings:
   systemManagedComponentsNodeSelector: "storage:enabled"
