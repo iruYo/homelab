@@ -3,7 +3,7 @@
 # k3s
 #######
 
-k3s_version: v1.33.3+k3s1
+k3s_version: v1.34.1+k3s1
 k3s_api_vip: 10.0.20.10
 k3s_api_port: 6443
 k3s_token: "zYMTWVa8vM2p0Xv65BSOauZgvPwjiKBnJe7I1R0t+Kqz026jogVjJlRak5dGQbWnXwo6QhdpHY6GZdN/N0PD5g=="
