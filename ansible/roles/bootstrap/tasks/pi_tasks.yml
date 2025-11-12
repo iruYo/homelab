@@ -42,34 +42,3 @@
     insertafter: '^\[all\]'
   loop: "{{ bootstrap_pi_fan_curve }}"
   notify: Reboot
-
-- name: Determine if host is a Raspberry Pi 5
-  ansible.builtin.command: grep -q "Raspberry Pi 5" /proc/cpuinfo
-  register: bootstrap_pi5_check
-  changed_when: false
-  failed_when: false
-
-- name: Set fact if Raspberry Pi 5 detected
-  ansible.builtin.set_fact:
-    bootstrap_is_pi5: "{{ bootstrap_pi5_check.rc == 0 }}"
-  when: bootstrap_pi5_check.rc is defined
-
-- name: Overvolt Raspberry Pi 5 for SSD compatability
-  when: bootstrap_is_pi5
-  ansible.builtin.blockinfile:
-    path: /boot/firmware/config.txt
-    block: |-
-      [board-type=0x17]
-      over_voltage_delta=50000
-      arm_freq=2500
-  notify: Reboot
-
-- name: Enable PCIe Gen 3 for Raspberry Pi 5
-  when: bootstrap_is_pi5
-  ansible.builtin.blockinfile:
-    path: /boot/firmware/config.txt
-    block: |-
-      dtparam=pciex1
-      dtparam=pciex1_gen=3
-    insertafter: '^\[all\]'
-  notify: Reboot
