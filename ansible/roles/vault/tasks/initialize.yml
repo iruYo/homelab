@@ -21,12 +21,13 @@
     vault_recovery_keys: "{{ vault_init.stdout | regex_findall('Recovery Key \\d+:\\s*(\\S+)', multiline=True) }}"
   no_log: true
 
-- name: Write root key to to local file
+- name: Write keys to to local file
   delegate_to: localhost
   run_once: true
   ansible.builtin.copy:
     dest: "{{ inventory_dir }}/vault"
     content: |
+      root_token: {{ vault_root_token }}
       recovery_keys:
       {% for key in vault_recovery_keys %}
         - {{ key }}
