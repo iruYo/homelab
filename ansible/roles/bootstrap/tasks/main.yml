@@ -89,6 +89,19 @@
         enabled: true
         daemon_reload: true
 
+- name: Set local DNS servers
+  ansible.builtin.set_fact:
+    bootstrap_dns_servers: "{{ bootstrap_dns_servers | default([]) + [hostvars[item]['ansible_host']] }}"
+  loop: "{{ groups['dns'] }}"
+  loop_control:
+    index_var: i
+    break_when: i == 2
+  run_once: true
+
+# - name: Add local DNS server
+# Done in host specific tasks - assuming RPis always use Networkmanager
+# and everything else dhcpcd
+
 - name: Bootstrap Pis
   ansible.builtin.include_tasks: pi_tasks.yml
   when: "'pi' in group_names"

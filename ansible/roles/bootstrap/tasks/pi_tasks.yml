@@ -42,3 +42,12 @@
     insertafter: '^\[all\]'
   loop: "{{ bootstrap_pi_fan_curve }}"
   notify: Reboot
+
+- name: Add local DNS server
+  community.general.nmcli:
+    conn_name: "{{ nm_conn_name }}"
+    type: ethernet
+    dns4: "{{ bootstrap_dns_servers }}"
+    state: present
+    conn_reload: true
+  notify: Reboot

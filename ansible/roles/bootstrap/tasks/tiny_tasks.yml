@@ -1,1 +1,12 @@
 ---
+- name: Set local DNS server
+  ansible.builtin.copy:
+    dest: /etc/resolv.conf.head
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      {% for dns in bootstrap_dns_servers %}
+      nameserver {{ dns }}
+      {% endfor %}
+  notify: Reboot
