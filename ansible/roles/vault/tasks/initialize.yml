@@ -44,26 +44,28 @@
   environment:
     VAULT_TOKEN: "{{ vault_root_token }}"
   block:
-    - name: Enable transit secrets engine
-      ansible.builtin.command: bao secrets enable transit
-      changed_when: true
+    - name: Enable the 'transit' secrets engine
+      community.hashi_vault.vault_write:
+        path: "sys/mounts/transit"
+        data:
+          type: "transit"
 
     - name: Create autounseal key
-      ansible.builtin.command: bao write -f transit/keys/autounseal
-      changed_when: true
+      community.hashi_vault.vault_write:
+        path: "transit/keys/autounseal"
 
     - name: Create autounseal policy
-      ansible.builtin.shell: |
-        bao policy write autounseal -<<'EOF'
-        path "transit/encrypt/autounseal" {
-          capabilities = [ "update" ]
-        }
+      community.hashi_vault.vault_write:
+        path: sys/policies/acl/autounseal
+        data:
+          policy: |
+            path "transit/encrypt/autounseal" {
+              capabilities = [ "update" ]
+            }
 
-        path "transit/decrypt/autounseal" {
-          capabilities = [ "update" ]
-        }
-        EOF
-      changed_when: true
+            path "transit/decrypt/autounseal" {
+              capabilities = [ "update" ]
+            }
 
 # https://developer.hashicorp.com/vault/tutorials/auto-unseal/autounseal-transit
 # Setup VAULT_TOKEN for cluster vault

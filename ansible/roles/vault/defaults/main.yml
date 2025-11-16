@@ -1,6 +1,7 @@
 ---
 vault_packages:
   - opensc
+  - python3-hvac
 
 vault_version: 2.4.1
 vault_key_label: "vault1"
