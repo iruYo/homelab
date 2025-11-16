@@ -114,3 +114,16 @@
     - name: Initialize vault
       when: vault_init_status.rc == 2
       ansible.builtin.include_tasks: initialize.yml
+  rescue:
+    - name: Stop vault server service
+      ansible.builtin.service:
+        name: openbao
+        state: stopped
+
+    - name: Remove vault files
+      ansible.builtin.file:
+        path: "{{ vault_storage_path }}/{{ item }}"
+        state: absent
+      loop:
+        - vault.db
+        - raft
