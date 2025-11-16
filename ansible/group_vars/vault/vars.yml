@@ -1,5 +1,5 @@
 ---
-vault_version: 2.4.1
+vault_version: 2.4.3
 vault_key_label: "vault1"
 vault_storage_path: "/opt/openbao/data"
 
