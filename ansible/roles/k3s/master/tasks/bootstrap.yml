@@ -38,9 +38,21 @@
     sleep: 5
     timeout: 300
 
+- name: Check if flux(operator) is running
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: flux-operator
+    namespace: flux-system
+    kubeconfig: "{{ k3s_kubeconfig_file }}"
+  register: flux_operator_status
+
 # Follow cozystack's setup from here on out
 # https://github.com/cozystack/cozystack/blob/df448b995ad5ace81c4159fb16fd14e1ccc85e56/scripts/installer.sh
 - name: Bootstrap flux(operator)
+  when:
+    - (flux_operator_status.resources | length == 0) or
+      (flux_operator_status.resources[0].status.readyReplicas | default(0) | int == 0)
   module_defaults:
     kubernetes.core.helm:
       kubeconfig: "{{ k3s_kubeconfig_file }}"
@@ -79,31 +91,21 @@
         namespace: flux-system
         values: "{{ lookup('template', 'flux-instance_values.yml.j2') | from_yaml }}"
 
-#    - name: Wait for fluxcd helmreleases CRD
-#      kubernetes.core.k8s_info:
-#        api_version: apiextensions.k8s.io/v1
-#        kind: CustomResourceDefinition
-#        name: helmreleases.helm.toolkit.fluxcd.io
-#      register: result
-#      until: result.resources is defined and result.resources|length > 0
-#      retries: 60
-#      delay: 1
-
-#    - name: Wait for fluxcd helmrepositories CRD
-#      kubernetes.core.k8s_info:
-#        api_version: apiextensions.k8s.io/v1
-#        kind: CustomResourceDefinition
-#        name: helmrepositories.source.toolkit.fluxcd.io
-#      register: result
-#      until: result.resources is defined and result.resources|length > 0
-#      retries: 60
-#      delay: 1
+- name: Check if cilium operator is running
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cilium-operator
+    namespace: kube-system
+    kubeconfig: "{{ k3s_kubeconfig_file }}"
+  register: cilium_operator_status
 
 - name: Bootstrap cilium
+  when:
+    - (cilium_operator_status.resources | length == 0) or
+      (cilium_operator_status.resources[0].status.readyReplicas | default(0) | int == 0)
   module_defaults:
     kubernetes.core.helm:
-      kubeconfig: "{{ k3s_kubeconfig_file }}"
-    kubernetes.core.k8s_info:
       kubeconfig: "{{ k3s_kubeconfig_file }}"
   block:
     - name: Add cilium repository
