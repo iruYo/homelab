@@ -1,0 +1,59 @@
+---
+- vars:
+    work_dir: "/tmp/vault"
+    file_name: "bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}"
+    vault_gpg_publickey: "openbao-gpg-pub-20240618.asc"
+  block:
+    - name: Create temporary directory
+      ansible.builtin.file:
+        path: "{{ work_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download vault files
+      ansible.builtin.get_url:
+        url: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/{{ item }}"
+        dest: "{{ work_dir }}/"
+        mode: "0440"
+      loop:
+        - "{{ file_name }}.deb"
+        - "{{ file_name }}.deb.gpgsig"
+        - "checksums-linux-hsm.txt"
+        - "checksums-linux-hsm.txt.gpgsig"
+        - "{{ vault_gpg_publickey }}"
+
+    - name: Import vault gpg key
+      ansible.builtin.command: "gpg --import {{ work_dir }}/{{ vault_gpg_publickey }}"
+      register: vault_gpg_import_result
+      changed_when: "'unchanged: 1' not in vault_gpg_import_result.stdout"
+
+    - name: Verify checksums signature
+      ansible.builtin.command: "gpg --verify {{ work_dir }}/checksums-linux-hsm.txt.gpgsig {{ work_dir }}/checksums-linux-hsm.txt"
+      register: vault_checksum_sig_result
+      changed_when: vault_checksum_sig_result.rc != 0
+
+    - name: Verify deb signature
+      ansible.builtin.command: "gpg --verify {{ work_dir }}/{{ file_name }}.deb.gpgsig {{ work_dir }}/{{ file_name }}.deb"
+      register: vault_deb_sig_result
+      changed_when: vault_deb_sig_result.rc != 0
+
+    - name: Get deb checksum
+      ansible.builtin.command: "grep -m1 '{{ file_name }}.deb' {{ work_dir }}/checksums-linux-hsm.txt"
+      register: vault_deb_checksum
+      changed_when: false
+
+    - name: Verify deb file
+      ansible.builtin.command: "echo {{ vault_deb_checksum.stdout }} | sha256sum -c"
+      register: vault_deb_checksum_result
+      changed_when: vault_deb_checksum_result.rc != 0
+
+    - name: Install vault
+      ansible.builtin.apt:
+        deb: "{{ work_dir }}/{{ file_name }}.deb"
+
+    - name: Remove temporary directory
+      ansible.builtin.file:
+        path: "{{ work_dir }}"
+        state: absent

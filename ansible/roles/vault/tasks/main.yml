@@ -42,10 +42,8 @@
   changed_when: vault_keygen.rc == 0
   no_log: true
 
-# Todo: Add verfication
-- name: Install vault
-  ansible.builtin.apt:
-    deb: "https://github.com/openbao/openbao/releases/download/v{{ vault_version }}/bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}.deb" # yamllint disable-line rule:line-length
+- name: Download, verify and install vault
+  ansible.builtin.include_tasks: install.yml
 
 - name: Ensure vault configuration directories exist
   ansible.builtin.file:
