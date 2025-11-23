@@ -6,3 +6,4 @@ resources:
   - controlplane-repo.yml
   - jetstack-repo.yml
   - longhorn-repo.yml
+  - prometheus-community-repo.yml

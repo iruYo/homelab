@@ -5,4 +5,5 @@ resources:
   - cert-manager.yml
   - cilium.yml
   - flux-operator.yml
+  - kube-prometheus-stack.yml
   - longhorn.yml
