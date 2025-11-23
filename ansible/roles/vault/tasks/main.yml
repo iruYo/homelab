@@ -90,12 +90,12 @@
   ansible.builtin.lineinfile:
     path: "/home/{{ ansible_user }}/.bashrc"
     regexp: '^export VAULT_ADDR='
-    line: 'export VAULT_ADDR="https://{{ vault_hostname }}:8200"'
+    line: 'export VAULT_ADDR="https://{{ vault_dns }}:8200"'
     state: present
 
 - name: Initialize vault, if needed
   environment:
-    VAULT_ADDR: "https://{{ vault_hostname }}:8200"
+    VAULT_ADDR: "https://{{ vault_dns }}:8200"
   block:
     - name: Check if vault is initialized
       ansible.builtin.command: bao operator init -status
