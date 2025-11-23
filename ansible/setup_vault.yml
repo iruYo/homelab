@@ -3,16 +3,14 @@
   hosts: vault
   gather_facts: true
   become: true
-  vars:
-    vault_hostname: "vault.{{ domain }}"
   pre_tasks: # https://github.com/ricsanfre/pi-cluster/blob/master/ansible/external_services.yml#L163
     - name: Check if certificates for vault exist
       delegate_to: localhost
       become: false
-      ansible.builtin.command: "certbot certificates -d {{ vault_hostname }}"
+      ansible.builtin.command: "certbot certificates -d {{ vault_dns }}"
       register: certbot_certificates
       changed_when: false
-      failed_when: '"Certificate Name: " + vault_hostname not in certbot_certificates.stdout'
+      failed_when: '"Certificate Name: " + vault_dns not in certbot_certificates.stdout'
 
     - name: Set certificate paths
       ansible.builtin.set_fact:

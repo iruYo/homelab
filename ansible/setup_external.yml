@@ -51,4 +51,4 @@
         - certbot_create.rc==0
         - '"Certificate not yet due for renewal; no action taken." not in certbot_create.stdout'
       with_items:
-        - "vault.{{ domain }}"
+        - "{{ vault_dns }}"

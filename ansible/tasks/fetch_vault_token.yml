@@ -1,0 +1,46 @@
+---
+- environment:
+    VAULT_ADDR: "https://{{ vault_dns }}:8200" # REMEMBER HOSTS FILE!
+  vars:
+    approle_path: auth/approle/role/ansible
+  module_defaults:
+    group/community.hashi_vault.vault:
+      token: "{{ vault_ansible_secret_id_gen_token }}"
+  block:
+    - name: Fetch role_id
+      community.hashi_vault.vault_read:
+        path: "{{ approle_path }}/role-id"
+      register: role_id_result
+
+    - name: Set role_id variable
+      ansible.builtin.set_fact:
+        role_id: "{{ role_id_result.data.data.role_id }}"
+
+    - name: Fetch secret_id warp token
+      community.hashi_vault.vault_write:
+        path: "{{ approle_path }}/secret-id"
+        wrap_ttl: "1s"
+      register: secret_id_warp_token_result
+
+    - name: Unwarp secret_id warp token
+      community.hashi_vault.vault_write:
+        path: "sys/wrapping/unwrap"
+        data:
+          token: "{{ secret_id_warp_token_result.data.wrap_info.token }}"
+      register: secret_id_token_result
+
+    - name: Set secret_id variable
+      ansible.builtin.set_fact:
+        secret_id: "{{ secret_id_token_result.data.data.secret_id }}"
+
+    - name: Create session token
+      community.hashi_vault.vault_login:
+        auth_method: "approle"
+        role_id: "{{ role_id }}"
+        secret_id: "{{ secret_id }}"
+      register: vault_session_token_result
+
+    - name: Set vault_session_token variable
+      ansible.builtin.set_fact:
+        vault_session_token: "{{ vault_session_token_result.login.auth.client_token }}"
+  no_log: true
