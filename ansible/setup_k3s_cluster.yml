@@ -8,7 +8,7 @@
       token: "{{ vault_session_token }}"
   pre_tasks:
     - name: Get vault session token
-      include_tasks: tasks/fetch_vault_token.yml
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
   tasks:
     - name: Get k3s join token
       community.hashi_vault.vault_kv2_get:
