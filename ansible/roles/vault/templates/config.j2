@@ -19,7 +19,6 @@ telemetry {
   disable_hostname = true
 }
 
-# Move pin to env var!
 seal "pkcs11" {
   lib = "{{ vault_pkcs11_lib }}"
   token_label = "{{ vault_token_label }}"

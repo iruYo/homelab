@@ -64,7 +64,7 @@
     dest: "{{ vault_config_dir }}/openbao.hcl"
     owner: openbao
     group: openbao
-    mode: "0644"
+    mode: "0600"
 
 - name: Copy vault certificate files
   ansible.builtin.copy:
