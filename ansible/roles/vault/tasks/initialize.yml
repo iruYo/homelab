@@ -44,7 +44,7 @@
   environment:
     VAULT_TOKEN: "{{ vault_root_token }}"
   block:
-    - name: Enable the 'transit' secrets engine
+    - name: Enable transit secret engine
       community.hashi_vault.vault_write:
         path: "sys/mounts/transit"
         data:
@@ -71,6 +71,14 @@
   environment:
     VAULT_TOKEN: "{{ vault_root_token }}"
   block:
+    - name: Enable kv2 secret engine
+      community.hashi_vault.vault_write:
+        path: "sys/mounts/secret"
+        data:
+          type: "kv"
+          options:
+            version: "2"
+
     - name: Enable approle authentication
       community.hashi_vault.vault_write:
         path: "sys/auth/approle"
