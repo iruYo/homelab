@@ -93,13 +93,6 @@
     line: 'export VAULT_ADDR="https://{{ vault_hostname }}:8200"'
     state: present
 
-- name: Ensure host entry for local access exists
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    regexp: '^127\.0\.0\.1\s+{{ vault_hostname }}$'
-    line: '127.0.0.1 {{ vault_hostname }}'
-    state: present
-
 - name: Initialize vault, if needed
   environment:
     VAULT_ADDR: "https://{{ vault_hostname }}:8200"
