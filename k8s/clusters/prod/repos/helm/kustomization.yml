@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - cilium-repo.yml
   - controlplane-repo.yml
+  - hashicorp-repo.yml
   - jetstack-repo.yml
   - longhorn-repo.yml
   - prometheus-community-repo.yml

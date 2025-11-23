@@ -1,0 +1,10 @@
+global:
+  externalVaultAddr: "https://vault.${HOME_DOMAIN}:8200"
+
+server:
+  authDelegator:
+    enabled: true
+  serviceAccount:
+    create: true
+    name: vault-auth
+    createSecret: true
