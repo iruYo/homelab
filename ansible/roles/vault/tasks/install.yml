@@ -1,5 +1,6 @@
 ---
-- vars:
+- name: Setup vault
+  vars:
     work_dir: "/tmp/vault"
     file_name: "bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}"
     vault_gpg_publickey: "openbao-gpg-pub-20240618.asc"
