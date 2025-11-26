@@ -5,6 +5,7 @@ resources:
   - namespace.yml
   - cluster-secret-store.yml
   - helm.yml
+  - service-account.yml
 
 configMapGenerator:
   - name: external-secrets-helm-values
