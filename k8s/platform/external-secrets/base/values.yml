@@ -1,5 +1,9 @@
 installCRDs: true
 
+serviceAccount:
+  create: true
+  name: external-secrets
+
 serviceMonitor:
   enabled: true
   interval: 1m
