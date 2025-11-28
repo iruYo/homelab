@@ -1,6 +1,7 @@
 ---
 k3s_master_packages:
   - helm
+  - openssl
   - python3-kubernetes
   - python3-yaml
 
