@@ -1,11 +1,12 @@
 ---
-- environment:
-    VAULT_ADDR: "https://{{ vault_dns }}:8200" # REMEMBER HOSTS FILE!
+- name: "Set vault session token for {{ approle }}"
   vars:
-    approle_path: auth/approle/role/ansible
+    approle_path: "auth/approle/role/{{ approle }}"
   module_defaults:
     group/community.hashi_vault.vault:
-      token: "{{ vault_ansible_secret_id_gen_token }}"
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ token }}"
+  no_log: true
   block:
     - name: Fetch role_id
       community.hashi_vault.vault_read:
@@ -43,4 +44,3 @@
     - name: Set vault_session_token variable
       ansible.builtin.set_fact:
         vault_session_token: "{{ vault_session_token_result.login.auth.client_token }}"
-  no_log: true
