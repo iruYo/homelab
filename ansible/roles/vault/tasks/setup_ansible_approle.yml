@@ -1,0 +1,52 @@
+---
+- name: Create ansible token policy
+  community.hashi_vault.vault_write:
+    path: sys/policies/acl/ansible-policy
+    data:
+      policy: |
+        path "secret/data/ansible/*" {
+          capabilities = ["create", "read", "update"]
+        }
+
+        path "secret/metadata/ansible/*" {
+          capabilities = [ "update" ]
+        }
+
+- name: Create ansible AppRole secret_id generation policy
+  community.hashi_vault.vault_write:
+    path: sys/policies/acl/ansible-secret-id-generation-policy
+    data:
+      policy: |
+        path "auth/approle/role/ansible/role-id" {
+          capabilities = ["read"]
+        }
+
+        path "auth/approle/role/ansible/secret-id" {
+          capabilities = ["update", "read"]
+          min_wrapping_ttl = "1s"
+          max_wrapping_ttl = "300s"
+        }
+
+- name: Create ansible AppRole role
+  community.hashi_vault.vault_write:
+    path: "auth/approle/role/ansible"
+    data:
+      token_policies: ["ansible-policy"]
+      bind_secret_id: true
+      secret_id_bound_cidrs:
+        - "{{ cidr_block }}"
+      secret_id_num_uses: 1
+      secret_id_ttl: "1h"
+      token_ttl: "30m"
+      token_max_ttl: "30m"
+      token_strictly_bind_ip: true
+
+# Todo: Proper period/max_ttl once CICD is setup
+- name: Create ansible secret_id generation token
+  community.hashi_vault.vault_token_create:
+    policies: ["ansible-secret-id-generation-policy"]
+    id: "{{ hostvars['localhost']['vault_ansible_secret_id_gen_token'] }}"
+    renewable: true
+    period: "120d"
+    explicit_max_ttl: "360d"
+  no_log: true

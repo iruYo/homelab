@@ -91,9 +91,21 @@
     line: 'export VAULT_ADDR="https://{{ vault_dns }}:8200"'
     state: present
 
+- name: Ensure vault alias is in .bashrc for default user
+  become_user: "{{ ansible_user }}"
+  become: true
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    regexp: '^alias vault='
+    line: 'alias vault=bao'
+    state: present
+
 - name: Initialize vault, if needed
   environment:
     VAULT_ADDR: "https://{{ vault_dns }}:8200"
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
   block:
     - name: Check if vault is initialized
       ansible.builtin.command: bao operator init -status
