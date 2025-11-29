@@ -7,4 +7,6 @@ mail: youri.ulbrich@web.de
 
 system_timezone: Europe/Berlin
 
+cluster_ip: 10.0.20.10
+cluster_port: 6443
 vault_dns: "vault.{{ home_domain }}"
