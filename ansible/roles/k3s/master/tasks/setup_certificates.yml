@@ -1,0 +1,100 @@
+---
+- name: Create K3s cert directory
+  ansible.builtin.file:
+    path: "{{ k3s_cert_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+#    - name: Start explicit vault session
+#      ansible.builtin.command: "bao login -no-print {{ vault_session_token }}"
+#      changed_when: true
+#      no_log: true
+
+#    - name: Check if signed intermediate CA exists
+#      ansible.builtin.shell: |
+#        bao token lookup > /dev/null 2>&1 || exit 2 # ensure login
+#        bao read -field=certificate pki_int/cert/ca > /tmp/int_ca.pem || exit 1
+#        bao read -field=certificate pki/cert/ca > /tmp/root_ca.pem
+#
+#        trap "rm -f /tmp/root_ca.pem /tmp/int_ca.pem" EXIT
+#
+#        openssl verify -check_ss_sig -CAfile /tmp/root_ca.pem /tmp/int_ca.pem
+#      register: vault_check_pki_int_ca_result
+#      failed_when: "vault_check_pki_int_ca_result.rc == 2"
+#      changed_when: false
+
+- name: Generate signed intermediate CA
+  vars:
+    vault_int_ca_lease_ttl: "26280h" # 3 years
+  block:
+    - name: Generate intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/generate/exported"
+        data:
+          common_name: "K3s Cluster Intermediate CA"
+          ttl: "{{ vault_int_ca_lease_ttl }}"
+      register: vault_int_ca_creation_result
+
+    - name: Sign intermediate CSR
+      community.hashi_vault.vault_write:
+        path: "pki/root/sign-intermediate"
+        data:
+          csr: "{{ vault_int_ca_creation_result.data.data.csr }}"
+          format: "pem_bundle"
+          ttl: "{{ vault_int_ca_lease_ttl }}"
+      register: vault_int_sign_result
+
+    - name: Import signed intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/set-signed"
+        data:
+          certificate: "{{ vault_int_sign_result.data.data.certificate }}"
+
+- name: Get CA certificate
+  community.hashi_vault.vault_read:
+    path: "pki/cert/ca"
+  register: cluster_ca
+
+- name: Save CA to file
+  ansible.builtin.copy:
+    content: "{{ cluster_ca.data.data.certificate }}"
+    dest: "{{ k3s_cert_dir }}/root-ca.pem"
+    mode: "0600"
+
+- name: Save intermediate CA to file
+  ansible.builtin.copy:
+    content: "{{ vault_int_sign_result.data.data.certificate }}"
+    dest: "{{ k3s_cert_dir }}/intermediate-ca.pem"
+    mode: "0600"
+
+- name: Ensure newlines in cert files # noqa: command-instead-of-module
+  ansible.builtin.command: |
+    sed -i -e $a\\ {{ item }}
+  loop:
+    - "{{ k3s_cert_dir }}/root-ca.pem"
+    - "{{ k3s_cert_dir }}/intermediate-ca.pem"
+  changed_when: true
+
+- name: Save intermediate private key to file
+  ansible.builtin.copy:
+    content: "{{ vault_int_ca_creation_result.data.data.private_key }}"
+    dest: "{{ k3s_cert_dir }}/intermediate-ca.key"
+    mode: "0600"
+
+- name: Generate cluster certificates
+  ansible.builtin.script: "{{ role_path }}/files/generate-custom-ca-certs.sh"
+
+- name: Read K3s server CA certificate
+  ansible.builtin.slurp:
+    src: "{{ k3s_cert_dir }}/server-ca.crt"
+  register: k3s_ca_file
+
+- name: Configure kubernetes authentication
+  community.hashi_vault.vault_write:
+    path: auth/kubernetes/config
+    data:
+      kubernetes_host: "https://{{ k3s_api_vip }}:{{ k3s_api_port }}"
+      kubernetes_ca_cert: "{{ k3s_ca_file['content'] | b64decode }}"
+      disable_local_ca_jwt: true

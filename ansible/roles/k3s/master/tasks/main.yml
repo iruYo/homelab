@@ -91,8 +91,31 @@
 - name: Bootstrap cluster on first master
   when: inventory_hostname == groups['k3s_master'][0]
   block:
+    - name: Get vault session token
+      delegate_to: localhost
+      vars:
+        approle: admin
+        token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
+      no_log: true
+      block:
+        - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
+
+    - name: Setup certificates
+      module_defaults:
+        group/community.hashi_vault.vault:
+          url: "https://{{ vault_dns }}:8200"
+          token: "{{ hostvars['localhost']['vault_session_token'] }}"
+      block:
+        - ansible.builtin.include_tasks: setup_certificates.yml # noqa: name[missing]
+
     - name: Setup platform
       ansible.builtin.include_tasks: setup_platform.yml
+  always:
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        url: "https://{{ vault_dns }}:8200"
+        token: "{{ hostvars['localhost']['vault_session_token'] }}"
+        path: "auth/token/revoke-self"
 
 - name: Start other master node
   when: k3s_ha and inventory_hostname != groups['k3s_master'][0]

@@ -4,6 +4,7 @@ k3s_master_packages:
   - openssl
   - python3-kubernetes
   - python3-yaml
+  - python3-hvac
 
 k3s_version: v1.33.3+k3s1
 k3s_api_vip: 10.0.20.10
