@@ -1,0 +1,47 @@
+---
+- name: Get list of enabled auths
+  community.hashi_vault.vault_read:
+    path: sys/auth
+  register: vault_auth_methods
+
+- name: Enable kubernetes authentication
+  community.hashi_vault.vault_write:
+    path: "sys/auth/kubernetes"
+    data:
+      type: "kubernetes"
+  when: "'kubernetes/' not in vault_auth_methods.data"
+
+- name: Get K3s CA Certificate
+  community.hashi_vault.vault_read:
+    path: "pki/cert/ca"
+  register: vault_k3s_ca
+
+- name: Configure kubernetes authentication
+  community.hashi_vault.vault_write:
+    path: auth/kubernetes/config
+    data:
+      kubernetes_host: "{{ cluster_ip }}:{{ cluster_port }}"
+      kubernetes_ca_cert: "{{ vault_k3s_ca.data.data.certificate }}"
+      disable_local_ca_jwt: true
+
+- name: Create K3s cluster external-secret policy
+  community.hashi_vault.vault_write:
+    path: sys/policies/acl/external-secrets-policy
+    data:
+      policy: |
+        path "secret/data/k3s/*" {
+          capabilities = ["create", "read", "update"]
+        }
+
+        path "secret/metadata/k3s/*" {
+          capabilities = [ "update" ]
+        }
+
+- name: Create external-secrets role
+  community.hashi_vault.vault_write:
+    path: auth/kubernetes/role/external-secrets
+    data:
+      bound_service_account_names: ["external-secrets"]
+      bound_service_account_namespaces: ["external-secrets"]
+      policies: ["external-secrets-policy"]
+      ttl: "12h"
