@@ -18,4 +18,5 @@
         vault_cert_path: "{{ certbot_certificates.stdout | regex_search('Certificate Path: (\\S+)', '\\1') }}"
       when: certbot_certificates.rc == 0
   roles:
+    - role: bootstrap
     - role: vault
