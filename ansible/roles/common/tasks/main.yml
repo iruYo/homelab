@@ -1,3 +1,7 @@
 ---
-- name: Gathering service facts
+- name: Gather service facts
   ansible.builtin.service_facts:
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto

@@ -1,8 +1,4 @@
 ---
-- name: Get list of installed packages
-  ansible.builtin.package_facts:
-    manager: auto
-
 - name: Install packages
   ansible.builtin.apt:
     name: "{{ bootstrap_packages }}"
