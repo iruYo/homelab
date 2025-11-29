@@ -81,15 +81,28 @@
         INSTALL_K3S_VERSION: "{{ k3s_version }}"
       changed_when: true
 
-    - name: Enable K3s service
+    - name: Ensure K3s service is enabled
       ansible.builtin.systemd:
         name: k3s
-        state: stopped
         enabled: true
         daemon_reload: true
 
-- name: Bootstrap cluster on first master
+- name: Check if K3s control plane is available
   when: inventory_hostname == groups['k3s_master'][0]
+  ansible.builtin.uri:
+    url: "https://{{ k3s_api_vip }}:{{ k3s_api_port }}/readyz"
+    validate_certs: false
+    return_content: false
+    status_code: [200, 401]
+    timeout: 5
+  register: k3s_api_check
+  failed_when: false
+  changed_when: false
+
+- name: Bootstrap cluster on first master
+  when:
+    - inventory_hostname == groups['k3s_master'][0]
+    - k3s_api_check.status == -1
   block:
     - name: Get vault session token
       delegate_to: localhost
@@ -121,7 +134,7 @@
   when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
   ansible.builtin.systemd:
     name: k3s
-    state: restarted
+    state: started
     enabled: true
     daemon_reload: true
 
