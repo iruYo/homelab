@@ -55,3 +55,17 @@ path "sys/mounts"
 {
   capabilities = ["read"]
 }
+
+path "pki/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+path "pki_int/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+path "pki" {
+  capabilities = ["read"]
+}

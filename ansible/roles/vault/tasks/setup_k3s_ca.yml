@@ -1,0 +1,107 @@
+---
+- name: Enable root pki secret engine
+  community.hashi_vault.vault_write:
+    path: "sys/mounts/pki"
+    data:
+      type: "pki"
+      config:
+        max_lease_ttl: "{{ vault_ca_lease_ttl }}"
+  when:
+    - vault_pki_healthcheck_result.rc == 1
+    - "'failed to fetch resources' not in vault_pki_healthcheck_result.stderr"
+  register: vault_pki_creation
+
+- name: Enable intermediate pki secret engine
+  community.hashi_vault.vault_write:
+    path: "sys/mounts/pki_int"
+    data:
+      type: "pki"
+      config:
+        max_lease_ttl: "{{ vault_int_ca_lease_ttl }}"
+  when:
+    - vault_pki_int_healthcheck_result.rc == 1
+    - "'failed to fetch resources' not in vault_pki_int_healthcheck_result.stderr"
+  register: vault_pki_int_creation
+
+# https://developer.hashicorp.com/vault/docs/commands/pki/health-check#auto-tidy-disabled
+- name: Enable root pki auto tidy
+  community.hashi_vault.vault_write:
+    path: "pki/config/auto-tidy"
+    data:
+      enabled: "true"
+      tidy_cert_store: "true"
+      tidy_revoked_certs: "true"
+      tidy_acme: "true"
+      tidy_revocation_queue: "true"
+      tidy_cross_cluster_revoked_certs: "true"
+      tidy_revoked_cert_issuer_associations: "true"
+  when: vault_pki_creation.skipped is not defined or
+        'Auto-tidy is currently disabled' in vault_pki_healthcheck_result.stdout
+
+- name: Enable intermediate pki auto tidy
+  community.hashi_vault.vault_write:
+    path: "pki_int/config/auto-tidy"
+    data:
+      enabled: "true"
+      tidy_cert_store: "true"
+      tidy_revoked_certs: "true"
+      tidy_acme: "true"
+      tidy_revocation_queue: "true"
+      tidy_cross_cluster_revoked_certs: "true"
+      tidy_revoked_cert_issuer_associations: "true"
+  when: vault_pki_int_creation.skipped is not defined or
+        'Auto-tidy is currently disabled' in vault_pki_int_healthcheck_result.stdout
+
+- name: Check if root CA exists
+  ansible.builtin.command: bao read pki/config/issuers
+  failed_when: false
+  changed_when: false
+  register: vault_check_pki_root_ca_result
+
+- name: Generate root CA
+  community.hashi_vault.vault_write:
+    path: "pki/root/generate/internal"
+    data:
+      common_name: "K3s Cluster Root CA"
+      ttl: "{{ vault_ca_lease_ttl }}"
+  when: "'n/a' in vault_check_pki_root_ca_result.stdout or 'No value found' in vault_check_pki_root_ca_result.stderr"
+  register: vault_ca_creation_result
+
+- name: Check if signed intermediate CA exists
+  ansible.builtin.shell: |
+    bao read -field=certificate pki_int/cert/ca > /tmp/int_ca.pem || exit 1
+    bao read -field=certificate pki/cert/ca > /tmp/root_ca.pem
+
+    trap "rm -f /tmp/root_ca.pem /tmp/int_ca.pem" EXIT
+
+    openssl verify -check_ss_sig -CAfile /tmp/root_ca.pem /tmp/int_ca.pem
+  failed_when: false
+  changed_when: false
+  when: "vault_ca_creation_result.skipped is defined"
+  register: vault_check_pki_int_ca_result
+
+- name: Generate signed intermediate CA
+  when: "vault_ca_creation_result.skipped is not defined or vault_check_pki_int_ca_result.rc != 0"
+  block:
+    - name: Generate intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/generate/exported"
+        data:
+          common_name: "K3s Cluster Intermediate CA"
+          ttl: "{{ vault_int_ca_lease_ttl }}"
+      register: vault_int_ca_creation_result
+
+    - name: Sign intermediate CSR
+      community.hashi_vault.vault_write:
+        path: "pki/root/sign-intermediate"
+        data:
+          csr: "{{ vault_int_ca_creation_result.data.data.csr }}"
+          format: "pem_bundle"
+          ttl: "{{ vault_int_ca_lease_ttl }}"
+      register: vault_int_sign_result
+
+    - name: Import signed intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/set-signed"
+        data:
+          certificate: "{{ vault_int_sign_result.data.data.certificate }}"

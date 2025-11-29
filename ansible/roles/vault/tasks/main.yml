@@ -100,7 +100,7 @@
     line: 'alias vault=bao'
     state: present
 
-- name: Initialize vault, if needed
+- name: Initialize vault
   environment:
     VAULT_ADDR: "https://{{ vault_dns }}:8200"
   module_defaults:
@@ -130,3 +130,47 @@
       loop:
         - vault.db
         - raft
+
+- name: Get admin vault session token
+  delegate_to: localhost
+  run_once: true
+  vars:
+    approle: admin
+    token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
+  no_log: true
+  block:
+    - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
+
+- name: Ensure CAs for K3s cluster exists
+  environment:
+    VAULT_ADDR: "https://{{ vault_dns }}:8200"
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ hostvars['localhost']['vault_session_token'] }}"
+  block:
+    - name: Start vault session
+      ansible.builtin.command: "bao login -no-print {{ hostvars['localhost']['vault_session_token'] }}"  # alias?
+      changed_when: true
+      no_log: true
+
+    - name: Check pki health
+      ansible.builtin.command: bao pki health-check pki
+      failed_when: false
+      changed_when: false
+      register: vault_pki_healthcheck_result
+
+    - name: Check intermediate pki health
+      ansible.builtin.command: bao pki health-check pki_int
+      failed_when: false
+      changed_when: false
+      register: vault_pki_int_healthcheck_result
+
+    - name: Setup K3s CAs
+      ansible.builtin.include_tasks: setup_k3s_ca.yml
+      no_log: true
+  always:
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        token: "{{ hostvars['localhost']['vault_session_token'] }}"
+        path: "auth/token/revoke-self"

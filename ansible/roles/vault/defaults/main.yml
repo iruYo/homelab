@@ -6,6 +6,9 @@ vault_packages:
 vault_version: 2.4.1
 vault_key_label: "vault1"
 
-vault_storage_path: ""
+vault_storage_path: "/opt/openbao/data"
 vault_cert_path: ""
 vault_cert_key_path: ""
+
+vault_ca_lease_ttl: "87660h"
+vault_int_ca_lease_ttl: "26280h"
