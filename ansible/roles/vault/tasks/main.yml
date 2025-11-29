@@ -44,6 +44,8 @@
 
 - name: Download, verify and install vault
   ansible.builtin.include_tasks: install.yml
+  when: "'bao-hsm' not in ansible_facts.packages or
+        ansible_facts.packages['bao-hsm'][0].version != vault_version"
 
 - name: Ensure vault configuration directories exist
   ansible.builtin.file:
