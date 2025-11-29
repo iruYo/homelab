@@ -90,7 +90,9 @@
 
 - name: Bootstrap cluster on first master
   when: inventory_hostname == groups['k3s_master'][0]
-  ansible.builtin.include_tasks: bootstrap.yml
+  block:
+    - name: Setup platform
+      ansible.builtin.include_tasks: setup_platform.yml
 
 - name: Start other master node
   when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
@@ -117,7 +119,7 @@
       delegate_to: localhost
       become: false
       ansible.builtin.lineinfile:
-          path: "~/.kube/config"
-          regexp: '^(\s+server: )https?://.*$'
-          line: '\1https://{{ k3s_api_vip }}:{{ k3s_api_port }}'
-          backrefs: true
+        path: "~/.kube/config"
+        regexp: '^(\s+server: )https?://.*$'
+        line: '\1https://{{ k3s_api_vip }}:{{ k3s_api_port }}'
+        backrefs: true
