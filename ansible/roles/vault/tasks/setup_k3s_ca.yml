@@ -69,16 +69,17 @@
 
 - name: Check if signed intermediate CA exists
   ansible.builtin.shell: |
+    bao token lookup > /dev/null 2>&1 || exit 2 # ensure login
     bao read -field=certificate pki_int/cert/ca > /tmp/int_ca.pem || exit 1
     bao read -field=certificate pki/cert/ca > /tmp/root_ca.pem
 
     trap "rm -f /tmp/root_ca.pem /tmp/int_ca.pem" EXIT
 
     openssl verify -check_ss_sig -CAfile /tmp/root_ca.pem /tmp/int_ca.pem
-  failed_when: false
+  register: vault_check_pki_int_ca_result
+  failed_when: "vault_check_pki_int_ca_result.rc == 2"
   changed_when: false
   when: "vault_ca_creation_result.skipped is defined"
-  register: vault_check_pki_int_ca_result
 
 - name: Generate signed intermediate CA
   when: "vault_ca_creation_result.skipped is not defined or vault_check_pki_int_ca_result.rc != 0"
