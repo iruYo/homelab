@@ -27,14 +27,6 @@
     group: root
     mode: "0755"
 
-- name: Copy K3s token file
-  ansible.builtin.copy:
-    content: "{{ k3s_token }}"
-    dest: "{{ k3s_token_file }}"
-    owner: root
-    group: root
-    mode: "0600"
-
 - name: Copy K3s configuration file
   ansible.builtin.template:
     src: "templates/config.yaml.j2"
@@ -103,6 +95,10 @@
   when:
     - inventory_hostname == groups['k3s_master'][0]
     - k3s_api_check.status == -1
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ hostvars['localhost']['vault_session_token'] }}"
   block:
     - name: Get vault session token
       delegate_to: localhost
@@ -114,15 +110,25 @@
         - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
 
     - name: Setup certificates
-      module_defaults:
-        group/community.hashi_vault.vault:
-          url: "https://{{ vault_dns }}:8200"
-          token: "{{ hostvars['localhost']['vault_session_token'] }}"
-      block:
-        - ansible.builtin.include_tasks: setup_certificates.yml # noqa: name[missing]
+      ansible.builtin.include_tasks: setup_certificates.yml
 
     - name: Setup platform
       ansible.builtin.include_tasks: setup_platform.yml
+
+    - name: Get inital join token
+      ansible.builtin.slurp:
+        src: "{{ k3s_state_dir }}/server/node-token"
+      register: k3s_inital_token
+
+    - name: Set join token variable
+      ansible.builtin.set_fact:
+        k3s_join_token: "{{ k3s_inital_token['content'] | b64decode }}"
+
+    - name: Store join token in vault
+      community.hashi_vault.vault_kv2_write:
+        path: "ansible/k3s/join-token"
+        data:
+          join-token: "{{ k3s_join_token }}"
   always:
     - name: Revoke vault session
       community.hashi_vault.vault_write:
@@ -132,11 +138,21 @@
 
 - name: Start other master node
   when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
-  ansible.builtin.systemd:
-    name: k3s
-    state: started
-    enabled: true
-    daemon_reload: true
+  block:
+    - name: Copy K3s token file
+      ansible.builtin.copy:
+        content: "{{ hostvars[groups['k3s_master'][0]]['k3s_join_token'] }}"
+        dest: "{{ k3s_token_file }}"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Start K3s service
+      ansible.builtin.systemd:
+        name: k3s
+        state: started
+        enabled: true
+        daemon_reload: true
 
 - name: Setup kubectl
   ansible.builtin.include_tasks: setup_kubectl.yml

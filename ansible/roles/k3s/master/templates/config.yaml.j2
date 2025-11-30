@@ -2,6 +2,6 @@
 cluster-init: true
 {% else %}
 server: https://{{ k3s_first_ip }}:{{ k3s_api_port }}
-{% endif %}
 token-file: {{ k3s_token_file }}
+{% endif %}
 {{ k3s_server_config | to_nice_yaml }}

@@ -1,5 +1,16 @@
 ---
-- name: Ensure k3s join token is set
+- name: Setup K3s master nodes
+  hosts: k3s_master
+  gather_facts: true
+  become: true
+  vars:
+    k3s_token: "test"
+  roles:
+    - role: bootstrap
+    - role: k3s/master # noqa: role-name[path]
+  tags: master
+
+- name: Get K3s join token
   hosts: localhost
   pre_tasks:
     - name: Get vault session token
@@ -18,40 +29,14 @@
       community.hashi_vault.vault_kv2_get:
         path: "ansible/k3s/join-token"
       register: vault_k3s_token_result
-      ignore_errors: true
 
     - name: Set k3s_token variable
-      when: "vault_k3s_token_result.secret['join-token'] | default('') != ''"
       ansible.builtin.set_fact:
         k3s_token: "{{ vault_k3s_token_result.secret['join-token'] }}"
 
-    - name: Set inital k3s join token
-      when: "vault_k3s_token_result.secret['join-token'] | default('') == ''"
-      block:
-        - name: Generate token
-          ansible.builtin.shell: head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 64
-          register: token
-
-        - name: Write k3s join token
-          community.hashi_vault.vault_kv2_write:
-            path: "ansible/k3s/join-token"
-            data:
-              join-token: "{{ token.stdout }}"
-
-        - name: Set k3s_token variable
-          ansible.builtin.set_fact:
-            k3s_token: "{{ token.stdout }}"
-
-- name: Setup k3s master nodes
-  hosts: k3s_master
-  gather_facts: true
-  become: true
-  vars:
-    k3s_token: "{{ hostvars['localhost']['k3s_token'] }}"
-  roles:
-    - role: bootstrap
-    - role: k3s/master # noqa: role-name[path]
-  tags: master
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        path: "auth/token/revoke-self"
 
 - name: Install k3s agent nodes
   hosts: k3s_agent
