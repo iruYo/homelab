@@ -1,5 +1,15 @@
 ---
-vault_version: 2.4.4
+vault_version: 2.5.0-beta20251125
+#vault_plugins:
+#  - name: "aws"
+#    type: "secret"
+#    image: "ghcr.io/openbao/openbao-plugin-secrets-aws"
+#    version: "v0.2.0"
+#    binary_name: "openbao-plugin-secrets-aws"
+#    sha256: "2fed276f4faf19e571a2f272802ba1c654955497ed6c9547a7f4472dfc4581c9"
+#v0.2.0@sha256:fb88b23e153a95e09d649746f5d27aaac6bc291db0f19f152d8ad2724139c422" #ARM64
+#991732feb606737baf727cba0ffa99def84f440d50c21c12ff0c4e7c5bdcc0f1
+
 vault_key_label: "vault1"
 
 hsm_user_pin: "{{ vault_hsm_user_pin }}"

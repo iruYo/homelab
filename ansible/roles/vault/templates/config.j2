@@ -2,6 +2,11 @@ ui            = true
 cluster_addr  = "https://127.0.0.1:8201"
 api_addr      = "https://127.0.0.1:8200"
 
+plugin_directory = "{{ vault_opt_dir }}/plugins"
+plugin_download_behavior = "fail"
+plugin_auto_download = true
+plugin_auto_register = true
+
 storage "raft" {
   path = "{{ vault_storage_dir }}"
   node_id = "node1"
@@ -25,3 +30,12 @@ seal "pkcs11" {
   key_label = "{{ vault_key_label }}"
   pin = "{{ hsm_user_pin }}"
 }
+
+{% for plugin in vault_plugins %}
+plugin "{{ plugin.type }}" "{{ plugin.name }}" {
+  image       = "{{ plugin.image }}"
+  version     = "{{ plugin.version }}"
+  binary_name = "{{ plugin.binary_name }}"
+  sha256sum   = "{{ plugin.sha256 }}"
+}
+{% endfor %}

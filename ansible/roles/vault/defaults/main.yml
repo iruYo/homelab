@@ -4,6 +4,8 @@ vault_packages:
   - python3-hvac
 
 vault_version: 2.4.1
+vault_plugins: []
+
 vault_key_label: "vault1"
 
 vault_cert_path: ""
