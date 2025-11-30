@@ -14,10 +14,10 @@ listener "tcp" {
   tls_key_file  = "{{ vault_tls_dir }}/privkey.pem"
 }
 
-telemetry {
-  statsite_address = "[::]:8125"
-  disable_hostname = true
-}
+#telemetry {
+#  statsite_address = "[::]:8125"
+#  disable_hostname = true
+#}
 
 seal "pkcs11" {
   lib = "{{ vault_pkcs11_lib }}"
