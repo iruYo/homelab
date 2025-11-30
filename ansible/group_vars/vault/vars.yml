@@ -5,3 +5,4 @@ vault_key_label: "vault1"
 hsm_user_pin: "{{ vault_hsm_user_pin }}"
 
 vault_ca_lease_ttl: "87660h" # 10 years
+vault_int_ca_lease_ttl: "26280h"
