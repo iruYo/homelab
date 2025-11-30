@@ -7,6 +7,7 @@
     k3s_token: "test"
   roles:
     - role: bootstrap
+    - role: k3s/prerequisites # noqa: role-name[path]
     - role: k3s/master # noqa: role-name[path]
   tags: master
 
@@ -46,5 +47,6 @@
     k3s_token: "{{ hostvars['localhost']['k3s_token'] }}"
   roles:
     - role: bootstrap
+    - role: k3s/prerequisites # noqa: role-name[path]
     - role: k3s/agent # noqa: role-name[path]
   tags: agent
