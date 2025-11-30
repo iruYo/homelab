@@ -12,6 +12,28 @@ spec:
     name: flux-system
   dependsOn:
   - name: prometheus-operator-crds
-  path: ./k8s/platform/cert-manager/overlays/prod
+  path: ./k8s/platform/cert-manager/app/overlays/prod
   prune: true
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cert-manager-config
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: cert-manager
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: cert-manager
+  path: ./k8s/platform/cert-manager/config/overlays/prod
+  prune: true
+  wait: true
+  healthCheckExprs:
+    - apiVersion: external-secrets.io/v1
+      kind: ClusterIssuer
+      current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
