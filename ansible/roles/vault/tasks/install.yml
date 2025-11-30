@@ -54,13 +54,7 @@
     - name: Install vault
       ansible.builtin.apt:
         deb: "{{ work_dir }}/{{ file_name }}.deb"
-
-    - name: Ensure vault is running
-      ansible.builtin.systemd_service:
-          name: openbao
-          state: started
-          enabled: true
-          daemon_reload: true
+      Notify: Restart vault
 
     - name: Remove temporary directory
       ansible.builtin.file:

@@ -42,11 +42,6 @@
   changed_when: vault_keygen.rc == 0
   no_log: true
 
-- name: Download, verify and install vault
-  ansible.builtin.include_tasks: install.yml
-  when: "'bao-hsm' not in ansible_facts.packages or
-        ansible_facts.packages['bao-hsm'][0].version != vault_version"
-
 - name: Ensure vault configuration directories exist
   ansible.builtin.file:
     path: "{{ item }}"
@@ -58,6 +53,12 @@
     - "{{ vault_config_dir }}"
     - "{{ vault_tls_dir }}"
 
+- name: Ensure .env file exists
+  ansible.builtin.file:
+    path: "{{ vault_config_dir }}/openbao.env"
+    state: touch
+    mode: "0644"
+
 - name: Copy vault configuration file
   ansible.builtin.template:
     src: config.j2
@@ -65,6 +66,7 @@
     owner: openbao
     group: openbao
     mode: "0600"
+  notify: Restart vault
 
 - name: Copy vault certificate files
   ansible.builtin.copy:
@@ -76,13 +78,15 @@
   with_items:
     - "{{ vault_cert_key_path }}"
     - "{{ vault_cert_path }}"
+  notify: Restart vault
 
-- name: Reload vault server service
-  ansible.builtin.service:
-    name: openbao
-    state: reloaded
-    enabled: true
-    daemon_reload: true
+- name: Download, verify and install vault
+  ansible.builtin.include_tasks: install.yml
+  when: "'bao-hsm' not in ansible_facts.packages or
+        ansible_facts.packages['bao-hsm'][0].version != vault_version"
+
+- name: Ensure configuration changes
+  ansible.builtin.meta: flush_handlers
 
 - name: Ensure VAULT_ADDR is in .bashrc for default user
   become_user: "{{ ansible_user }}"

@@ -1,0 +1,7 @@
+---
+- name: Restart vault
+  ansible.builtin.systemd_service:
+      name: openbao
+      state: restarted
+      enabled: true
+      daemon_reload: true
