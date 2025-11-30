@@ -1,7 +1,6 @@
 ---
 - name: Ensure external resources exist
   hosts: localhost
-  gather_facts: true
   vars:
     tf_dir: "../tf"
     tf_bucket: !vault |
@@ -43,12 +42,9 @@
         --rsa-key-size 4096 \
         -m {{ mail }} \
         -d {{ item }}
-      environment:
-        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
-        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
       register: certbot_create
       changed_when:
-        - certbot_create.rc==0
-        - '"Certificate not yet due for renewal; no action taken." not in certbot_create.stdout'
+        - certbot_create.rc == 0
+        - "'Certificate not yet due for renewal; no action taken.' not in certbot_create.stdout"
       with_items:
         - "{{ vault_dns }}"
