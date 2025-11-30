@@ -127,7 +127,7 @@
 
     - name: Remove vault files
       ansible.builtin.file:
-        path: "{{ vault_storage_path }}/{{ item }}"
+        path: "{{ vault_storage_dir }}/{{ item }}"
         state: absent
       loop:
         - vault.db
