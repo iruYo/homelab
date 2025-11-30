@@ -5,6 +5,7 @@
     file_name: "bao-hsm_{{ vault_version }}_linux_{{ common_architecture[ansible_architecture] }}"
     vault_gpg_publickey: "openbao-gpg-pub-20240618.asc"
   block:
+    # Todo: https://docs.ansible.com/projects/ansible/latest/collections/ansible/builtin/tempfile_module.html
     - name: Create temporary directory
       ansible.builtin.file:
         path: "{{ work_dir }}"
@@ -53,6 +54,13 @@
     - name: Install vault
       ansible.builtin.apt:
         deb: "{{ work_dir }}/{{ file_name }}.deb"
+
+    - name: Ensure vault is running
+      ansible.builtin.systemd_service:
+          name: openbao
+          state: started
+          enabled: true
+          daemon_reload: true
 
     - name: Remove temporary directory
       ansible.builtin.file:
