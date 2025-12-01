@@ -191,7 +191,7 @@
   block:
     - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
 
-- name: Setup authentication for K3s cluster
+- name: Setup secrets and authentication for K3s cluster
   module_defaults:
     group/community.hashi_vault.vault:
       url: "https://{{ vault_dns }}:8200"
@@ -199,6 +199,10 @@
   block:
     - name: Setup kubernetes authentication
       ansible.builtin.include_tasks: setup_kubernetes_auth.yml
+      no_log: true
+
+    - name: Setup aws authentication
+      ansible.builtin.include_tasks: setup_aws_secrets.yml
       no_log: true
   always:
     - name: Revoke vault session

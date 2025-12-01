@@ -1,0 +1,13 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: cert-manager-tf
+  namespace: flux-system
+spec:
+  path: ./k8s/platform/cert-manager/config/tf
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  approvePlan: auto

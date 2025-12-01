@@ -52,6 +52,7 @@ resource "aws_route53_record" "ns" {
   records = toset(aws_route53_zone.this[each.key].name_servers)
 }
 
+
 /*
 resource "aws_route53_record" "root-a" {
   zone_id = aws_route53_zone.main.zone_id
