@@ -5,7 +5,7 @@ metadata:
   name: cert-manager-tf
   namespace: flux-system
 spec:
-  path: ./k8s/platform/cert-manager/config/tf
+  path: ./k8s/platform/cert-manager/app/tf
   interval: 30m
   sourceRef:
     kind: GitRepository
