@@ -33,3 +33,5 @@
       ansible.builtin.file:
         path: /etc/rancher
         state: absent
+
+# Todo: remove intermediate CA from vault
