@@ -26,7 +26,7 @@
       token: "{{ vault_session_token }}"
   no_log: true
   tasks:
-    - name: Get k3s join token
+    - name: Get K3s join token
       community.hashi_vault.vault_kv2_get:
         path: "ansible/k3s/join-token"
       register: vault_k3s_token_result
@@ -39,7 +39,7 @@
       community.hashi_vault.vault_write:
         path: "auth/token/revoke-self"
 
-- name: Install k3s agent nodes
+- name: Install K3s agent nodes
   hosts: k3s_agent
   gather_facts: true
   become: true

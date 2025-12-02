@@ -11,5 +11,5 @@
 - name: Setup vault
   import_playbook: setup_vault.yml
 
-- name: Setup k3s cluster
+- name: Setup K3s cluster
   import_playbook: setup_k3s_cluster.yml
