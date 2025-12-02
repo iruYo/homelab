@@ -2,7 +2,7 @@
 - name: Ensure external resources exist
   hosts: localhost
   vars:
-    tf_dir: "../tf"
+    tf_dir: "../tf/network"
     tf_bucket: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           32616238376638386237376266656439373839623033653030623839633739323132396233663565
@@ -11,7 +11,6 @@
           6266656561633462660a383534353732326233316663363437313065383633343231363264616363
           39626635343863623464363034626438356365356637306361646539393439326432396235353437
           3834316165613461363332653162643431346136333930386535
-    tf_bucket_key: "prod/terraform.tfstate"
   tasks:
     - name: Ensure aws zones
       environment:
@@ -23,7 +22,6 @@
         force_init: true
         backend_config:
           bucket: "{{ tf_bucket }}"
-          key: "{{ tf_bucket_key }}"
         variables:
           domain: "{{ domain }}"
           zones:
