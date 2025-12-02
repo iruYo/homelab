@@ -1,9 +1,4 @@
 ---
-- name: Get list of enabled auths
-  community.hashi_vault.vault_read:
-    path: sys/auth
-  register: vault_auth_methods
-
 - name: Enable kubernetes authentication
   community.hashi_vault.vault_write:
     path: "sys/auth/kubernetes"

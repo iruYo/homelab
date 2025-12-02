@@ -1,0 +1,22 @@
+- name: Create additional admin policies
+  community.hashi_vault.vault_write:
+    path: sys/policies/acl/{{ item }}
+    data:
+      policy: "{{ lookup('file', item + '.hcl') }}"
+  loop:
+    - "manage-aws-secret-policy"
+    - "manage-pki-int-policy"
+    - "manage-pki-policy"
+    - "manage-secret-policy"
+
+- name: Set admin policies
+  community.hashi_vault.vault_write:
+    path: "auth/approle/role/admin"
+    data:
+      token_policies: [
+        "admin-policy", # Overwriting action - KEEP ADMIN POLICY!
+        "manage-aws-secret-policy",
+        "manage-pki-int-policy",
+        "manage-pki-policy",
+        "manage-secret-policy"
+      ]

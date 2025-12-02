@@ -41,6 +41,15 @@
       token_max_ttl: "30m"
       token_strictly_bind_ip: true
 
+- name: Check if sercet_id generation token exists
+  community.hashi_vault.vault_write:
+    path: auth/token/lookup
+    data:
+      token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
+  register: vault_admin_secret_id_gen_lookup_result
+  no_log: true
+  ignore_errors: true
+
 # Todo: Proper period/max_ttl once CICD is setup
 - name: Create ansible secret_id generation token
   community.hashi_vault.vault_token_create:
@@ -49,4 +58,5 @@
     renewable: true
     period: "120d"
     explicit_max_ttl: "360d"
+  when: "vault_admin_secret_id_gen_lookup_result is failed"
   no_log: true

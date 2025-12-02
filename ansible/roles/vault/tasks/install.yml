@@ -54,7 +54,6 @@
     - name: Install vault
       ansible.builtin.apt:
         deb: "{{ work_dir }}/{{ file_name }}.deb"
-      Notify: Restart vault
 
     - name: Remove temporary directory
       ansible.builtin.file:

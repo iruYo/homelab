@@ -1,5 +1,5 @@
 ---
-- name: Install vault packages
+- name: Install vault required packages
   ansible.builtin.apt:
     name: "{{ vault_packages }}"
     update_cache: true
@@ -83,10 +83,7 @@
 - name: Download, verify and install vault
   ansible.builtin.include_tasks: install.yml
   when: "'bao-hsm' not in ansible_facts.packages or
-        ansible_facts.packages['bao-hsm'][0].version != vault_version"
-
-- name: Ensure configuration changes
-  ansible.builtin.meta: flush_handlers
+        ansible_facts.packages['bao-hsm'][0].version != vault_version" # Doesn't work with beta versions
 
 - name: Ensure VAULT_ADDR is in .bashrc for default user
   become_user: "{{ ansible_user }}"
@@ -120,6 +117,13 @@
       changed_when: false
       failed_when: vault_init_status.rc == 1
 
+    - name: Ensure vault is running
+      ansible.builtin.systemd_service:
+        name: openbao
+        state: started
+        enabled: true
+        daemon_reload: true
+
     - name: Initialize vault
       when: vault_init_status.rc == 2
       ansible.builtin.include_tasks: initialize.yml
@@ -137,6 +141,10 @@
         - vault.db
         - raft
 
+    - name: Stop further configuration
+      ansible.builtin.fail:
+        msg: "Vault initialization failed"
+
 - name: Get admin vault session token
   delegate_to: localhost
   run_once: true
@@ -147,7 +155,7 @@
   block:
     - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
 
-- name: Ensure CAs for K3s cluster exists
+- name: Configure vault
   environment:
     VAULT_ADDR: "https://{{ vault_dns }}:8200"
   module_defaults:
@@ -155,54 +163,46 @@
       url: "https://{{ vault_dns }}:8200"
       token: "{{ hostvars['localhost']['vault_session_token'] }}"
   block:
-    - name: Start vault session
-      ansible.builtin.command: "bao login -no-print {{ hostvars['localhost']['vault_session_token'] }}"  # alias?
-      changed_when: true
+    - name: Ensure admin policies
+      ansible.builtin.include_tasks: add_additional_admin_policies.yml
+
+    # Todo: Fix this.
+    # Determines if secret engines need to be enabled
+    # Will cause that secret config changes in ansible WON'T be applied
+    - name: Set list of enabled secret engines
+      community.hashi_vault.vault_read:
+        path: sys/mounts
+      register: vault_secret_engines
+
+    # See engines above
+    - name: Set list of enabled auths
+      community.hashi_vault.vault_read:
+        path: sys/auth
+      register: vault_auth_methods
+
+    - name: Setup ansible AppRole authentication
+      ansible.builtin.include_tasks: setup_ansible_approle.yml
       no_log: true
 
-    - name: Check pki health
-      ansible.builtin.command: bao pki health-check pki
-      failed_when: false
-      changed_when: false
-      register: vault_pki_healthcheck_result
-
-    - name: Check intermediate pki health
-      ansible.builtin.command: bao pki health-check pki_int
-      failed_when: false
-      changed_when: false
-      register: vault_pki_int_healthcheck_result
-
-    - name: Setup K3s CAs
-      ansible.builtin.include_tasks: setup_k3s_ca.yml
-      no_log: true
-  always:
-    - name: Revoke vault session
-      community.hashi_vault.vault_write:
-        token: "{{ hostvars['localhost']['vault_session_token'] }}"
-        path: "auth/token/revoke-self"
-
-- name: Get another admin vault session token
-  delegate_to: localhost
-  run_once: true
-  vars:
-    approle: admin
-    token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
-  no_log: true
-  block:
-    - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
-
-- name: Setup secrets and authentication for K3s cluster
-  module_defaults:
-    group/community.hashi_vault.vault:
-      url: "https://{{ vault_dns }}:8200"
-      token: "{{ hostvars['localhost']['vault_session_token'] }}"
-  block:
     - name: Setup kubernetes authentication
       ansible.builtin.include_tasks: setup_kubernetes_auth.yml
       no_log: true
 
-    - name: Setup aws authentication
+    - name: Setup aws secret engine
       ansible.builtin.include_tasks: setup_aws_secrets.yml
+      no_log: true
+
+    - name: Enable kv2 secret engine
+      community.hashi_vault.vault_write:
+        path: "sys/mounts/secret"
+        data:
+          type: "kv"
+          options:
+            version: "2"
+      when: "'secret/' not in vault_secret_engines.data"
+
+    - name: Setup K3s CAs
+      ansible.builtin.include_tasks: setup_k3s_ca.yml
       no_log: true
   always:
     - name: Revoke vault session

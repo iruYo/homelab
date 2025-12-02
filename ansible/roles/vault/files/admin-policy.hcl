@@ -37,13 +37,6 @@ path "sys/auth"
   capabilities = ["read"]
 }
 
-# Enable and manage the key/value secrets engine at `secret/` path
-# List, create, update, and delete key/value secrets
-path "secret/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
 # Manage secrets engines
 path "sys/mounts/*"
 {
@@ -56,16 +49,6 @@ path "sys/mounts"
   capabilities = ["read"]
 }
 
-path "pki/*"
-{
+path "sys/plugins/catalog/*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
-path "pki_int/*"
-{
-  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
-}
-
-path "pki" {
-  capabilities = ["read"]
 }

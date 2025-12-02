@@ -1,6 +1,6 @@
 ---
 - name: Copy gpg key for vault key encryption
-  ansible.builtin.copy:
+  ansible.builtin.copy: # Todo: ansible.builtin.tempfile:
     src: pub.asc
     dest: /tmp/pub.asc
     owner: root
@@ -42,38 +42,19 @@
     path: /tmp/pub.asc
     state: absent
 
-- name: Setup auths and engines
+- name: Setup admin AppRole authentication
   module_defaults:
     group/community.hashi_vault.vault:
       token: "{{ vault_root_token }}"
   block:
-    - name: Enable kv2 secret engine
-      community.hashi_vault.vault_write:
-        path: "sys/mounts/secret"
-        data:
-          type: "kv"
-          options:
-            version: "2"
-
     - name: Enable approle authentication
       community.hashi_vault.vault_write:
         path: "sys/auth/approle"
         data:
           type: "approle"
 
-- name: Setup admin AppRole authentication
-  module_defaults:
-    group/community.hashi_vault.vault:
-      token: "{{ vault_root_token }}"
-  block:
-    - ansible.builtin.include_tasks: setup_admin_approle.yml # noqa: name[missing]
-
-- name: Setup ansible AppRole authentication
-  module_defaults:
-    group/community.hashi_vault.vault:
-      token: "{{ vault_root_token }}"
-  block:
-    - ansible.builtin.include_tasks: setup_ansible_approle.yml # noqa: name[missing]
+    - name: Setup admin Approle
+      ansible.builtin.include_tasks: setup_admin_approle.yml
 
 #- name: Revoke root Token
 #  community.hashi_vault.vault_write:

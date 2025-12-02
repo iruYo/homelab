@@ -1,4 +1,9 @@
 ---
+- name: Start vault session
+  ansible.builtin.command: "bao login -no-print {{ hostvars['localhost']['vault_session_token'] }}" # vault alias?
+  changed_when: true
+  no_log: true
+
 - name: Enable root pki secret engine
   community.hashi_vault.vault_write:
     path: "sys/mounts/pki"
@@ -6,9 +11,7 @@
       type: "pki"
       config:
         max_lease_ttl: "{{ vault_ca_lease_ttl }}"
-  when:
-    - vault_pki_healthcheck_result.rc == 1
-    - "'failed to fetch resources' not in vault_pki_healthcheck_result.stderr"
+  when: "'pki/' not in vault_secret_engines.data"
   register: vault_pki_creation
 
 - name: Enable intermediate pki secret engine
@@ -18,10 +21,22 @@
       type: "pki"
       config:
         max_lease_ttl: "{{ vault_int_ca_lease_ttl }}"
-  when:
-    - vault_pki_int_healthcheck_result.rc == 1
-    - "'failed to fetch resources' not in vault_pki_int_healthcheck_result.stderr"
+  when: "'pki_int/' not in vault_secret_engines.data"
   register: vault_pki_int_creation
+
+- name: Check pki health
+  ansible.builtin.command: bao pki health-check pki
+  failed_when: false
+  changed_when: false
+  register: vault_pki_healthcheck_result
+  no_log: true
+
+- name: Check intermediate pki health
+  ansible.builtin.command: bao pki health-check pki_int
+  failed_when: false
+  changed_when: false
+  register: vault_pki_int_healthcheck_result
+  no_log: true
 
 # https://developer.hashicorp.com/vault/docs/commands/pki/health-check#auto-tidy-disabled
 - name: Enable root pki auto tidy
@@ -35,8 +50,7 @@
       tidy_revocation_queue: "true"
       tidy_cross_cluster_revoked_certs: "true"
       tidy_revoked_cert_issuer_associations: "true"
-  when: vault_pki_creation.skipped is not defined or
-        'Auto-tidy is currently disabled' in vault_pki_healthcheck_result.stdout
+  when: "'Auto-tidy is currently disabled' in vault_pki_healthcheck_result.stdout"
 
 - name: Enable intermediate pki auto tidy
   community.hashi_vault.vault_write:
@@ -49,14 +63,14 @@
       tidy_revocation_queue: "true"
       tidy_cross_cluster_revoked_certs: "true"
       tidy_revoked_cert_issuer_associations: "true"
-  when: vault_pki_int_creation.skipped is not defined or
-        'Auto-tidy is currently disabled' in vault_pki_int_healthcheck_result.stdout
+  when: "'Auto-tidy is currently disabled' in vault_pki_int_healthcheck_result.stdout"
 
 - name: Check if root CA exists
-  ansible.builtin.command: bao read pki/config/issuers
-  failed_when: false
-  changed_when: false
+  community.hashi_vault.vault_read:
+    path: pki/config/issuers
   register: vault_check_pki_root_ca_result
+  no_log: true
+  ignore_errors: true
 
 - name: Generate root CA
   community.hashi_vault.vault_write:
@@ -64,5 +78,4 @@
     data:
       common_name: "K3s Cluster Root CA"
       ttl: "{{ vault_ca_lease_ttl }}"
-  when: "'n/a' in vault_check_pki_root_ca_result.stdout or 'No value found' in vault_check_pki_root_ca_result.stderr"
-  register: vault_ca_creation_result
+  when: "vault_check_pki_root_ca_result is failed"
