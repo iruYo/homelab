@@ -46,6 +46,9 @@
     namespace: flux-system
     kubeconfig: "{{ k3s_kubeconfig_file }}"
   register: flux_operator_status
+  until: flux_operator_status is not failed
+  retries: 5
+  delay: 5
 
 # Follow cozystack's setup from here on out
 # https://github.com/cozystack/cozystack/blob/df448b995ad5ace81c4159fb16fd14e1ccc85e56/scripts/installer.sh
@@ -79,8 +82,10 @@
         api_version: apiextensions.k8s.io/v1
         kind: CustomResourceDefinition
         name: fluxinstances.fluxcd.controlplane.io
-      register: result
-      until: result.resources is defined and result.resources|length > 0
+      register: flux_operator_crd_status
+      until:
+        - flux_operator_crd_status.resources is defined
+        - flux_operator_crd_status.resources | length > 0
       retries: 60
       delay: 1
 
