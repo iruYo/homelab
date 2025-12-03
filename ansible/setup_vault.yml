@@ -38,13 +38,15 @@
           bucket: "{{ tf_bucket }}"
         state: present
       register: tf_result
+      no_log: true
 
     - name: Check if vault-admin has credentials
       amazon.aws.iam_access_key_info:
         user_name: "vault-admin"
         access_key: "{{ aws_access_key_id }}"
         secret_key: "{{ aws_secret_access_key }}"
-      register: vault_admin_inital_creds_info
+      register: vault_admin_creds_set_info
+      no_log: true
 
     - name: Create inital vault-admin credentials # Always force new ones?
       amazon.aws.iam_access_key:
@@ -52,14 +54,15 @@
         state: present
         access_key: "{{ aws_access_key_id }}"
         secret_key: "{{ aws_secret_access_key }}"
-      when: vault_admin_inital_creds_info.access_keys | length == 0
-      register: vault_admin_creds
+      when: "vault_admin_creds_set_info.access_keys | length == 0"
+      register: vault_admin_inital_creds_info
+      no_log: true
 
     - name: Set vault aws credentials
       ansible.builtin.set_fact:
-        vault_aws_admin_access: "{{ vault_admin_creds.access_key_id }}"
-        vault_aws_admin_secret: "{{ vault_admin_creds.secret_access_key }}"
-      when: vault_admin_creds.skipped is not defined
+        vault_aws_admin_access: "{{ vault_admin_inital_creds_info.access_key_id }}"
+        vault_aws_admin_secret: "{{ vault_admin_inital_creds_info.secret_access_key }}"
+      when: "vault_admin_inital_creds_info is not skipped"
       no_log: true
 
 - name: Setup vault
@@ -84,20 +87,22 @@
         access_key: "{{ aws_access_key_id }}"
         secret_key: "{{ aws_secret_access_key }}"
       register: vault_current_admin_creds_info
+      no_log: true
 
     # This shouldn't happen, initialization went wrong
     - name: Remove initial vault-admin credentials
       when:
-        - "vault_admin_creds.skipped is not defined"
-        - "vault_current_admin_creds_info.access_keys == vault_admin_inital_creds_info.access_keys"
+        - "vault_admin_inital_creds_info is not skipped"
+        - "vault_admin_inital_creds_info.access_key_id in (vault_current_admin_creds_info.access_keys | map(attribute='access_key_id'))"
       amazon.aws.iam_access_key:
           user_name: "vault-admin"
           state: absent
           access_key: "{{ aws_access_key_id }}"
           secret_key: "{{ aws_secret_access_key }}"
       register: vault_admin_inital_creds_set
+      no_log: true
 
     - name: Error out if inital vault-admin credentials were still set
       ansible.builtin.fail:
         msg: "Inital vault-admin credentials have not been rotated and have been revoked"
-      when: "vault_admin_inital_creds_set.skipped is not defined"
+      when: "vault_admin_inital_creds_set is not skipped"
