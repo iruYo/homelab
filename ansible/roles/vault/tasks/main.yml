@@ -110,19 +110,19 @@
     group/community.hashi_vault.vault:
       url: "https://{{ vault_dns }}:8200"
   block:
-    - name: Check if vault is initialized
-      ansible.builtin.command: bao operator init -status
-      register: vault_init_status
-      no_log: true
-      changed_when: false
-      failed_when: vault_init_status.rc == 1
-
     - name: Ensure vault is running
       ansible.builtin.systemd_service:
         name: openbao
         state: started
         enabled: true
         daemon_reload: true
+
+    - name: Check if vault is initialized
+      ansible.builtin.command: bao operator init -status
+      register: vault_init_status
+      no_log: true
+      changed_when: false
+      failed_when: vault_init_status.rc == 1
 
     - name: Initialize vault
       when: vault_init_status.rc == 2
