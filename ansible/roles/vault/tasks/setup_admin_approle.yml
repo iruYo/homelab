@@ -38,6 +38,7 @@
 - name: Create admin secret_id generation token
   community.hashi_vault.vault_token_create:
     policies: ["admin-secret-id-generation-policy"]
+    no_parent: true
     id: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
     renewable: true
     period: "120d"

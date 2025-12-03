@@ -54,6 +54,7 @@
 - name: Create ansible secret_id generation token
   community.hashi_vault.vault_token_create:
     policies: ["ansible-secret-id-generation-policy"]
+    no_parent: true
     id: "{{ hostvars['localhost']['vault_ansible_secret_id_gen_token'] }}"
     renewable: true
     period: "120d"
