@@ -45,8 +45,8 @@
   community.hashi_vault.vault_write:
     path: auth/token/lookup
     data:
-      token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
-  register: vault_admin_secret_id_gen_lookup_result
+      token: "{{ hostvars['localhost']['vault_ansible_secret_id_gen_token'] }}"
+  register: vault_ansible_secret_id_gen_lookup_result
   no_log: true
   ignore_errors: true
 
@@ -58,5 +58,5 @@
     renewable: true
     period: "120d"
     explicit_max_ttl: "360d"
-  when: "vault_admin_secret_id_gen_lookup_result is failed"
+  when: "vault_ansible_secret_id_gen_lookup_result is failed"
   no_log: true
