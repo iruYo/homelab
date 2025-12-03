@@ -111,6 +111,7 @@
 
     - name: Setup certificates
       ansible.builtin.include_tasks: setup_certificates.yml
+      no_log: true
 
     - name: Setup platform
       ansible.builtin.include_tasks: setup_platform.yml
