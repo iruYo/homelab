@@ -173,12 +173,14 @@
       community.hashi_vault.vault_read:
         path: sys/mounts
       register: vault_secret_engines
+      no_log: true
 
     # See engines above
     - name: Set list of enabled auths
       community.hashi_vault.vault_read:
         path: sys/auth
       register: vault_auth_methods
+      no_log: true
 
     - name: Setup ansible AppRole authentication
       ansible.builtin.include_tasks: setup_ansible_approle.yml
@@ -200,6 +202,7 @@
           options:
             version: "2"
       when: "'secret/' not in vault_secret_engines.data"
+      no_log: true
 
     - name: Setup pki secrets for K3s
       ansible.builtin.include_tasks: setup_pki_secrets.yml
