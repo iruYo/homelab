@@ -201,8 +201,8 @@
             version: "2"
       when: "'secret/' not in vault_secret_engines.data"
 
-    - name: Setup K3s CAs
-      ansible.builtin.include_tasks: setup_k3s_ca.yml
+    - name: Setup pki secrets for K3s
+      ansible.builtin.include_tasks: setup_pki_secrets.yml
       no_log: true
   always:
     - name: Revoke vault session

@@ -31,6 +31,9 @@ k3s_server_config:
   kube-scheduler-arg:
     - 'bind-address=0.0.0.0'
 
+k3s_ca_lease_ttl: "87660h" # 10 years
+k3s_int_ca_lease_ttl: "26280h" # 3 years
+
 k3s_fluxoperator_version: "v0.32.0"
 k3s_fluxcd_version: "2.7.x"
 

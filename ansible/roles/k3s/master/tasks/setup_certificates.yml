@@ -25,16 +25,28 @@
 #      failed_when: "vault_check_pki_int_ca_result.rc == 2"
 #      changed_when: false
 
+- name: Check if root CA exists
+  community.hashi_vault.vault_read:
+    path: pki/config/issuers
+  register: vault_check_pki_root_ca_result
+  ignore_errors: true
+
+- name: Generate root CA
+  community.hashi_vault.vault_write:
+    path: "pki/root/generate/internal"
+    data:
+      common_name: "K3s Cluster Root CA"
+      ttl: "{{ k3s_ca_lease_ttl }}"
+  when: "vault_check_pki_root_ca_result is failed or vault_check_pki_root_ca_result.data.data.default == ''"
+
 - name: Generate signed intermediate CA
-  vars:
-    vault_int_ca_lease_ttl: "26280h" # 3 years
   block:
     - name: Generate intermediate CA
       community.hashi_vault.vault_write:
         path: "pki_int/intermediate/generate/exported"
         data:
           common_name: "K3s Cluster Intermediate CA"
-          ttl: "{{ vault_int_ca_lease_ttl }}"
+          ttl: "{{ k3s_int_ca_lease_ttl }}"
       register: vault_int_ca_creation_result
 
     - name: Sign intermediate CSR
@@ -43,7 +55,7 @@
         data:
           csr: "{{ vault_int_ca_creation_result.data.data.csr }}"
           format: "pem_bundle"
-          ttl: "{{ vault_int_ca_lease_ttl }}"
+          ttl: "{{ k3s_int_ca_lease_ttl }}"
       register: vault_int_sign_result
 
     - name: Import signed intermediate CA
