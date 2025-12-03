@@ -137,7 +137,10 @@
         path: "auth/token/revoke-self"
 
 - name: Start other master node
-  when: k3s_ha and inventory_hostname != groups['k3s_master'][0]
+  when:
+    - k3s_ha
+    - inventory_hostname != groups['k3s_master'][0]
+    - hostvars[groups['k3s_master'][0]]['k3s_api_check']['status'] == -1
   block:
     - name: Copy K3s token file
       ansible.builtin.copy:
