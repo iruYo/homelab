@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yml
   - helm.yml
+  - terraform.yml
 
 configMapGenerator:
   - name: external-secrets-helm-values
