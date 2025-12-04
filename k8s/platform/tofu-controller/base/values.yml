@@ -1,3 +1,5 @@
+allowCrossNamespaceRefs: true
+
 serviceAccount:
   create: "true"
   name: "tofu-controller"
