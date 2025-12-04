@@ -29,7 +29,7 @@ provider "vault" {
 
 data "vault_aws_access_credentials" "this" {
   backend = "aws"
-  role    = "cert-manager"
+  role    = "cert-manager" # kubernetes auth role name
 }
 
 provider "aws" {
