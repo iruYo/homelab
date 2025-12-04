@@ -7,4 +7,4 @@ serviceAccount:
 runner:
   serviceAccount:
     create: "true"
-    name: "tofu-runner"
+    name: "tf-runner"

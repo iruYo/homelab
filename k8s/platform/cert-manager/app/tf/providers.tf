@@ -22,7 +22,7 @@ provider "vault" {
     path = "auth/kubernetes/login"
 
     parameters = {
-      role = "tofu-runner"
+      role = "tf-runner"
     }
   }
 }
