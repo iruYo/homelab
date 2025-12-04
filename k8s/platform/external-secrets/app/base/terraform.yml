@@ -3,7 +3,6 @@ apiVersion: infra.contrib.fluxcd.io/v1alpha2
 kind: Terraform
 metadata:
   name: external-secrets-tf
-  namespace: flux-system
 spec:
   path: ./k8s/platform/external-secrets/app/tf
   interval: 30m
