@@ -8,3 +8,4 @@ resources:
   - flux-operator.yml
   - kube-prometheus-stack.yml
   - longhorn.yml
+  - tofu-controller.yml

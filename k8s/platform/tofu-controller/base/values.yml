@@ -1,0 +1,8 @@
+serviceAccount:
+  create: "true"
+  name: "tofu-controller"
+
+runner:
+  serviceAccount:
+    create: "true"
+    name: "tofu-runner"
