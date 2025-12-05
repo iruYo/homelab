@@ -10,12 +10,12 @@ terraform {
 
   backend "s3" {
     region = "eu-central-1"
-    key    = "prod/roles/terraform.tfstate"
+    key    = "prod/dns/terraform.tfstate"
   }
 }
 
 provider "aws" {
-  region  = "eu-central-1"
+  region = "eu-central-1"
 
   default_tags {
     tags = {
