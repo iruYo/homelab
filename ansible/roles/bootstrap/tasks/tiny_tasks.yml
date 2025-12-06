@@ -1,7 +1,7 @@
 ---
 - name: Set local DNS server
   ansible.builtin.copy:
-    dest: /etc/resolv.conf.head
+    dest: /etc/resolv.conf
     owner: root
     group: root
     mode: "0644"

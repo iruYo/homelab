@@ -48,6 +48,7 @@
     conn_name: "{{ nm_conn_name }}"
     type: ethernet
     dns4: "{{ bootstrap_dns_servers }}"
+    dns4_ignore_auto: true
     state: present
     conn_reload: true
   notify: Reboot
