@@ -4,3 +4,8 @@
     kind: ConfigMap
     name: tofu-controller-helm-values
     valuesKey: overlay-values.yml
+- kind: Secret
+  version: v1
+  fieldSpecs:
+  - path: spec/valuesFrom/name
+    kind: HelmRelease

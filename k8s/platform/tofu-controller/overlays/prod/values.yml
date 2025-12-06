@@ -1,0 +1,3 @@
+runner:
+  serviceAccount:
+    allowedNamespaces: ["flux-system", "cert-manager"]

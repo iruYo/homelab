@@ -12,6 +12,11 @@ spec:
     name: flux-system
   dependsOn:
     - name: aws-pod-identity-webhook
+    - name: external-secrets
   path: ./k8s/platform/tofu-controller/overlays/prod
   prune: true
   wait: true
+postBuild:
+    substituteFrom:
+      - kind: Secret
+        name: ansible-k3s-oidc-role
