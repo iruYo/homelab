@@ -53,6 +53,14 @@ all:
         k3s_agent:
           hosts:
             tiny[0:2]:
+    k3s_infra:
+      hosts:
+        localhost:
+          ansible_connection: local
+          ansible_python_interpreter: "{{ ansible_playbook_python }}"
+      children:
+        vault:
+        k3s_cluster:
     dns:
       hosts:
         pi3:
@@ -62,7 +70,3 @@ all:
     ntp:
       hosts:
         pi4:
-  hosts:
-    localhost:
-      ansible_connection: local
-      ansible_python_interpreter: "{{ ansible_playbook_python }}"
