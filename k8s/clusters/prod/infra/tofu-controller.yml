@@ -12,7 +12,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: amazon-eks-pod-identity-webhook
-    - name: external-secrets
+    - name: external-secrets-config
   path: ./k8s/platform/tofu-controller/overlays/prod
   prune: true
   wait: true
