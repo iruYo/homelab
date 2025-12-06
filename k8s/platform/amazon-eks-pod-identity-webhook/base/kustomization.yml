@@ -5,7 +5,7 @@ resources:
   - helm.yml
 
 configMapGenerator:
-  - name: aws-pod-identity-webhook-helm-values
+  - name: amazon-eks-pod-identity-webhook-helm-values
     files:
       - base-values.yml=values.yml
 

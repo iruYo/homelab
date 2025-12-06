@@ -7,7 +7,7 @@ resources:
   - ../../base
 
 configMapGenerator:
-  - name: aws-pod-identity-webhook-helm-values
+  - name: amazon-eks-pod-identity-webhook-helm-values
     behavior: merge
     files:
       - overlay-values.yml=values.yml
@@ -16,5 +16,5 @@ patches:
 - target:
     group: helm.toolkit.fluxcd.io
     kind: HelmRelease
-    name: aws-pod-identity-webhook
+    name: amazon-eks-pod-identity-webhook
   path: helm-patch.yml

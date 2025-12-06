@@ -2,14 +2,14 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: aws-pod-identity-webhook
+  name: amazon-eks-pod-identity-webhook
   namespace: kube-system
 spec:
   interval: 30m
   timeout: 15m
   chart:
     spec:
-      chart: aws-pod-identity-webhook
+      chart: amazon-eks-pod-identity-webhook
       version: 2.5.7
       sourceRef:
         kind: HelmRepository
@@ -25,5 +25,5 @@ spec:
       retries: 3
   valuesFrom:
   - kind: ConfigMap
-    name: aws-pod-identity-webhook-helm-values
+    name: amazon-eks-pod-identity-webhook-helm-values
     valuesKey: base-values.yml
