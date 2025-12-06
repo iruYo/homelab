@@ -4,9 +4,9 @@ kind: Kustomization
 resources:
   - cilium-repo.yml
   - controlplane-repo.yml
-  - eks-repo.yml
   - external-secrets-repo.yml
   - flux-iac-repo.yml
   - jetstack-repo.yml
+  - jkroepke-repo.yml
   - longhorn-repo.yml
   - prometheus-community-repo.yml
