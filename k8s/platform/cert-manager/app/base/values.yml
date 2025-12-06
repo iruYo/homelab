@@ -8,3 +8,6 @@ prometheus:
   enabled: true
   servicemonitor:
     enabled: true
+
+serviceAccount:
+  create: "true"

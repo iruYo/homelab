@@ -1,0 +1,15 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: cert-manager-tf
+spec:
+  path: ./k8s/platform/cert-manager/tf/tf
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  approvePlan: auto
+  varsFrom:
+    - kind: Secret
+      name: ansible-k3s-oidc-provider

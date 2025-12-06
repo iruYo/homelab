@@ -25,3 +25,6 @@ spec:
   - kind: ConfigMap
     name: cert-manager-helm-values
     valuesKey: base-values.yml
+  - kind: ConfigMap
+    name: cert-manager-iam-config
+    optional: true
