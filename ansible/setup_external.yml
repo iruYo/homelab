@@ -2,7 +2,7 @@
 - name: Ensure external resources exist
   hosts: localhost
   vars:
-    tf_dir: "../tf/network"
+    tf_dir: "../external/tf/dns"
     tf_bucket: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           32616238376638386237376266656439373839623033653030623839633739323132396233663565
