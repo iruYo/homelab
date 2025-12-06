@@ -1,0 +1,7 @@
+values:
+  config:
+    annotationPrefix: "eks.amazonaws.com"
+    defaultAwsRegion: "eu-central-1"
+
+  certManager:
+    enabled: true

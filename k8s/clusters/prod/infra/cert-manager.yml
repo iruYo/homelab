@@ -12,7 +12,6 @@ spec:
     name: flux-system
   dependsOn:
     - name: prometheus-operator-crds
-    - name: tofu-controller
   path: ./k8s/platform/cert-manager/app/overlays/prod
   prune: true
   wait: true

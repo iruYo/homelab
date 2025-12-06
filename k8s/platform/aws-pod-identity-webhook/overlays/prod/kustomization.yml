@@ -1,0 +1,20 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kube-system
+
+resources:
+  - ../../base
+
+configMapGenerator:
+  - name: aws-pod-identity-webhook-helm-values
+    behavior: merge
+    files:
+      - overlay-values.yml=values.yml
+
+patches:
+- target:
+    group: helm.toolkit.fluxcd.io
+    kind: HelmRelease
+    name: aws-pod-identity-webhook
+  path: helm-patch.yml
