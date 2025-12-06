@@ -10,4 +10,4 @@ prometheus:
     enabled: true
 
 serviceAccount:
-  create: "true"
+  create: true
