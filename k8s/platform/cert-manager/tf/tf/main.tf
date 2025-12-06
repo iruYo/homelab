@@ -9,7 +9,7 @@ module "irsa" {
   name   = "cert-manager"
 
   attach_cert_manager_policy    = true
-  cert_manager_hosted_zone_arns = ["arn:aws:route53:::hostedzone/Z03639181DGOGN4RUZ7O2"]
+  cert_manager_hosted_zone_arns = ["arn:aws:route53:::hostedzone/*"]
 
   oidc_providers = {
     main = {
