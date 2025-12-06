@@ -33,7 +33,7 @@ resource "kubernetes_config_map" "cert_manager_arn" {
     "values.yml" = yamlencode({
       serviceAccount = {
         annotations = {
-          "eks.amazonaws.com/role-arn" = module.irsa.iam_role_arn
+          "eks.amazonaws.com/role-arn" = module.irsa.arn
         }
       }
     })
