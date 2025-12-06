@@ -23,6 +23,9 @@ spec:
       strategy: rollback
       retries: 3
   valuesFrom:
-  - kind: ConfigMap
-    name: tofu-controller-helm-values
-    valuesKey: base-values.yml
+    - kind: ConfigMap
+      name: tofu-controller-helm-values
+      valuesKey: base-values.yml
+    - kind: Secret
+      name: ansible-k3s-oidc-role
+      valuesKey: secret-values.yml
