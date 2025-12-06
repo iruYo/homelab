@@ -11,7 +11,7 @@
     - role: k3s/master # noqa: role-name[path]
   tags: master
 
-- name: Get K3s join token
+- name: Get K3s vault data
   hosts: localhost
   pre_tasks:
     - name: Get vault session token
@@ -35,6 +35,16 @@
       ansible.builtin.set_fact:
         k3s_token: "{{ vault_k3s_token_result.secret['join-token'] }}"
 
+    # Todo: Generate these and pass to K3s
+    - name: Get K3s JWKS keys
+      community.hashi_vault.vault_kv2_get:
+        path: "ansible/k3s/oidc-jwks-keys"
+      register: vault_k3s_jwks_result
+
+    - name: Set k3s_jwks_keys variable
+      ansible.builtin.set_fact:
+        k3s_jwks_keys: "{{ vault_k3s_jwks_result.secret['keys'] }}"
+
     - name: Revoke vault session
       community.hashi_vault.vault_write:
         path: "auth/token/revoke-self"
@@ -50,3 +60,44 @@
     - role: k3s/prerequisites # noqa: role-name[path]
     - role: k3s/agent # noqa: role-name[path]
   tags: agent
+
+- name: Ensure external K3s OIDC endpoint
+  hosts: localhost
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: ansible
+        token: "{{ vault_ansible_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  vars:
+    tf_dir: "../external/tf/oidc"
+    tf_bucket: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          32616238376638386237376266656439373839623033653030623839633739323132396233663565
+          6630326565616433663734333134323335333931386333350a646633353233636365313662653163
+          36393963663032393230653161383436356130383530303335343530646630323163326365303035
+          6266656561633462660a383534353732326233316663363437313065383633343231363264616363
+          39626635343863623464363034626438356365356637306361646539393439326432396235353437
+          3834316165613461363332653162643431346136333930386535
+  tasks:
+    - name: Ensure OIDC configuration
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+      cloud.terraform.terraform:
+        project_path: "{{ tf_dir }}"
+        force_init: true
+        backend_config:
+          bucket: "{{ tf_bucket }}"
+        variables:
+          vault_address: "https://{{ vault_dns }}:8200"
+          vault_token: "{{ vault_session_token }}"
+          oidc_bucket_name: "{{ k3s_oidc_bucket }}"
+          oidc_jwks_keys: "{{  k3s_jwks_keys | to_json }}"
+        state: present
+      register: tf_result
+
+    - name: Show terraform OIDC result
+      ansible.builtin.debug:
+        msg: "{{ tf_result.stdout }}"

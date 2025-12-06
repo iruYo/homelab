@@ -116,6 +116,18 @@
     - name: Setup platform
       ansible.builtin.include_tasks: setup_platform.yml
 
+    - name: Get JWKS keys
+      ansible.builtin.shell: |
+        KUBECONFIG={{ k3s_kubeconfig_file }} kubectl get --raw /openid/v1/jwks
+      changed_when: false
+      register: k3s_jwks_keys_result
+
+    - name: Store JWKS keys in vault
+      community.hashi_vault.vault_kv2_write:
+        path: "ansible/k3s/oidc-jwks-keys"
+        data:
+          keys: "{{ k3s_jwks_keys_result.stdout | from_json }}"
+
     - name: Get inital join token
       ansible.builtin.slurp:
         src: "{{ k3s_state_dir }}/server/node-token"
