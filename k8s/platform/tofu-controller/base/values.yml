@@ -8,4 +8,4 @@ runner:
   serviceAccount:
     create: "true"
     name: "tf-runner"
-    annotations: ${oidc_role_arn}"
+    annotations: "${oidc_role_arn}"
