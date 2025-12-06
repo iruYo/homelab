@@ -27,4 +27,5 @@ spec:
     valuesKey: base-values.yml
   - kind: ConfigMap
     name: cert-manager-iam-config
+    valuesKey: cert-manager-iam-values.yml
     optional: true
