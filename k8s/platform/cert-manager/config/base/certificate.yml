@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: test-cert
+spec:
+  secretName: test-route53-tls
+  dnsNames:
+    - "home.youriulbri.ch"
+    - "*.home.youriulbri.ch"
+  issuerRef:
+    name: letsencrypt-issuer
+    kind: ClusterIssuer
