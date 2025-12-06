@@ -29,4 +29,4 @@ spec:
     - kind: Secret
       name: ansible-k3s-oidc-role
       valuesKey: oidc_role_arn
-      targetPath: serviceAccount.annotations.role_arn
+      targetPath: /runner/serviceAccount/annotations/eks.amazonaws.com~1role-arn
