@@ -5,11 +5,11 @@
     data:
       policy: |
         path "secret/data/ansible/*" {
-          capabilities = ["create", "read", "update"]
+          capabilities = ["create", "read", "update", "delete"]
         }
 
         path "secret/metadata/ansible/*" {
-          capabilities = [ "update" ]
+          capabilities = ["read", "update"]
         }
 
 - name: Create ansible AppRole secret_id generation policy
