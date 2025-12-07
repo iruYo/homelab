@@ -29,7 +29,7 @@
       secret_id_bound_cidrs:
         - "{{ cidr_block }}"
       secret_id_num_uses: 1
-      secret_id_ttl: "1h"
+      secret_id_ttl: "5m"
       token_ttl: "30m"
       token_max_ttl: "30m"
       token_strictly_bind_ip: true
