@@ -11,6 +11,10 @@
     path: sys/policies/acl/external-secrets-policy
     data:
       policy: |
+        path "secret/data/ansible/k3s/*" {
+          capabilities = ["read"]
+        }
+
         path "secret/data/k3s/*" {
           capabilities = ["create", "read", "update"]
         }
