@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+# Only copy certificates, if there are new ones
+if [ "$2" != "deploy" ]; then
+  exit 0
+fi
+
+VAULT_USER="openbao"
+
+CERT_FILE="$1"
+KEY_FILE="$3"
+FULLCHAIN_FILE="$4"
+
+VAULT_CERT_PATH="{{ vault_tls_dir }}/fullchain.crt"
+VAULT_KEY_PATH="{{ vault_tls_dir }}/key.crt"
+
+cp "${FULLCHAIN_FILE}" "${VAULT_CERT_PATH}"
+cp "${KEY_FILE}" "${VAULT_KEY_PATH}"
+sudo chown "${VAULT_USER}:${VAULT_USER}" "${VAULT_CERT_PATH}" "${VAULT_KEY_PATH}"
+sudo chmod 600 "${VAULT_KEY_PATH}"
+sudo chmod 644 "${VAULT_CERT_PATH}"
+
+sudo systemctl reload openbao

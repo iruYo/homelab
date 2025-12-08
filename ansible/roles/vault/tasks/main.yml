@@ -68,10 +68,41 @@
     mode: "0600"
   notify: Restart vault
 
+- name: Get inital AWS credentials
+  when: "vault_health.failed" # Assume health_check failed only because vault doesn't exist yet. Todo: Come back to this when less optimistic
+  block:
+    - name: Show disclaimer
+      ansible.builtin.debug:
+        msg: USE HIGH PRIVILAGE KEYS.\nUSED FOR VAULT AWS SECRET ENGINE AND INITAL CERTIFICATES\nENSURE THESE ARE GONE AFTER VAULT HAS BEEN SET UP.
+
+    - name: Get inital AWS access key
+      ansible.builtin.pause:
+        prompt: AWS_ACCESS_KEY_ID
+      register: vault_inital_aws_access_key
+
+    - name: Get inital AWS secret key
+      ansible.builtin.pause:
+        prompt: AWS_SECRET_ACCESS_KEY
+      register: vault_inital_aws_secret_key
+
+- name: Setup inital certificates and rotation
+  when: "vault_health.failed"
+  ansible.builtin.include_tasks: setup_acme.yml
+
+# Todo: make these static
+- name: Set cert key path variable
+  ansible.builtin.set_fact:
+    vault_cert_key_path: "{{ vault_ansible_user_dir }}/.acme.sh/{{ vault_dns }}/{{ vault_dns }}.key"
+
+- name: Set cert path variable
+  ansible.builtin.set_fact:
+    vault_cert_path: "{{ vault_ansible_user_dir }}/.acme.sh/{{ vault_dns }}/fullchain.cer"
+
 - name: Copy vault certificate files
   ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ vault_tls_dir }}"
+    remote_src: true
     owner: openbao
     group: openbao
     mode: "0644"
@@ -190,9 +221,14 @@
       ansible.builtin.include_tasks: setup_kubernetes_auth.yml
       no_log: true
 
+    # Todo: Add minimal certificate policiy
     - name: Setup aws secret engine
+      when: "vault_health.failed"
       ansible.builtin.include_tasks: setup_aws_secrets.yml
       no_log: true
+
+    - name: Ensure minimal AWS access for acme
+      ansible.builtin.include_tasks: ensure_minimal_acme_credentials.yml
 
     - name: Enable kv2 secret engine
       community.hashi_vault.vault_write:
