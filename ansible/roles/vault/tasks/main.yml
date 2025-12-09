@@ -54,9 +54,12 @@
     - "{{ vault_tls_dir }}"
 
 - name: Ensure .env file exists
-  ansible.builtin.file:
-    path: "{{ vault_config_dir }}/openbao.env"
-    state: touch
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ vault_config_dir }}/openbao.env"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_user }}"
+    force: false
     mode: "0644"
 
 - name: Copy vault configuration file
