@@ -20,7 +20,24 @@
       });
   notify: Reboot # Go hard with reboot here, otherwise pkcs11 doesn't not pick up on new rules
 
-- name: Reload pcscd/polkit, if needed
+- name: Allow vault user to reload vault
+  ansible.builtin.copy:
+    dest: /etc/polkit-1/rules.d/50-reload-vault.rules
+    owner: root
+    group: root
+    mode: "0644"
+    content: |
+      polkit.addRule(function(action, subject) {
+          if (action.id == "org.freedesktop.systemd1.manage-units" &&
+              action.lookup("unit") == "openbao.service" &&
+              action.lookup("verb") == "reload" &&
+              subject.user == "{{ vault_user }}") {
+              return polkit.Result.YES;
+          }
+      });
+  notify: Reboot
+
+- name: Ensure polkit changes
   ansible.builtin.meta: flush_handlers
 
 - name: Check if vault key exists
@@ -71,53 +88,24 @@
     mode: "0600"
   notify: Restart vault
 
-- name: Get inital AWS credentials
-  when: "vault_health.failed" # Assume health_check failed only because vault doesn't exist yet. Todo: Come back to this when less optimistic
-  block:
-    - name: Show disclaimer
-      ansible.builtin.debug:
-        msg: USE HIGH PRIVILAGE KEYS.\nUSED FOR VAULT AWS SECRET ENGINE AND INITAL CERTIFICATES\nENSURE THESE ARE GONE AFTER VAULT HAS BEEN SET UP.
-
-    - name: Get inital AWS access key
-      ansible.builtin.pause:
-        prompt: AWS_ACCESS_KEY_ID
-      register: vault_inital_aws_access_key
-
-    - name: Get inital AWS secret key
-      ansible.builtin.pause:
-        prompt: AWS_SECRET_ACCESS_KEY
-      register: vault_inital_aws_secret_key
-
-- name: Setup inital certificates and rotation
-  when: "vault_health.failed"
-  ansible.builtin.include_tasks: setup_acme.yml
-
-# Todo: make these static
-- name: Set cert key path variable
-  ansible.builtin.set_fact:
-    vault_cert_key_path: "{{ vault_ansible_user_dir }}/.acme.sh/{{ vault_dns }}/{{ vault_dns }}.key"
-
-- name: Set cert path variable
-  ansible.builtin.set_fact:
-    vault_cert_path: "{{ vault_ansible_user_dir }}/.acme.sh/{{ vault_dns }}/fullchain.cer"
-
-- name: Copy vault certificate files
-  ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ vault_tls_dir }}"
-    remote_src: true
-    owner: openbao
-    group: openbao
-    mode: "0644"
-  with_items:
-    - "{{ vault_cert_key_path }}"
-    - "{{ vault_cert_path }}"
-  notify: Restart vault
-
 - name: Download, verify and install vault
   ansible.builtin.include_tasks: install.yml
   when: "'bao-hsm' not in ansible_facts.packages or
         ansible_facts.packages['bao-hsm'][0].version != vault_version" # Doesn't work with beta versions
+
+- name: Ensure vault user directory exists
+  ansible.builtin.file:
+    path: "{{ vault_user_dir }}"
+    owner: "{{ vault_user }}"
+    group: "{{ vault_user }}"
+    state: directory
+    mode: "0755"
+
+- name: Setup inital certificates and rotation
+  ansible.builtin.include_tasks: setup_acme.yml
+  args:
+    apply:
+      become_user: "{{ vault_user }}"
 
 - name: Ensure VAULT_ADDR is in .bashrc for default user
   become_user: "{{ ansible_user }}"

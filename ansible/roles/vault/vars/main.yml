@@ -4,6 +4,9 @@ vault_user_dir: "/home/{{ vault_user }}"
 
 vault_config_dir: "/etc/openbao"
 vault_tls_dir: "{{ vault_config_dir }}/tls"
+vault_tls_fullchain_crt: "{{ vault_tls_dir }}/fullchain.crt"
+vault_tls_key_crt: "{{ vault_tls_dir }}/privkey.crt"
+
 
 vault_opt_dir: "/opt/openbao"
 vault_storage_dir: "{{ vault_opt_dir }}/data"

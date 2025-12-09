@@ -1,77 +1,54 @@
 ---
-- name: Set user directory # Todo: common?!
-  ansible.builtin.set_fact:
-    vault_ansible_user_dir: "/home/{{ ansible_user }}"
+- name: Install acme.sh # noqa: command-instead-of-module
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      curl https://get.acme.sh | sh -s email={{ mail }} --home {{ vault_user_dir }}/.acme.sh
+  args:
+    chdir: "{{ vault_user_dir }}"
+    creates: "{{ vault_user_dir }}/.acme.sh/acme.sh"
 
-- name: Check if acme.sh is installed
-  become: false
-  ansible.builtin.stat:
-    path: "{{ vault_ansible_user_dir }}/.acme.sh"
-  register: vault_acme_install_dir
+- name: Set Let's Encrypt as default CA
+  ansible.builtin.lineinfile:
+    path: "{{ vault_user_dir }}/.acme.sh/account.conf"
+    regexp: '^DEFAULT_ACME_SERVER='
+    line: "DEFAULT_ACME_SERVER='https://acme-v02.api.letsencrypt.org/directory'"
 
-- name: Install acme.sh
-  when: "not vault_acme_install_dir.stat.exists"
-  become: false
-  block:
-    - name: Install acme.sh # noqa: command-instead-of-module
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          curl https://get.acme.sh | sh -s email={{ mail }}
-      args:
-        chdir: "{{ vault_ansible_user_dir }}"
-        creates: "{{ vault_ansible_user_dir }}/.acme.sh"
-
-    - name: Set letsencrypt as default ca
-      ansible.builtin.command: |
-        {{ vault_ansible_user_dir }}/.acme.sh/acme.sh \
-          --log
-          --set-default-ca \
-          --server letsencrypt
-      changed_when: true
-
-- name: Set AWS credentials
+- name: Set inital AWS credentials
+  when:
+    - "vault_inital_aws_admin_access | default('') != ''"
+    - "vault_inital_aws_admin_secret | default('') != ''"
   block:
     - name: Set AWS access key
       ansible.builtin.lineinfile:
-        path: "{{ vault_ansible_user_dir }}/.acme.sh/account.conf"
+        path: "{{ vault_user_dir }}/.acme.sh/account.conf"
         regexp: "^SAVED_AWS_ACCESS_KEY_ID="
-        insertafter: "^#SAVED_AWS_ACCESS_KEY_ID="
-        line: "SAVED_AWS_ACCESS_KEY_ID='{{ vault_inital_aws_access_key.user_input }}'"
-        create: true
-        mode: "0644"
+        line: "SAVED_AWS_ACCESS_KEY_ID='{{ vault_inital_aws_admin_access }}'"
 
     - name: Set AWS secret key
       ansible.builtin.lineinfile:
-        path: "{{ vault_ansible_user_dir }}/.acme.sh/account.conf"
+        path: "{{ vault_user_dir }}/.acme.sh/account.conf"
         regexp: "^SAVED_AWS_SECRET_ACCESS_KEY="
-        insertafter: "^#SAVED_AWS_SECRET_ACCESS_KEY="
-        line: "SAVED_AWS_SECRET_ACCESS_KEY='{{ vault_inital_aws_secret_key.user_input }}'"
+        line: "SAVED_AWS_SECRET_ACCESS_KEY='{{ vault_inital_aws_admin_secret }}'"
 
-- name: Copy cert rotation script
-  become: false
-  ansible.builtin.template:
-    src: "rotate-certs.sh.j2"
-    dest: "{{ vault_ansible_user_dir }}/.acme.sh/rotate-certs.sh"
-    mode: "0755"
-
-- name: Check currently beeing issued certificates
-  become: false
+- name: Issue certificates
   ansible.builtin.command: |
-    {{ vault_ansible_user_dir }}/.acme.sh/acme.sh --list
-  changed_when: false
-  register: vault_acme_cert_list
+    {{ vault_user_dir }}/.acme.sh/acme.sh
+      --issue \
+      -d {{ vault_dns }} \
+      --dns dns_aws \
+      --keylength 2048 \
+      --log
+  args:
+    creates: "{{ vault_user_dir }}/.acme.sh/{{ vault_dns }}/fullchain.cer"
 
-- name: Ensure certificates
-  become: false
-  when: "vault_dns is not in vault_acme_cert_list.stdout"
-  block:
-    - name: Issue inital certificates with rotation script
-      ansible.builtin.command: |
-        {{ vault_ansible_user_dir }}/.acme.sh/acme.sh
-          --issue \
-          --dns dns_aws \
-          -d {{ vault_dns }} \
-          --keylength 2048 \
-          --renew-hook '{{ vault_ansible_user_dir }}/.acme.sh/rotate-certs.sh'
-      changed_when: true
+- name: Install certificates into vault tls directory
+  ansible.builtin.command: |
+    {{ vault_user_dir }}/.acme.sh/acme.sh
+      --install-cert \
+      -d {{ vault_dns }} \
+      --fullchain-file {{ vault_tls_fullchain_crt }} \
+      --key-file {{ vault_tls_key_crt }} \
+      --reloadcmd "systemctl reload openbao || true"
+  args:
+    creates: "{{ vault_tls_fullchain_crt }}" # 🤞

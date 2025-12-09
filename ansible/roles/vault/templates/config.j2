@@ -15,8 +15,8 @@ storage "raft" {
 listener "tcp" {
   address       = "[::]:8200"
   tls_disable   = false
-  tls_cert_file = "{{ vault_tls_dir }}/fullchain.crt"
-  tls_key_file  = "{{ vault_tls_dir }}/privkey.crt"
+  tls_cert_file = "{{ vault_tls_fullchain_crt }}"
+  tls_key_file  = "{{ vault_tls_key_crt }}"
 }
 
 #telemetry {
