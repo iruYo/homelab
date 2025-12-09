@@ -1,4 +1,7 @@
 ---
+vault_user: "openbao"
+vault_user_dir: "/home/{{ vault_user }}"
+
 vault_config_dir: "/etc/openbao"
 vault_tls_dir: "{{ vault_config_dir }}/tls"
 

@@ -14,7 +14,7 @@
     content: |
       polkit.addRule(function(action, subject) {
         if ((action.id == "org.debian.pcsc-lite.access_pcsc" || action.id == "org.debian.pcsc-lite.access_card")
-          && subject.user == "openbao") {
+          && subject.user == "{{ vault_user }}") {
           return polkit.Result.YES;
         }
       });
@@ -46,8 +46,8 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: openbao
-    group: openbao
+    owner: "{{ vault_user }}"
+    group: "{{ vault_user }}"
     mode: "0755"
   with_items:
     - "{{ vault_config_dir }}"
@@ -63,8 +63,8 @@
   ansible.builtin.template:
     src: config.j2
     dest: "{{ vault_config_dir }}/openbao.hcl"
-    owner: openbao
-    group: openbao
+    owner: "{{ vault_user }}"
+    group: "{{ vault_user }}"
     mode: "0600"
   notify: Restart vault
 
