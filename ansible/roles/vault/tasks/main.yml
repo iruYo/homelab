@@ -177,6 +177,33 @@
   block:
     - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
 
+- name: Ensure admin policies
+  environment:
+    VAULT_ADDR: "https://{{ vault_dns }}:8200"
+  vars:
+    approle: admin
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ hostvars['localhost']['vault_session_token'] }}"
+  block:
+    - ansible.builtin.include_tasks: add_additional_admin_policies.yml # noqa: name[missing]
+  always:
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        token: "{{ hostvars['localhost']['vault_session_token'] }}"
+        path: "auth/token/revoke-self"
+
+- name: Get another admin vault session token
+  delegate_to: localhost
+  run_once: true
+  vars:
+    approle: admin
+    token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
+  no_log: true
+  block:
+    - ansible.builtin.include_tasks: tasks/fetch_vault_token.yml # noqa: name[missing]
+
 - name: Configure vault
   environment:
     VAULT_ADDR: "https://{{ vault_dns }}:8200"
