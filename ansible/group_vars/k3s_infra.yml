@@ -1,3 +1,6 @@
 ---
+aws_root_user: "vault-root"
+aws_dns01_user: "vault-dns01"
+
 k3s_oidc_bucket: "cluster-oidc-9fbabdd8-1c78-4dd8-b318-e47b4de3f12f"
 k3s_oidc_bucket_domain_name: "https://{{ k3s_oidc_bucket }}.s3.amazonaws.com"

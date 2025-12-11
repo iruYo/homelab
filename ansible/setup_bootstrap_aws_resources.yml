@@ -1,0 +1,30 @@
+---
+- name: Ensure minimal AWS resources for vault exist
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+  vars:
+    tf_dir: "../external/tf"
+  module_defaults:
+    cloud.terraform.terraform:
+      force_init: true
+      backend_config:
+        bucket: "{{ tf_state_bucket }}"
+  block:
+    - name: Ensure zones
+      cloud.terraform.terraform:
+        project_path: "{{ tf_dir }}/dns"
+        variables:
+          domain: "{{ domain }}"
+          dns01_user_name: "{{ aws_dns01_user }}"
+        state: present
+      register: tf_aws_zones_result
+
+    # Don't manage inital keys in terraform to avoid reconcolidation once inital rotation happend
+    - name: Ensure vault root user
+      cloud.terraform.terraform:
+        project_path: "{{ tf_dir }}/vault-aws"
+        variables:
+          vault_root_username: "{{ aws_root_user }}"
+        state: present
+      register: tf_aws_admin_result

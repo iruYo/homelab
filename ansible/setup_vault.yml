@@ -1,108 +1,101 @@
 ---
-- name: Ensure vault prerequisites
+# Todo: Find a cleaner solution
+- name: Ensure intial AWS credentials
   hosts: localhost
-  vars:
-    tf_dir: "../tf/roles"
-    tf_bucket: !vault |
-          $ANSIBLE_VAULT;1.1;AES256
-          32616238376638386237376266656439373839623033653030623839633739323132396233663565
-          6630326565616433663734333134323335333931386333350a646633353233636365313662653163
-          36393963663032393230653161383436356130383530303335343530646630323163326365303035
-          6266656561633462660a383534353732326233316663363437313065383633343231363264616363
-          39626635343863623464363034626438356365356637306361646539393439326432396235353437
-          3834316165613461363332653162643431346136333930386535
   tasks:
-    # https://github.com/ricsanfre/pi-cluster/blob/master/ansible/external_services.yml#L163
-    - name: Check if certificates for vault exist
-      ansible.builtin.command: "certbot certificates -d {{ vault_dns }}"
-      register: certbot_certificates
-      changed_when: false
-      failed_when: '"Certificate Name: " + vault_dns not in certbot_certificates.stdout'
-
-    - name: Set certificate paths
-      ansible.builtin.set_fact:
-        vault_cert_key_path: "{{ certbot_certificates.stdout | regex_search('Private Key Path: (\\S+)', '\\1') }}"
-        vault_cert_path: "{{ certbot_certificates.stdout | regex_search('Certificate Path: (\\S+)', '\\1') }}"
-      when: certbot_certificates.rc == 0
+    - name: Check if Vault is up and running
+      ansible.builtin.uri:
+        url: "https://{{ vault_dns }}:8200/v1/sys/health"
+        method: GET
+        status_code: [200, 429, 501, 503]
+        validate_certs: no
+      register: vault_health
+      ignore_errors: yes
       no_log: true
 
-    - name: Ensure AWS vault-admin role exists
-      environment:
-        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
-        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
-      cloud.terraform.terraform:
-        project_path: "{{ tf_dir }}"
-        complex_vars: true
-        force_init: true
-        backend_config:
-          bucket: "{{ tf_bucket }}"
-        state: present
-      register: tf_result
-      no_log: true
+    - name: Report vault health
+      ansible.builtin.debug:
+        msg: "{{ vault_health.msg }}"
 
-    - name: Check if vault-admin has credentials
-      amazon.aws.iam_access_key_info:
-        user_name: "vault-admin"
-        access_key: "{{ aws_access_key_id }}"
-        secret_key: "{{ aws_secret_access_key }}"
-      register: vault_admin_creds_set_info
-      no_log: true
+    - name: Get inital AWS credentials from user
+      when: "vault_health.failed" # Assume health_check failed only because vault doesn't exist yet. Todo: Come back to this when less optimistic
+      block:
+        - name: Show disclaimer
+          ansible.builtin.debug:
+            msg:
+              - "USE HIGH PRIVILAGED KEYS"
+              - "USED FOR VAULT AWS SECRET ENGINE AND INITAL CERTIFICATES"
+              - "ENSURE THESE ARE GONE AFTER VAULT HAS BEEN SET UP!"
 
-    - name: Create inital vault-admin credentials # Always force new ones?
-      amazon.aws.iam_access_key:
-        user_name: "vault-admin"
-        state: present
-        access_key: "{{ aws_access_key_id }}"
-        secret_key: "{{ aws_secret_access_key }}"
-      when: "vault_admin_creds_set_info.access_keys | length == 0"
-      register: vault_admin_inital_creds_info
-      no_log: true
+        - name: Get inital AWS access key
+          ansible.builtin.pause:
+            prompt: AWS_ACCESS_KEY_ID
+          register: vault_inital_aws_access_key
 
-    - name: Set vault aws credentials
-      ansible.builtin.set_fact:
-        vault_aws_admin_access: "{{ vault_admin_inital_creds_info.access_key_id }}"
-        vault_aws_admin_secret: "{{ vault_admin_inital_creds_info.secret_access_key }}"
-      when: "vault_admin_inital_creds_info is not skipped"
-      no_log: true
+        - name: Get inital AWS secret key
+          ansible.builtin.pause:
+            prompt: AWS_SECRET_ACCESS_KEY
+          register: vault_inital_aws_secret_key
+
+        - ansible.builtin.include_tasks: setup_bootstrap_aws_resources.yml
+          vars:
+            aws_access_key_id: "{{ vault_inital_aws_access_key.user_input }}"
+            aws_secret_access_key: "{{ vault_inital_aws_secret_key.user_input }}"
+
+        - name: Create new admin user credentials
+          community.aws.iam_access_key:
+            user_name: "{{ aws_root_user }}"
+            access_key: "{{ vault_inital_aws_access_key.user_input }}"
+            secret_key: "{{ vault_inital_aws_secret_key.user_input }}"
+            state: present
+            rotate_keys: true
+          register: inital_vault_credentials
+
+        - name: Set admin user access key
+          ansible.builtin.set_fact:
+            vault_inital_aws_admin_access: "{{ inital_vault_credentials.access_key.access_key_id | default('') }}"
+
+        - name: Set admin user secret key
+          ansible.builtin.set_fact:
+            vault_inital_aws_admin_secret: "{{ inital_vault_credentials.secret_access_key | default('') }}"
 
 - name: Setup vault
   hosts: vault
   gather_facts: true
   become: true
   vars:
-      vault_cert_key_path: "{{ hostvars['localhost']['vault_cert_key_path'] }}"
-      vault_cert_path:     "{{ hostvars['localhost']['vault_cert_path'] }}"
-      vault_aws_admin_access: "{{ hostvars['localhost']['vault_aws_admin_access'] | default('') }}"
-      vault_aws_admin_secret: "{{ hostvars['localhost']['vault_aws_admin_secret'] | default('') }}"
+    vault_dns01_challenge_user: "{{ hostvars['localhost']['vault_dns01_challenge_user'] }}"
+    vault_inital_aws_admin_access: "{{ hostvars['localhost']['vault_inital_aws_admin_access'] | default('') }}"
+    vault_inital_aws_admin_secret: "{{ hostvars['localhost']['vault_inital_aws_admin_secret'] | default('') }}"
   roles:
-    - role: bootstrap
+#    - role: bootstrap
     - role: vault
 
-- name: Ensure initial vault-admin credentials are gone
+# Todo: Fix this for any other than the first run
+- name: Ensure initial aws admin credentials are gone
   hosts: localhost
   tasks:
-    - name: Get current vault-admin credentials
+    - name: Get current aws admin credentials
       amazon.aws.iam_access_key_info:
-        user_name: "vault-admin"
-        access_key: "{{ aws_access_key_id }}"
-        secret_key: "{{ aws_secret_access_key }}"
+        user_name: "{{ aws_root_user }}"
+        access_key: "{{ vault_inital_aws_admin_access }}"
+        secret_key: "{{ vault_inital_aws_admin_secret }}"
       register: vault_current_admin_creds_info
+      ignore_errors: true
       no_log: true
 
-    # This shouldn't happen, initialization went wrong
-    - name: Remove initial vault-admin credentials
-      when:
-        - "vault_admin_inital_creds_info is not skipped"
-        - "vault_admin_inital_creds_info.access_key_id in (vault_current_admin_creds_info.access_keys | map(attribute='access_key_id'))"
-      amazon.aws.iam_access_key:
-          user_name: "vault-admin"
-          state: absent
-          access_key: "{{ aws_access_key_id }}"
-          secret_key: "{{ aws_secret_access_key }}"
-      register: vault_admin_inital_creds_set
-      no_log: true
+    # This shouldn't happen, access to current keys should have failed
+    - name: Remove inital credentials and error out
+      when: "vault_current_admin_creds_info is not skipped"
+      block:
+        - name: Remove initial vault-admin credentials
+          amazon.aws.iam_access_key:
+              user_name: "{{ aws_root_user }}"
+              state: absent
+              access_key: "{{ vault_inital_aws_admin_access }}"
+              secret_key: "{{ vault_inital_aws_admin_access }}"
+          no_log: true
 
-    - name: Error out if inital vault-admin credentials were still set
-      ansible.builtin.fail:
-        msg: "Inital vault-admin credentials have not been rotated and have been revoked"
-      when: "vault_admin_inital_creds_set is not skipped"
+        - name: Error out if inital vault-admin credentials were still set
+          ansible.builtin.fail:
+            msg: "Inital vault-admin credentials have not been rotated and have been revoked"

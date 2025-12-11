@@ -239,14 +239,13 @@
       ansible.builtin.include_tasks: setup_kubernetes_auth.yml
       no_log: true
 
-    # Todo: Add minimal certificate policiy
     - name: Setup aws secret engine
-      when: "vault_health.failed"
       ansible.builtin.include_tasks: setup_aws_secrets.yml
       no_log: true
 
     - name: Ensure minimal AWS access for acme
       ansible.builtin.include_tasks: ensure_minimal_acme_credentials.yml
+      no_log: true
 
     - name: Enable kv2 secret engine
       community.hashi_vault.vault_write:
