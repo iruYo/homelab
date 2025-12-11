@@ -4,10 +4,8 @@ variable "domain" {
   description = "Domain name"
 }
 
-variable "zones" {
-  type = list(object({
-    name     = string
-    subzones = optional(list(string))
-  }))
-  description = "Route53 zones"
+variable "dns01_user_name" {
+  type = string
+  default = "vault-dns01"
+  description = "Username responsible for vault DNS01 challenge"
 }
