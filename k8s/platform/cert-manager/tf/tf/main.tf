@@ -1,3 +1,5 @@
+data "aws_caller_identity" "this" {}
+
 variable "oidc_provider_arn" {
   type        = string
   description = "OIDC Provider ARN"
@@ -5,11 +7,13 @@ variable "oidc_provider_arn" {
 
 module "irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "~> 6.0.0"
 
   name   = "cert-manager"
 
   attach_cert_manager_policy    = true
   cert_manager_hosted_zone_arns = ["arn:aws:route53:::hostedzone/*"]
+  permissions_boundary          = "arn:aws:iam::${data.aws_caller_identity.this.account_id}:policy/IAMBoundary"
 
   oidc_providers = {
     main = {
