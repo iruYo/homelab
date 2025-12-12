@@ -243,9 +243,10 @@
       ansible.builtin.include_tasks: setup_aws_secrets.yml
       no_log: true
 
-    - name: Ensure minimal AWS access for acme
-      ansible.builtin.include_tasks: ensure_minimal_acme_credentials.yml
-      no_log: true
+    # Todo: Figure this out, without relying on long lived AWS creds. Vault Agent?
+#    - name: Ensure minimal AWS access for acme
+#      ansible.builtin.include_tasks: ensure_minimal_acme_credentials.yml
+#      no_log: true
 
     - name: Enable kv2 secret engine
       community.hashi_vault.vault_write:
