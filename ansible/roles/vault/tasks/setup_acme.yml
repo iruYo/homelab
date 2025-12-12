@@ -16,20 +16,20 @@
 
 - name: Set inital AWS credentials
   when:
-    - "vault_inital_aws_admin_access | default('') != ''"
-    - "vault_inital_aws_admin_secret | default('') != ''"
+    - "vault_inital_aws_access_key | default('') != ''"
+    - "vault_inital_aws_secret_key | default('') != ''"
   block:
     - name: Set AWS access key
       ansible.builtin.lineinfile:
         path: "{{ vault_user_dir }}/.acme.sh/account.conf"
         regexp: "^SAVED_AWS_ACCESS_KEY_ID="
-        line: "SAVED_AWS_ACCESS_KEY_ID='{{ vault_inital_aws_admin_access }}'"
+        line: "SAVED_AWS_ACCESS_KEY_ID='{{ vault_inital_aws_access_key }}'"
 
     - name: Set AWS secret key
       ansible.builtin.lineinfile:
         path: "{{ vault_user_dir }}/.acme.sh/account.conf"
         regexp: "^SAVED_AWS_SECRET_ACCESS_KEY="
-        line: "SAVED_AWS_SECRET_ACCESS_KEY='{{ vault_inital_aws_admin_secret }}'"
+        line: "SAVED_AWS_SECRET_ACCESS_KEY='{{ vault_inital_aws_secret_key }}'"
 
 - name: Issue certificates
   ansible.builtin.command: |

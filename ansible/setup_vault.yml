@@ -53,11 +53,11 @@
 
         - name: Set admin user access key
           ansible.builtin.set_fact:
-            vault_inital_aws_admin_access: "{{ inital_vault_credentials.access_key.access_key_id | default('') }}"
+            vault_inital_aws_access_key: "{{ inital_vault_credentials.access_key.access_key_id | default('') }}"
 
         - name: Set admin user secret key
           ansible.builtin.set_fact:
-            vault_inital_aws_admin_secret: "{{ inital_vault_credentials.secret_access_key | default('') }}"
+            vault_inital_aws_secret_key: "{{ inital_vault_credentials.secret_access_key | default('') }}"
 
 - name: Setup vault
   hosts: vault
@@ -65,8 +65,8 @@
   become: true
   vars:
     vault_dns01_challenge_user: "{{ hostvars['localhost']['vault_dns01_challenge_user'] }}"
-    vault_inital_aws_admin_access: "{{ hostvars['localhost']['vault_inital_aws_admin_access'] | default('') }}"
-    vault_inital_aws_admin_secret: "{{ hostvars['localhost']['vault_inital_aws_admin_secret'] | default('') }}"
+    vault_inital_aws_access_key: "{{ hostvars['localhost']['vault_inital_aws_access_key'] | default('') }}"
+    vault_inital_aws_secret_key: "{{ hostvars['localhost']['vault_inital_aws_secret_key'] | default('') }}"
   roles:
 #    - role: bootstrap
     - role: vault
@@ -78,8 +78,8 @@
     - name: Get current aws admin credentials
       amazon.aws.iam_access_key_info:
         user_name: "{{ aws_root_user }}"
-        access_key: "{{ vault_inital_aws_admin_access }}"
-        secret_key: "{{ vault_inital_aws_admin_secret }}"
+        access_key: "{{ vault_inital_aws_access_key }}"
+        secret_key: "{{ vault_inital_aws_secret_key }}"
       register: vault_current_admin_creds_info
       ignore_errors: true
       no_log: true
@@ -92,8 +92,8 @@
           amazon.aws.iam_access_key:
               user_name: "{{ aws_root_user }}"
               state: absent
-              access_key: "{{ vault_inital_aws_admin_access }}"
-              secret_key: "{{ vault_inital_aws_admin_access }}"
+              access_key: "{{ vault_inital_aws_access_key }}"
+              secret_key: "{{ vault_inital_aws_access_key }}"
           no_log: true
 
         - name: Error out if inital vault-admin credentials were still set
