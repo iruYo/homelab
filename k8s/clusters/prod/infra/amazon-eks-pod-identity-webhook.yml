@@ -13,6 +13,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: cert-manager
+    - name: prometheus-operator-crds
   path: ./k8s/platform/amazon-eks-pod-identity-webhook/overlays/prod
   prune: true
   wait: true
