@@ -1,0 +1,2 @@
+config:
+  defaultAwsRegion: "eu-central-1"

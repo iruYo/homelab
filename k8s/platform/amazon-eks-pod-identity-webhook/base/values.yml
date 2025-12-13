@@ -1,7 +1,11 @@
-values:
-  config:
-    annotationPrefix: "eks.amazonaws.com"
-    defaultAwsRegion: "eu-central-1"
+config:
+  annotationPrefix: "eks.amazonaws.com"
+  tokenAudience: "sts.amazonaws.com"
 
+pki:
   certManager:
+    enabled: true
+
+metrics:
+  serviceMonitor:
     enabled: true
