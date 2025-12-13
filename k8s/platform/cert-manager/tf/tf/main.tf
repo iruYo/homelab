@@ -31,6 +31,9 @@ resource "kubernetes_config_map" "cert_manager_arn" {
   metadata {
     name      = "cert-manager-iam-config"
     namespace = "cert-manager"
+    labels    = {
+      "reconcile.fluxcd.io/watch" = "Enabled"
+    }
   }
 
   data = {
@@ -40,6 +43,11 @@ resource "kubernetes_config_map" "cert_manager_arn" {
         annotations = {
           "eks.amazonaws.com/role-arn" = module.irsa.arn
         }
+      }
+
+      # Add pod annotation to trigger pod restart for eks webhook
+      podAnnotations = {
+        "checksum/irsa-role-arn" = module.irsa.arn
       }
     })
   }
