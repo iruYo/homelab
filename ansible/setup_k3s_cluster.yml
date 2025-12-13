@@ -77,7 +77,7 @@
         project_path: "../external/tf/oidc"
         force_init: true
         backend_config:
-          bucket: "{{ tf_state_bucket }}"
+          bucket: "{{ aws_tf_state_bucket }}"
         variables:
           vault_address: "https://{{ vault_dns }}:8200"
           vault_token: "{{ vault_session_token }}"
