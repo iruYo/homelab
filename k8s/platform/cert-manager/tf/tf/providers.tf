@@ -21,7 +21,6 @@ provider "aws" {
 
   default_tags {
     tags = {
-      env        = "cluster"
       managed_by = "tofu-controller"
     }
   }
