@@ -1,0 +1,25 @@
+- name: Ensure provider IRSA for K3s cluster
+  hosts: localhost
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: ansible
+        token: "{{ vault_ansible_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  tasks:
+    - name: Ensure provider IRSA
+      cloud.terraform.terraform:
+        project_path: "../external/tf/cluster-irsa"
+        force_init: true
+        backend_config:
+          bucket: "{{ aws_tf_state_bucket }}"
+        variables:
+          vault_address: "https://{{ vault_dns }}:8200"
+          vault_token: "{{ vault_session_token }}"
+          oidc_data_secret_path: "ansible/k3s/oidc"
+        state: present
+      no_log: true
