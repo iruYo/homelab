@@ -1,4 +1,8 @@
 ---
+aws_account_id: "{{ vault_aws_account_id }}"
+aws_tf_state_bucket: "{{ vault_aws_tf_state_bucket }}"
+aws_tf_s3_state_manager: "tf-s3-state-manager"
+
 aws_access_key_id: "{{ vault_aws_access_key_id }}"
 aws_secret_access_key: "{{ vault_aws_secret_access_key }}"
 vault_admin_secret_id_gen_token: "{{ vault_vault_admin_secret_id_gen_token }}"

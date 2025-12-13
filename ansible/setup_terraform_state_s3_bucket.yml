@@ -1,0 +1,42 @@
+---
+- name: Setup S3 bucket for terraform state files
+  hosts: localhost
+  pre_tasks:
+    - name: Get AWS access key
+      ansible.builtin.pause:
+        prompt: AWS_ACCESS_KEY_ID
+      register: aws_access_key
+
+    - name: Get AWS secret key
+      ansible.builtin.pause:
+        prompt: AWS_SECRET_ACCESS_KEY
+      register: aws_secret_key
+  tasks:
+    - name: Ensure S3 bucket exists
+      amazon.aws.s3_bucket:
+        name: "{{ aws_tf_state_bucket }}"
+        region: "eu-central-1"
+        versioning: true
+        encryption: "AES256"
+        public_access:
+          block_public_acls: true
+          block_public_policy: true
+          ignore_public_acls: true
+          restrict_public_buckets: true
+        access_key: "{{ aws_access_key.user_input }}"
+        secret_key: "{{ aws_secret_key.user_input }}"
+        state: present
+
+    - name: Configure IAM
+      environment:
+        AWS_ACCESS_KEY_ID: "{{ aws_access_key.user_input }}"
+        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key.user_input }}"
+      cloud.terraform.terraform:
+        project_path: "../external/tf/tf-s3-backend"
+        force_init: true
+        backend_config:
+          bucket: "{{ aws_tf_state_bucket }}"
+        variables:
+          tf_state_manager_username: "{{ aws_tf_s3_state_manager }}"
+          tf_state_bucket: "{{ aws_tf_state_bucket }}"
+        state: present
