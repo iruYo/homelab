@@ -11,5 +11,8 @@
 - name: Setup vault
   import_playbook: setup_vault.yml
 
+- name: Setup OIDC endpoint
+  import_playbook: setup_oidc.yml
+
 - name: Setup K3s cluster
   import_playbook: setup_k3s_cluster.yml

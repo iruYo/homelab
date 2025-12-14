@@ -1,0 +1,25 @@
+- name: Ensure external K3s OIDC endpoint
+  hosts: localhost
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: ansible
+        token: "{{ vault_ansible_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  tasks:
+    - name: Ensure OIDC configuration
+      cloud.terraform.terraform:
+        project_path: "../external/tf/oidc"
+        force_init: true
+        backend_config:
+          bucket: "{{ aws_tf_state_bucket }}"
+        variables:
+          vault_address: "https://{{ vault_dns }}:8200"
+          vault_token: "{{ vault_session_token }}"
+        state: present
+      register: tf_result
+      no_log: true

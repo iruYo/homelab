@@ -1,8 +1,42 @@
 ---
+- name: Get OIDC endpoint from vault
+  hosts: localhost
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: ansible
+        token: "{{ vault_ansible_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ vault_session_token }}"
+  no_log: true
+  tasks:
+    - name: Get OIDC data
+      community.hashi_vault.vault_kv2_get:
+        path: "ansible/k3s/oidc"
+      register: k3s_oidc_data_result
+
+    - name: Set k3s_oidc_endpoint variable
+      ansible.builtin.set_fact:
+        k3s_oidc_endpoint: "{{ k3s_oidc_data_result.secret['url'] }}" # Used in k3s_cluster config var
+
+    - name: Set k3s_oidc_bucket_name variable
+      ansible.builtin.set_fact:
+        k3s_oidc_bucket_name: "{{ k3s_oidc_data_result.secret['bucket_name'] }}"
+
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        path: "auth/token/revoke-self"
+
 - name: Setup K3s master nodes
   hosts: k3s_master
   gather_facts: true
   become: true
+  vars:
+    k3s_oidc_endpoint: "{{ hostvars['localhost']['k3s_oidc_endpoint'] }}"
   roles:
     - role: bootstrap
     - role: k3s/prerequisites # noqa: role-name[path]
@@ -33,19 +67,29 @@
       ansible.builtin.set_fact:
         k3s_token: "{{ vault_k3s_token_result.secret['join-token'] }}"
 
-    # Todo: Generate these and pass to K3s
     - name: Get K3s JWKS keys
       community.hashi_vault.vault_kv2_get:
-        path: "ansible/k3s/oidc-jwks-keys"
+        path: "ansible/k3s/oidc/keys"
       register: vault_k3s_jwks_result
 
     - name: Set k3s_jwks_keys variable
       ansible.builtin.set_fact:
-        k3s_jwks_keys: "{{ vault_k3s_jwks_result.secret['keys'] }}"
+        k3s_jwks_keys: "{{ vault_k3s_jwks_result.secret['jwks'] }}"
 
     - name: Revoke vault session
       community.hashi_vault.vault_write:
         path: "auth/token/revoke-self"
+
+    - name: Upload JWKS keys.json to OIDC S3 bucket
+      amazon.aws.s3_object:
+        bucket: "{{ k3s_oidc_bucket_name }}"
+        object: "keys.json"
+        content: "{{ k3s_jwks_keys | to_json }}"
+        mode: put
+        headers:
+          ContentType: "application/json"
+        access_key: "{{ aws_access_key_id }}"
+        secret_key: "{{ aws_secret_access_key }}"
 
 - name: Install K3s agent nodes
   hosts: k3s_agent
@@ -58,34 +102,3 @@
     - role: k3s/prerequisites # noqa: role-name[path]
     - role: k3s/agent # noqa: role-name[path]
   tags: agent
-
-- name: Ensure external K3s OIDC endpoint
-  hosts: localhost
-  pre_tasks:
-    - name: Get vault session token
-      vars:
-        approle: ansible
-        token: "{{ vault_ansible_secret_id_gen_token }}"
-      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
-      no_log: true
-  tasks:
-    - name: Ensure OIDC configuration
-      environment:
-        AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
-        AWS_SECRET_ACCESS_KEY: "{{ aws_secret_access_key }}"
-      cloud.terraform.terraform:
-        project_path: "../external/tf/oidc"
-        force_init: true
-        backend_config:
-          bucket: "{{ aws_tf_state_bucket }}"
-        variables:
-          vault_address: "https://{{ vault_dns }}:8200"
-          vault_token: "{{ vault_session_token }}"
-          oidc_bucket_name: "{{ k3s_oidc_bucket }}"
-          oidc_jwks_keys: "{{  k3s_jwks_keys | to_json }}"
-        state: present
-      register: tf_result
-
-    - name: Show terraform OIDC result
-      ansible.builtin.debug:
-        msg: "{{ tf_result.stdout }}"

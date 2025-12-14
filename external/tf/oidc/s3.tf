@@ -1,5 +1,7 @@
+resource "random_uuid" "this" {}
+
 resource "aws_s3_bucket" "this" {
-  bucket = var.oidc_bucket_name
+  bucket = "cluster-oidc-${random_uuid.this.result}"
 }
 
 resource "aws_s3_bucket_public_access_block" "this" {
@@ -33,14 +35,15 @@ resource "aws_s3_bucket_policy" "this" {
   depends_on = [aws_s3_bucket_public_access_block.this]
 }
 
-resource "aws_s3_object" "jwks" {
-  bucket       = aws_s3_bucket.this.id
-  key          = "keys.json"
+# Keys can't be computed ahead of time, so they'll have to be managed by ansible after K3s master creation
+#resource "aws_s3_object" "jwks" {
+#  bucket       = aws_s3_bucket.this.id
+#  key          = "keys.json"
 
-  content      = var.oidc_jwks_keys
-  content_type = "application/json"
-  etag         = md5(var.oidc_jwks_keys)
-}
+#  content      = local.jwks_keys
+#  content_type = "application/json"
+#  etag         = md5(local.jwks_keys)
+#}
 
 resource "aws_s3_object" "discovery" {
   bucket       = aws_s3_bucket.this.id

@@ -125,9 +125,9 @@
 
     - name: Store JWKS keys in vault
       community.hashi_vault.vault_kv2_write:
-        path: "ansible/k3s/oidc-jwks-keys"
+        path: "ansible/k3s/oidc/keys"
         data:
-          keys: "{{ k3s_jwks_keys_result.stdout | from_json }}"
+          jwks: "{{ k3s_jwks_keys_result.stdout | from_json }}"
 
     - name: Get inital join token
       ansible.builtin.slurp:

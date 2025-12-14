@@ -6,6 +6,11 @@ terraform {
       source = "hashicorp/aws"
       version = "~> 6.14.0"
     }
+
+    vault = {
+      source = "hashicorp/vault"
+      version = "~> 5.6.0"
+    }
   }
 
   backend "s3" {
@@ -13,6 +18,19 @@ terraform {
     key    = "prod/oidc/terraform.tfstate"
   }
 }
+
+provider "vault" {
+  address = var.vault_address
+  token   = var.vault_token
+
+  skip_child_token = true
+}
+
+#data "vault_aws_access_credentials" "this" {
+#  backend = "aws"
+#  role    = "manage-s3"
+#  type    = "sts"
+#}
 
 provider "aws" {
   region  = "eu-central-1"
@@ -22,11 +40,4 @@ provider "aws" {
       managed_by = "ansible"
     }
   }
-}
-
-provider "vault" {
-  address = var.vault_address
-  token   = var.vault_token
-
-  skip_child_token = true
 }

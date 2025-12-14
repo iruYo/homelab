@@ -30,6 +30,9 @@ k3s_server_config:
     - 'terminated-pod-gc-threshold=10'
   kube-scheduler-arg:
     - 'bind-address=0.0.0.0'
+  kube-apiserver-arg:
+    - service-account-issuer={{ k3s_oidc_endpoint }}
+    - service-account-issuer=https://kubernetes.default.svc.cluster.local
 
 k3s_ca_lease_ttl: "87660h" # 10 years
 k3s_int_ca_lease_ttl: "26280h" # 3 years
