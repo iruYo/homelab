@@ -1,3 +1,85 @@
 ---
-- name: Setup bind9
-  ansible.builtin.include_tasks: bind9.yml
+- name: Install packages
+  ansible.builtin.apt:
+    name: "{{ dns_packages }}"
+    update_cache: true
+    state: present
+
+- name: Ensure DDNS key exists
+  block:
+    - name: Ensure keys directory exists
+      ansible.builtin.file:
+        path: "{{ dns_keys_dir }}"
+        state: directory
+        owner: "bind"
+        group: "bind"
+        mode: "02750"
+
+    - name: Generate DDNS key
+      ansible.builtin.shell: "tsig-keygen -a hmac-sha512 {{ dns_update_key }} > {{ dns_keys_dir }}/{{ dns_update_key }}.key"
+      args:
+        creates: "{{ dns_keys_dir }}/{{ dns_update_key }}.key"
+
+- name: Set primary dns ip
+  ansible.builtin.set_fact:
+    dns_primary_ip: "{{ hostvars[groups['dns'][0]]['ansible_host'] }}"
+
+- name: Set secondary dns ips
+  ansible.builtin.set_fact:
+    dns_secondary_ips: "{{ groups['dns'][1:] | map('extract', hostvars, 'ansible_host') | list }}"
+
+- name: Ensure log directory exists
+  ansible.builtin.file:
+    path: "{{ dns_log_dir }}"
+    state: directory
+    owner: "bind"
+    group: "bind"
+    mode: "0755"
+
+- name: Disable IPv6
+  ansible.builtin.lineinfile:
+    path: /etc/default/named
+    regexp: '^OPTIONS="-u bind"'
+    line: 'OPTIONS="-u bind -4"'
+
+- name: Configure bind9 options
+  ansible.builtin.template:
+    src: "templates/named.conf.options.j2"
+    dest: "{{ dns_config_dir }}/named.conf.options"
+    owner: "root"
+    group: "bind"
+    mode: "0644"
+
+- name: Configure primary dns
+  when: inventory_hostname == groups['dns'][0]
+  block:
+    - name: Configure primary bind9 local options
+      ansible.builtin.template:
+        src: "templates/primary-named.conf.local.j2"
+        dest: "{{ dns_config_dir }}/named.conf.local"
+        owner: "root"
+        group: "bind"
+        mode: "0644"
+
+    - name: Create zone files
+      ansible.builtin.template:
+        src: "templates/db.zone.j2"
+        dest: "{{ dns_zone_dir }}/db.{{ item.name }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop: "{{ dns_zones }}"
+
+- name: Configure secondary bind9 local options
+  ansible.builtin.template:
+    src: "templates/secondary-named.conf.local.j2"
+    dest: "{{ dns_config_dir }}/named.conf.local"
+    owner: root
+    group: bind
+    mode: "0644"
+  when: inventory_hostname != groups['dns'][0]
+
+- name: Reload bind9
+  ansible.builtin.service:
+    name: bind9
+    state: reloaded
