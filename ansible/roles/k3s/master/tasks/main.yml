@@ -143,6 +143,12 @@
         path: "ansible/k3s/join-token"
         data:
           join-token: "{{ k3s_join_token }}"
+  rescue:
+    - name: Run K3s uninstall script
+      ansible.builtin.command:
+        cmd: k3s-uninstall.sh
+        removes: /var/lib/rancher/k3s/*
+      notify: Reboot
   always:
     - name: Revoke vault session
       community.hashi_vault.vault_write:
