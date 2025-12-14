@@ -19,7 +19,7 @@ $ORIGIN {{ zone.name }}.
 {{ '%-12s' | format(sub) }} IN      A    {{ hostvars[host].ansible_host }}
 {% endfor %}
 
-{% for host in groups['all'] | sort -%}
+{% for host in groups['all'] | reject('equalto', 'localhost') | sort -%}
 {{ '%-12s' | format(hostvars[host].hostname) }} IN      A    {{ hostvars[host].ansible_host }}
 {% endfor %}
 
