@@ -1,0 +1,106 @@
+---
+- name: Get K3s vault data
+  hosts: localhost
+  tasks:
+    - name: Get vault session token
+      vars:
+        approle: admin
+        token: "{{ hostvars['localhost']['vault_admin_secret_id_gen_token'] }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+
+- name: Get K3s vault data
+  hosts: k3s_master[0]
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token:  "{{ hostvars['localhost']['vault_session_token'] }}"
+  no_log: true
+  tasks:
+    - name: Create temporary directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: cert
+      register: tmp_dir
+
+    - name: Create temporary cert directory
+      ansible.builtin.file:
+        path: "{{ tmp_dir.path }}/server/tls"
+        state: directory
+        mode: "0755"
+
+    - name: Generate root CA
+      community.hashi_vault.vault_write:
+        path: "pki/root/generate/internal"
+        data:
+          common_name: "K3s Cluster Root CA 2"
+          ttl: "{{ k3s_ca_lease_ttl }}"
+      register: new_root_ca_result
+
+    - name: Set new CA as default issuer
+      community.hashi_vault.vault_write:
+        path: "pki/config/issuers"
+        data:
+          default: "{{ new_root_ca_result.data.data.issuer_id }}"
+          default_follows_latest_issuer: true
+
+    - name: Generate intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/generate/exported"
+        data:
+          common_name: "K3s Cluster Intermediate CA 2"
+          ttl: "{{ k3s_int_ca_lease_ttl }}"
+      register: new_int_ca_result
+
+    - name: Sign intermediate CSR
+      community.hashi_vault.vault_write:
+        path: "pki/root/sign-intermediate"
+        data:
+          csr: "{{ new_int_ca_result.data.data.csr }}"
+          format: "pem_bundle"
+          ttl: "{{ k3s_int_ca_lease_ttl }}"
+      register: int_sign_result
+
+    - name: Import signed intermediate CA
+      community.hashi_vault.vault_write:
+        path: "pki_int/intermediate/set-signed"
+        data:
+          certificate: "{{ int_sign_result.data.data.certificate }}"
+
+    - name: Save CA to file
+      ansible.builtin.copy:
+        content: "{{ new_root_ca_result.data.data.certificate }}"
+        dest: "{{ tmp_dir.path }}/server/tls/root-ca.pem"
+        mode: "0600"
+
+    - name: Save intermediate CA to file
+      ansible.builtin.copy:
+        content: "{{ int_sign_result.data.data.certificate }}"
+        dest: "{{ tmp_dir.path }}/server/tls/intermediate-ca.pem"
+        mode: "0600"
+
+    - name: Save intermediate private key to file
+      ansible.builtin.copy:
+        content: "{{ new_int_ca_result.data.data.private_key }}"
+        dest: "{{ tmp_dir.path }}/server/tls/intermediate-ca.key"
+        mode: "0600"
+
+    - name: Copy service.key
+      ansible.builtin.copy:
+        src: "/var/lib/rancher/k3s/service.key"
+        dest: "{{ tmp_dir.path }}/server/tls/service.key"
+        remote_src: true
+        mode: "0644"
+
+    - name: test
+      ansible.builtin.pause:
+        prompt: test
+
+    - name: Generate cluster certificates
+      environment:
+        DATA_DIR: "{{ tmp_dir.path }}"
+      ansible.builtin.script: "{{ inventory_dir }}/roles/k3s/master/files/generate-custom-ca-certs.sh"
+
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        path: "auth/token/revoke-self"
