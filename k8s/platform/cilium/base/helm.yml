@@ -13,6 +13,8 @@ spec:
         kind: HelmRepository
         name: cilium
         namespace: flux-system
+  releaseName: cilium
+  targetNamespace: kube-system
   install:
     remediation:
       retries: 3
