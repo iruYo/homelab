@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - cilium-repo.yml
   - controlplane-repo.yml
+  - external-dns-repo.yml
   - external-secrets-repo.yml
   - flux-iac-repo.yml
   - jetstack-repo.yml

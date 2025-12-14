@@ -5,6 +5,7 @@ resources:
   - amazon-eks-pod-identity-webhook.yml
   - cert-manager.yml
   - cilium.yml
+  - external-dns.yml
   - external-secrets.yml
   - flux-operator.yml
   - kube-prometheus-stack.yml
