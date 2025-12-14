@@ -7,24 +7,6 @@
     group: root
     mode: "0755"
 
-#    - name: Start explicit vault session
-#      ansible.builtin.command: "bao login -no-print {{ vault_session_token }}"
-#      changed_when: true
-#      no_log: true
-
-#    - name: Check if signed intermediate CA exists
-#      ansible.builtin.shell: |
-#        bao token lookup > /dev/null 2>&1 || exit 2 # ensure login
-#        bao read -field=certificate pki_int/cert/ca > /tmp/int_ca.pem || exit 1
-#        bao read -field=certificate pki/cert/ca > /tmp/root_ca.pem
-#
-#        trap "rm -f /tmp/root_ca.pem /tmp/int_ca.pem" EXIT
-#
-#        openssl verify -check_ss_sig -CAfile /tmp/root_ca.pem /tmp/int_ca.pem
-#      register: vault_check_pki_int_ca_result
-#      failed_when: "vault_check_pki_int_ca_result.rc == 2"
-#      changed_when: false
-
 - name: Check if root CA exists
   community.hashi_vault.vault_read:
     path: pki/config/issuers
