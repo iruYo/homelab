@@ -27,3 +27,6 @@ ipam:
     clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # K3s default range
 
 rollOutCiliumPods: true
+
+gatewayAPI:
+  enabled: false
