@@ -1,4 +1,19 @@
 ---
+- name: Load ddns key from file from DNS node
+  hosts: dns[0]
+  become: true
+  tasks:
+    - name: Read ddns key file
+      ansible.builtin.slurp:
+        src: /etc/bind/keys/ddns.key
+      register: ddns_key_file
+      no_log: true
+
+    - name: Extract ddns key
+      ansible.builtin.set_fact:
+        ddns_key_secret: "{{ (ddns_key_file['content'] | b64decode | regex_search('secret\\s+\"(.*)\";', '\\1'))[0] }}"
+      no_log: true
+
 - name: Get OIDC endpoint from vault
   hosts: localhost
   pre_tasks:
@@ -26,6 +41,12 @@
     - name: Set k3s_oidc_bucket_name variable
       ansible.builtin.set_fact:
         k3s_oidc_bucket_name: "{{ k3s_oidc_data_result.secret['bucket_name'] }}"
+
+    - name: Store ddns key secret in vault
+      community.hashi_vault.vault_kv2_write:
+        path: "ansible/k3s/ddns"
+        data:
+          secret: "{{ hostvars[groups['dns'][0]]['ddns_key_secret'] }}"
 
     - name: Revoke vault session
       community.hashi_vault.vault_write:
