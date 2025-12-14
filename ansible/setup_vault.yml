@@ -42,7 +42,7 @@
             aws_access_key_id: "{{ vault_inital_aws_access_key.user_input }}"
             aws_secret_access_key: "{{ vault_inital_aws_secret_key.user_input }}"
 
-        - name: Create new admin user credentials
+        - name: Create vault root user credentials
           community.aws.iam_access_key:
             user_name: "{{ aws_root_user }}"
             access_key: "{{ vault_inital_aws_access_key.user_input }}"
@@ -65,8 +65,8 @@
   become: true
   vars:
     vault_dns01_challenge_user: "{{ hostvars['localhost']['vault_dns01_challenge_user'] }}"
-    vault_inital_aws_access_key: "{{ hostvars['localhost']['vault_inital_aws_access_key'] | default('') }}"
-    vault_inital_aws_secret_key: "{{ hostvars['localhost']['vault_inital_aws_secret_key'] | default('') }}"
+    vault_inital_aws_access_key: "{{ hostvars['localhost']['vault_inital_aws_access_key'] }}"
+    vault_inital_aws_secret_key: "{{ hostvars['localhost']['vault_inital_aws_secret_key'] }}"
   roles:
 #    - role: bootstrap
     - role: vault
