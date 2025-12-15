@@ -1,0 +1,38 @@
+authentik:
+  secret_key_existing_secret: "authentik-credentials"
+  secret_key_existing_secret_key: "AUTHENTIK_SECRET_KEY"
+
+  postgresql:
+      password:
+
+postgresql:
+  enabled: true
+  auth:
+    existingSecret: authentik-credentials
+
+redis:
+  enabled: true
+
+server:
+  env:
+    - name: AUTHENTIK_POSTGRESQL__PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: authentik-credentials
+          key: password
+    - name: AUTHENTIK_SECRET_KEY
+      valueFrom:
+        secretKeyRef:
+          name: authentik-credentials
+          key: secret_key
+
+  ingress:
+    enabled: true
+    ingressClassName: cilium
+    hosts:
+      - "auth.${HOME_DOMAIN}"
+    paths:
+      - "/"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-issuer
+      cert-manager.io/common-name: auth.${HOME_DOMAIN}
