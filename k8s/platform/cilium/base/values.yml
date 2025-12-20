@@ -1,32 +1,25 @@
-kubeProxyReplacement: true
+envoy:
+  enabled: true
+externalIPs:
+  enabled: true
+gatewayAPI:
+  enabled: true
+hubble:
+  enabled: true
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # K3s default range
 
 # get these from ansible?
 k8sServiceHost: 10.0.20.10
 k8sServicePort: 6443
 
-hubble:
-  enabled: false
-
-externalIPs:
-  enabled: true
-
-nodePort:
-  enabled: true
-
-loadBalancer:
-  algorithm: maglev
-
-envoy:
-  enabled: false
+kubeProxyReplacement: true
 
 l2announcements:
   enabled: true
-
-ipam:
-  operator:
-    clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # K3s default range
-
+loadBalancer:
+  algorithm: maglev
+nodePort:
+  enabled: true
 rollOutCiliumPods: true
-
-gatewayAPI:
-  enabled: false

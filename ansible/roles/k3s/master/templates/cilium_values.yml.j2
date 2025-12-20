@@ -1,23 +1,10 @@
-kubeProxyReplacement: true
+hubble:
+  enabled: false
+ipam:
+  operator:
+    clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # K3s default range
 
 k8sServiceHost: localhost
 k8sServicePort: {{ k3s_api_port }}
 
-hubble:
-  enabled: false
-
-externalIPs:
-  enabled: true
-
-nodePort:
-  enabled: true
-
-loadBalancer:
-  algorithm: maglev
-
-envoy:
-  enabled: false
-
-ipam:
-  operator:
-    clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # k3s default range
+kubeProxyReplacement: true
