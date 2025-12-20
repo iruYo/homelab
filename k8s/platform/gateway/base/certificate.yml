@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: youriulbri.ch
+spec:
+  secretName: youriulbri.ch-tls
+  issuerRef:
+    name: letsencrypt-issuer
+    kind: ClusterIssuer
+  commonName: youriulbri.ch
+  dnsNames:
+    - youriulbri.ch
+    - "*.youriulbri.ch"
