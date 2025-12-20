@@ -59,6 +59,11 @@
   changed_when: vault_keygen.rc == 0
   no_log: true
 
+- name: Download, verify and install vault
+  ansible.builtin.include_tasks: install.yml
+  when: "'bao-hsm' not in ansible_facts.packages or
+        ansible_facts.packages['bao-hsm'][0].version != vault_version" # Doesn't work with beta versions
+
 - name: Ensure vault configuration directories exist
   ansible.builtin.file:
     path: "{{ item }}"
@@ -88,11 +93,6 @@
     mode: "0600"
   notify: Restart vault
 
-- name: Download, verify and install vault
-  ansible.builtin.include_tasks: install.yml
-  when: "'bao-hsm' not in ansible_facts.packages or
-        ansible_facts.packages['bao-hsm'][0].version != vault_version" # Doesn't work with beta versions
-
 - name: Ensure vault user directory exists
   ansible.builtin.file:
     path: "{{ vault_user_dir }}"
@@ -101,6 +101,7 @@
     state: directory
     mode: "0755"
 
+# Todo: Move this into own role/playbook
 - name: Setup inital certificates and rotation
   ansible.builtin.include_tasks: setup_acme.yml
   args:
