@@ -1,6 +1,6 @@
 ---
 dns_zones:
-  - name: "{{ home_domain }}"
+  - name: "{{ domain }}"
     ttl: 2d
     refresh: 12h
     retry: 15m

@@ -17,7 +17,7 @@ data "aws_iam_policy_document" "this" {
       "route53:ListResourceRecordSets"
     ]
 
-    resources = ["arn:aws:route53:::hostedzone/${aws_route53_zone.home.zone_id}"]
+    resources = ["arn:aws:route53:::hostedzone/${aws_route53_zone.sld.zone_id}"]
   }
 
   statement {
@@ -26,19 +26,19 @@ data "aws_iam_policy_document" "this" {
 
     actions = ["route53:ChangeResourceRecordSets"]
 
-    resources = ["arn:aws:route53:::hostedzone/${aws_route53_zone.home.zone_id}"]
+    resources = ["arn:aws:route53:::hostedzone/${aws_route53_zone.sld.zone_id}"]
 
     condition {
       test     = "ForAllValues:StringEquals"
       variable = "route53:ChangeResourceRecordSetsNormalizedRecordNames"
-      values = ["_acme-challenge.vault.${aws_route53_zone.home.name}"]
+      values = ["_acme-challenge.vault.${aws_route53_zone.sld.name}"]
     }
   }
 }
 
 resource "aws_iam_policy" "this" {
   name        = "route53_vault_dns01_challenge_policy"
-  description = "Allow home domain DNS01 challenge for vault"
+  description = "Allow domain DNS01 challenge for vault"
 
   policy      = data.aws_iam_policy_document.this.json
 }

@@ -7,7 +7,7 @@ env:
   - name: EXTERNAL_DNS_RFC2136_PORT
     value: "53"
   - name: EXTERNAL_DNS_RFC2136_ZONE
-    value: ${HOME_DOMAIN}
+    value: ${DOMAIN}
   - name: EXTERNAL_DNS_RFC2136_TSIG_AXFR
     value: "true"
   - name: EXTERNAL_DNS_RFC2136_TSIG_KEYNAME
@@ -30,7 +30,7 @@ sources:
   - ingress
   - gateway-httproute
 domainFilters:
-  - ${HOME_DOMAIN}
+  - ${DOMAIN}
 logLevel: debug
 
 serviceMonitor:

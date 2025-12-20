@@ -14,16 +14,3 @@ resource "aws_route53domains_registered_domain" "this" {
 resource "aws_route53_zone" "sld" {
   name = var.domain
 }
-
-resource "aws_route53_zone" "home" {
-  name = "home.${var.domain}"
-}
-
-resource "aws_route53_record" "home_ns" {
-  zone_id = aws_route53_zone.sld.zone_id
-  name    = aws_route53_zone.home.name
-  type    = "NS"
-  ttl     = "300"
-
-  records = aws_route53_zone.home.name_servers
-}
