@@ -16,11 +16,11 @@
         }
 
         path "secret/data/k3s/*" {
-          capabilities = ["create", "read", "update"]
+          capabilities = ["create", "read", "update", "delete"]
         }
 
         path "secret/metadata/k3s/*" {
-          capabilities = [ "update" ]
+          capabilities = ["create", "read", "update", "delete"]
         }
 
 - name: Create external-secrets role
