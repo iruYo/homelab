@@ -1,11 +1,3 @@
-ingress:
-  enabled: true
-  ingressClassName: cilium
-  path: /
-  host: ""
-  annotations:
-    io.cilium/lb-ipam-ips: "10.0.20.202"
-
 global:
   nodeSelector:
     storage: "true"
