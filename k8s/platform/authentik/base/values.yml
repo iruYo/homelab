@@ -1,38 +1,65 @@
 authentik:
-  secret_key_existing_secret: "authentik-credentials"
-  secret_key_existing_secret_key: "AUTHENTIK_SECRET_KEY"
-
-  postgresql:
-      password:
+  secret_key: "authentik-secrets"
 
 postgresql:
   enabled: true
-  auth:
-    existingSecret: authentik-credentials
 
-redis:
-  enabled: true
+  auth:
+    username: authentik
+    database: authentik
+
+    existingSecret: "authentik-postgres-password"
+    secretKeys:
+      adminPasswordKey: "AUTHENTIK_POSTGRESQL__PASSWORD"
+      userPasswordKey: "AUTHENTIK_POSTGRESQL__PASSWORD"
+
+  primary:
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: storage
+                  operator: In
+                  values:
+                    - "true"
+    persistence:
+      enabled: true
 
 server:
-  env:
-    - name: AUTHENTIK_POSTGRESQL__PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: authentik-credentials
-          key: password
-    - name: AUTHENTIK_SECRET_KEY
-      valueFrom:
-        secretKeyRef:
-          name: authentik-credentials
-          key: secret_key
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: storage
+                operator: In
+                values:
+                  - "true"
 
-  ingress:
-    enabled: true
-    ingressClassName: cilium
-    hosts:
-      - "auth.${HOME_DOMAIN}"
-    paths:
-      - "/"
-    annotations:
-      cert-manager.io/cluster-issuer: letsencrypt-issuer
-      cert-manager.io/common-name: auth.${HOME_DOMAIN}
+  route:
+    main:
+      enabled: true
+      hostnames:
+        - "auth.${DOMAIN}"
+      parentRefs:
+        - name: gateway-internal
+          namespace: network
+
+global:
+  envFrom:
+    - secretRef:
+        name: authentik-secret-key
+    - secretRef:
+        name: authentik-postgres-password
+
+worker:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: storage
+                operator: In
+                values:
+                  - "true"

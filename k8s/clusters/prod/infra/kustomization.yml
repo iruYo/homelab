@@ -3,7 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - amazon-eks-pod-identity-webhook.yml
-#  - authentik.yml
+  - authentik.yml
   - cert-manager.yml
   - cilium.yml
   - external-dns.yml

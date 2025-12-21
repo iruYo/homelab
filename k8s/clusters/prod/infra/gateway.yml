@@ -26,6 +26,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
+    - name: cert-manager-config
     - name: gateway-api-crds
   path: ./k8s/platform/gateway/overlays/prod
   prune: true
