@@ -49,8 +49,6 @@ server:
 global:
   envFrom:
     - secretRef:
-        name: authentik-secret-key
-    - secretRef:
         name: authentik-postgres-password
 
 worker:
