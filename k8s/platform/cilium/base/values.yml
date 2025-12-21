@@ -20,4 +20,8 @@ loadBalancer:
   algorithm: maglev
 nodePort:
   enabled: true
+
+operator:
+  rollOutPods: true
+
 rollOutCiliumPods: true
