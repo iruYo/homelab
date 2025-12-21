@@ -64,7 +64,7 @@
     - role: k3s/master # noqa: role-name[path]
   tags: master
 
-- name: Get K3s vault data
+- name: Get K3s JWKS data
   hosts: localhost
   pre_tasks:
     - name: Get vault session token
@@ -79,15 +79,6 @@
       token: "{{ vault_session_token }}"
   no_log: true
   tasks:
-    - name: Get K3s join token
-      community.hashi_vault.vault_kv2_get:
-        path: "ansible/k3s/join-token"
-      register: vault_k3s_token_result
-
-    - name: Set k3s_token variable
-      ansible.builtin.set_fact:
-        k3s_token: "{{ vault_k3s_token_result.secret['join-token'] }}"
-
     - name: Get K3s JWKS keys
       community.hashi_vault.vault_kv2_get:
         path: "ansible/k3s/oidc/keys"
@@ -111,6 +102,35 @@
           ContentType: "application/json"
         access_key: "{{ aws_access_key_id }}"
         secret_key: "{{ aws_secret_access_key }}"
+
+- name: Get K3s join token data
+  hosts: localhost
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: ansible
+        token: "{{ vault_ansible_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ vault_session_token }}"
+  no_log: true
+  tasks:
+    - name: Get K3s join token
+      community.hashi_vault.vault_kv2_get:
+        path: "ansible/k3s/join-token"
+      register: vault_k3s_token_result
+
+    - name: Set k3s_token variable
+      ansible.builtin.set_fact:
+        k3s_token: "{{ vault_k3s_token_result.secret['join-token'] }}"
+
+    - name: Revoke vault session
+      community.hashi_vault.vault_write:
+        path: "auth/token/revoke-self"
+  tags: always
 
 - name: Install K3s agent nodes
   hosts: k3s_agent
