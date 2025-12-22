@@ -5,6 +5,7 @@ resources:
   - external-secret.yml
   - namespace.yml
   - helm.yml
+  - push-secret.yml
 
 configMapGenerator:
   - name: authentik-helm-values
