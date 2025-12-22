@@ -52,6 +52,8 @@ global:
         name: authentik-secret-key
     - secretRef:
         name: authentik-postgres-password
+    - secretRef:
+        name: authentik-bootstrap-token
 
 worker:
   affinity:
