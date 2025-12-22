@@ -1,5 +1,5 @@
 authentik:
-  secret_key: "authentik-secrets"
+  secret_key: ""
 
 postgresql:
   enabled: true
