@@ -7,11 +7,6 @@ terraform {
       version = "~> 6.25.0"
     }
   }
-
-  backend "s3" {
-    region = "eu-central-1"
-    key    = "prod/k3s/cert-manager/terraform.tfstate"
-  }
 }
 
 provider "kubernetes" {}
