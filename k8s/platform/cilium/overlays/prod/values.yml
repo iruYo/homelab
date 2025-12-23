@@ -1,3 +1,0 @@
-ingressController:
-  enabled: true
-  default: true
