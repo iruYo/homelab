@@ -64,7 +64,7 @@
   block:
     - name: Install flux-operator Helm chart
       kubernetes.core.helm:
-        name: fluxcd-operator
+        name: flux-operator
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
         chart_version: 0.37.0
         namespace: flux-system
@@ -91,7 +91,7 @@
 
     - name: Install flux-instance Helm chart
       kubernetes.core.helm:
-        name: fluxcd-instance
+        name: flux-instance
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
         namespace: flux-system
         values: "{{ lookup('template', 'flux-instance_values.yml.j2') | from_yaml }}"
