@@ -16,8 +16,8 @@
 
 - name: Set inital AWS credentials
   when:
-    - "vault_inital_aws_access_key | default('') != ''"
-    - "vault_inital_aws_secret_key | default('') != ''"
+    - "vault_inital_aws_access_key is not skipped"
+    - "vault_inital_aws_secret_key is not skipped"
   block:
     - name: Set AWS access key
       ansible.builtin.lineinfile:
