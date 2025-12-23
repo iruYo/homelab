@@ -21,3 +21,5 @@ spec:
       name: authentik-bootstrap-token
     - kind: Secret
       name: github-oauth-secret
+    - kind: Secret
+      name: discord-oauth-secret

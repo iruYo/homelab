@@ -7,6 +7,16 @@ variable "authentik_url" {
   type      = string
 }
 
+variable "discord_client_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "discord_client_secret" {
+  type      = string
+  sensitive = true
+}
+
 variable "email" {
   type      = string
 }

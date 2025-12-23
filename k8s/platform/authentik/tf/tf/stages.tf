@@ -4,7 +4,8 @@ resource "authentik_stage_identification" "authentication" {
   show_source_labels = true
 
   sources = [
-    authentik_source_oauth.github.uuid
+    authentik_source_oauth.github.uuid,
+    authentik_source_oauth.discord.uuid
   ]
 }
 
