@@ -13,3 +13,41 @@ spec:
   path: ./k8s/platform/kube-prometheus-stack/prometheus-operator-crds/overlays/prod
   prune: true
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kube-prometheus-stack
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: kube-prometheus-stack
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./k8s/platform/kube-prometheus-stack/app/overlays/prod
+  prune: true
+  dependsOn:
+    - name: prometheus-operator-crds
+    - name: longhorn
+  wait: true
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-variables
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: kube-prometheus-stack-k3s-mixins
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: kube-prometheus-stack
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: kube-prometheus-stack
+  path: ./k8s/platform/kube-prometheus-stack/k3s-mixins/overlays/prod
+  prune: true
