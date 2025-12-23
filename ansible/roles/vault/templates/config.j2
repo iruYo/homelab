@@ -19,10 +19,11 @@ listener "tcp" {
   tls_key_file  = "{{ vault_tls_key_crt }}"
 }
 
-#telemetry {
-#  statsite_address = "[::]:8125"
-#  disable_hostname = true
-#}
+telemetry {
+  disable_hostname               = true
+  prometheus_retention_time      = "1m"
+  unauthenticated_metrics_access = true
+}
 
 seal "pkcs11" {
   lib = "{{ vault_pkcs11_lib }}"
