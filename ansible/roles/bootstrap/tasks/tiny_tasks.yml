@@ -1,12 +1,7 @@
 ---
 - name: Set local DNS server
-  ansible.builtin.copy:
-    dest: /etc/resolv.conf
-    owner: root
-    group: root
-    mode: "0644"
-    content: |
-      {% for dns in bootstrap_dns_servers %}
-      nameserver {{ dns }}
-      {% endfor %}
-  notify: Reboot
+  ansible.builtin.lineinfile:
+    path: /etc/dhcpcd.conf
+    regexp: "^static domain_name_servers="
+    line: "static domain_name_servers={{ bootstrap_dns_servers | join(' ') }}"
+  notify: Restart networking
