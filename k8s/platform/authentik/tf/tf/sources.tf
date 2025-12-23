@@ -6,9 +6,10 @@ resource "authentik_source_oauth" "discord" {
   consumer_key        = var.discord_client_id
   consumer_secret     = var.discord_client_secret
 
-  authorization_url   = "https://discord.com/api/oauth2/authorize"
   access_token_url    = "https://discord.com/api/oauth2/token"
+  authorization_url   = "https://discord.com/api/oauth2/authorize"
   profile_url         = "https://discord.com/api/users/@me"
+  oidc_well_known_url = ""
 
   user_matching_mode = "email_link"
 
