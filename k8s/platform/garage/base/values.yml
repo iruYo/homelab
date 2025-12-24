@@ -1,0 +1,41 @@
+# franken helm values. Using 2.1.0. fix asap
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: storage
+              operator: In
+              values:
+                - "true"
+
+environment:
+  - name: GARAGE_ADMIN_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: garage-admin-token
+        key: token
+
+garage:
+  exisistingConfigMap: garage-config # Todo: remove this once 2.1.0 helm chart releases
+#  metadataAutoSnapshotInterval: 8h
+#  s3:
+#    api:
+#      rootDomain: ".s3.${DOMAIN}"
+
+image:
+  tag: "v2.1.0"
+
+monitoring:
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+persistence:
+  meta:
+    storageClass: longhorn
+    size: 100Mi
+  data:
+    storageClass: longhorn
+    size: 1Gi
