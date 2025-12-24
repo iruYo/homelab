@@ -11,7 +11,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: cert-manager-config
+    - name: external-secrets-config
   path: ./k8s/platform/authentik/app/overlays/prod
   prune: true
   wait: true
