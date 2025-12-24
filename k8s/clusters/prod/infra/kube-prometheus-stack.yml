@@ -29,7 +29,7 @@ spec:
   prune: true
   dependsOn:
     - name: prometheus-operator-crds
-    - name: longhorn
+    - name: rook-ceph
   wait: true
   postBuild:
     substituteFrom:

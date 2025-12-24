@@ -1,5 +1,0 @@
-defaultSettings:
-  allowVolumeCreationWithDegradedAvailability: true
-  defaultDataPath: "/storage"
-  replicaSoftAntiAffinity: true
-  replicaAutoBalance: "least-effort"

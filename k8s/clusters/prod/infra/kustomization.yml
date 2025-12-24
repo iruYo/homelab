@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - amazon-eks-pod-identity-webhook.yml
   - authentik.yml
+  - rook-ceph.yml
   - cert-manager.yml
   - cilium.yml
   - external-dns.yml
@@ -11,5 +12,4 @@ resources:
   - flux-operator.yml
   - gateway.yml
   - kube-prometheus-stack.yml
-  - longhorn.yml
   - tofu-controller.yml

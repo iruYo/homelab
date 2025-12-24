@@ -10,5 +10,5 @@ resources:
   - goauthentik-repo.yml
   - jetstack-repo.yml
   - jkroepke-repo.yml
-  - longhorn-repo.yml
   - prometheus-community-repo.yml
+  - rook-repo.yml
