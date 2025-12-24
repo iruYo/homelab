@@ -9,7 +9,6 @@ resources:
   - external-dns.yml
   - external-secrets.yml
   - flux-operator.yml
-  - garage.yml
   - gateway.yml
   - kube-prometheus-stack.yml
   - longhorn.yml
