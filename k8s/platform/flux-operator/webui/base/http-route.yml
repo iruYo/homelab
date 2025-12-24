@@ -1,0 +1,40 @@
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: flux-ui-redirect
+spec:
+  parentRefs:
+    - name: gateway-internal
+      namespace: network
+      sectionName: http
+  hostnames:
+    - "flux.${DOMAIN}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: flux-ui
+spec:
+  parentRefs:
+    - name: gateway-internal
+      namespace: network
+      sectionName: https
+  hostnames:
+    - "flux.${DOMAIN}"
+  rules:
+    - backendRefs:
+        - name: flux-operator
+          namespace: flux-system
+          port: 9080

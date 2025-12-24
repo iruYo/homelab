@@ -1,0 +1,5 @@
+installCRDs: false
+
+web:
+  enabled: true
+  serverOnly: true

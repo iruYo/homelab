@@ -41,3 +41,26 @@ spec:
       kind: HelmRelease
       name: flux-instance
       namespace: flux-system
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: flux-operator-webui
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: flux-system
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: authentik
+    - name: flux-operator-operator
+    - name: gateway
+  path: ./k8s/platform/flux-operator/webui/overlays/prod
+  prune: true
+  wait: true
+  postBuild:
+    substituteFrom:
+      - kind: ConfigMap
+        name: cluster-variables
