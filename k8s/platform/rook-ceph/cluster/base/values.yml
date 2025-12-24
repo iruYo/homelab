@@ -1,6 +1,10 @@
 operatorNamespace: rook-ceph
 
 cephClusterSpec:
+  mon: # Todo: Remove once 3rd storage node is available
+    count: 3
+    allowMultiplePerNode: true
+
   cephConfig:
     global:
       bdev_enable_discard: "true"
