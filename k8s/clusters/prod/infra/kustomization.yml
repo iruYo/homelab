@@ -12,4 +12,3 @@ resources:
   - flux-operator.yml
   - gateway.yml
   - kube-prometheus-stack.yml
-  - tofu-controller.yml
