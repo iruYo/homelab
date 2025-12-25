@@ -1,5 +1,6 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: authentik
+# See tofu-controller-namespaces
+#apiVersion: v1
+#kind: Namespace
+#metadata:
+#  name: authentik

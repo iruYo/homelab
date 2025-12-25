@@ -12,6 +12,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: external-secrets-config
+    - name: tofu-controller-namespaces
   path: ./k8s/platform/authentik/app/overlays/prod
   prune: true
   wait: true
