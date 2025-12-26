@@ -47,12 +47,12 @@ write:
       valueFrom:
         secretKeyRef:
           name: s3-loki
-          key: access_key
+          key: AWS_ACCESS_KEY_ID
     - name: LOKI_S3_SECRET_KEY
       valueFrom:
         secretKeyRef:
           name: s3-loki
-          key: secret_key
+          key: AWS_SECRET_ACCESS_KEY
 
 read:
   affinity: *storageNodeAffinity
