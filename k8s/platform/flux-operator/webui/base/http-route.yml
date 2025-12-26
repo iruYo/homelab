@@ -35,6 +35,6 @@ spec:
     - "flux.${DOMAIN}"
   rules:
     - backendRefs:
-        - name: flux-operator
+        - name: flux-webui
           namespace: flux-system
           port: 9080
