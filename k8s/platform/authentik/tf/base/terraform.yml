@@ -13,7 +13,7 @@ spec:
   approvePlan: auto
   vars:
     - name: authentik_url
-      value: "https://auth.${DOMAIN}"
+      value: "auth.${DOMAIN}"
     - name: email
       value: "${EMAIL}"
   varsFrom:
