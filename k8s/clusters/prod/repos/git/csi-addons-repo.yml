@@ -1,0 +1,11 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: csi-addons
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/csi-addons/kubernetes-csi-addons
+  ref:
+    tag: "v0.12.0"
