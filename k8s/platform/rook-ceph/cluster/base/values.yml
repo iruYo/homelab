@@ -17,8 +17,8 @@ cephClusterSpec:
   dashboard:
     enabled: true
     urlPrefix: /
-#    ssl: false
-#    prometheusEndpoint: http://prometheus-operated.observability.svc.cluster.local:9090
+    ssl: false
+    prometheusEndpoint: http://prometheus-operated.kube-prometheus-stack.svc.cluster.local:9090
 
   network:
     connections:
