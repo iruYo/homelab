@@ -73,6 +73,7 @@ cephClusterSpec:
     useAllDevices: true
     config:
       osdsPerDevice: "1"
+    deviceFilter: "^nvme0n1p3$"
 
 cephBlockPools:
   - name: ceph-blockpool
