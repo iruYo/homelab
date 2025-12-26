@@ -36,5 +36,4 @@ spec:
   rules:
     - backendRefs:
         - name: flux-webui
-          namespace: flux-system
           port: 9080
