@@ -30,7 +30,6 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: gateway
     - name: rook-ceph
   path: ./k8s/platform/rook-ceph/cluster/overlays/prod
   prune: true
