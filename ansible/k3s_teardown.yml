@@ -40,7 +40,26 @@
         path: /var/lib/rook
         state: absent
 
-# Todo: Clean rook-ceph partition
+    - name: Remove cilium cni directory
+      ansible.builtin.file:
+        path: /etc/cni
+        state: absent
+
+    - name: Wipe rook-ceph fs
+      become: true
+      when: "'k3s_agent' in group_names"
+      ansible.builtin.command: wipefs --all --force /dev/nvme0n1p3
+      register: wipefs_result
+      changed_when: wipefs_result.rc != 0
+      notify: Reboot
+
+    - name: Overwrite rook-ceph partition
+      become: true
+      when: "'k3s_agent' in group_names"
+      ansible.builtin.command: dd if=/dev/zero of=/dev/nvme0n1p3 bs=1M count=100
+      register: dd_result
+      changed_when: dd_result.rc != 0
+      notify: Reboot
 
 - hosts: localhost
   gather_facts: no
