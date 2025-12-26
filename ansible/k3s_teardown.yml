@@ -2,6 +2,7 @@
 - name: Teardown K3s cluster
   hosts: k3s_cluster
   become: true
+  gather_facts: false
   roles:
     - common
   tasks:
@@ -34,4 +35,39 @@
         path: /etc/rancher
         state: absent
 
-# Todo: remove intermediate CA from vault
+    - name: Remove rook directory
+      ansible.builtin.file:
+        path: /var/lib/rook
+        state: absent
+
+# Todo: Clean rook-ceph partition
+
+- hosts: localhost
+  gather_facts: no
+  pre_tasks:
+    - name: Get vault session token
+      vars:
+        approle: admin
+        token: "{{ vault_admin_secret_id_gen_token }}"
+      ansible.builtin.include_tasks: tasks/fetch_vault_token.yml
+      no_log: true
+  module_defaults:
+    group/community.hashi_vault.vault:
+      url: "https://{{ vault_dns }}:8200"
+      token: "{{ vault_session_token }}"
+  tasks:
+    - name: Get intermediate certificates
+      community.hashi_vault.vault_list:
+        path: "pki_int/issuers"
+      register: pki_int_issuers
+      ignore_errors: yes
+
+    - name: Delete intermediate issuers
+      ansible.builtin.uri:
+        url: "https://{{ vault_dns }}:8200/v1/pki_int/issuer/{{ item }}"
+        method: DELETE
+        headers:
+          X-Vault-Token: "{{ vault_session_token }}"
+        status_code: [200, 204]
+      loop: "{{ pki_int_issuers.data.data['keys'] | default([]) }}"
+      when: pki_int_issuers.data.data is defined
