@@ -86,7 +86,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: authentik
+    - name: authentik-tf
     - name: flux-operator-operator
     - name: gateway
   path: ./k8s/platform/flux-operator/webui/overlays/prod
