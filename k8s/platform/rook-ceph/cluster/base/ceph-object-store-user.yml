@@ -1,0 +1,23 @@
+---
+apiVersion: ceph.rook.io/v1
+kind: CephObjectStoreUser
+metadata:
+  name: admin
+spec:
+  displayName: admin
+  store: ceph-objectstore
+  capabilities:
+    user: "*"
+    bucket: "*"
+    usage: "*"
+    metadata: "*"
+    zone: "*"
+    roles: "*"
+    info: "*"
+    amz-cache: "*"
+    bilog: "*"
+    mdlog: "*"
+    datalog: "*"
+    user-policy: "*"
+    oidc-provider: "*"
+    ratelimit: "*"

@@ -12,3 +12,4 @@ resources:
   - flux-operator.yml
   - gateway.yml
   - kube-prometheus-stack.yml
+  - loki.yml
