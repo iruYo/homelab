@@ -4,4 +4,6 @@ installCRDs: false
 
 web:
   enabled: true
+  networkPolicy:
+    create: false
   serverOnly: true
