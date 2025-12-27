@@ -1,0 +1,94 @@
+crds:
+  create: true
+
+alloy:
+  configMap:
+    content: |-
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      discovery.relabel "pods_processing" {
+        targets = discovery.kubernetes.pods.targets
+
+        rule {
+          source_labels = ["__meta_kubernetes_namespace"]
+          target_label  = "namespace"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_name"]
+          target_label  = "pod"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_container_name"]
+          target_label  = "container"
+        }
+        rule {
+          source_labels = ["__meta_kubernetes_pod_node_name"]
+          target_label  = "host"
+        }
+
+        rule {
+          source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name", "__meta_kubernetes_pod_label_app"]
+          separator     = ";"
+          regex         = "^(?:;*)?([^;]+).*$"
+          target_label  = "app"
+        }
+      }
+
+      loki.source.kubernetes "pods" {
+        targets    = discovery.relabel.pods_processing.output
+        forward_to = [loki.process.logs_processing.receiver]
+      }
+
+      loki.source.journal "syslogs" {
+        forward_to = [loki.process.logs_processing.receiver]
+        labels = { job = "syslog" }
+      }
+
+      loki.process "logs_processing" {
+        stage.cri {}
+        stage.docker {}
+
+        stage.metrics {
+          metric.counter {
+            name        = "input_status_num_records_total"
+            description = "Total number of incoming records"
+            match_all   = true
+            action      = "inc"
+          }
+        }
+
+        forward_to = [loki.write.loki_backend.receiver]
+      }
+
+      loki.write "loki_backend" {
+        endpoint {
+          url = "http://loki-write.loki.svc:3100/loki/api/v1/push"
+
+          batch_wait = "3s"
+          batch_size = "2MiB"
+        }
+
+        wal {
+          enabled          = true
+        }
+
+        external_labels = { job = "alloy" }
+      }
+
+      prometheus.exporter.self "alloy_health" {}
+
+      prometheus.scrape "self_scrape" {
+        targets    = prometheus.exporter.self.alloy_health.targets
+        forward_to = [prometheus.remote_write.metrics_backend.receiver]
+      }
+
+      prometheus.remote_write "metrics_backend" {
+        endpoint {
+          url = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc:9090/api/v1/write"
+        }
+      }
+
+serviceMonitor:
+  enabled: true
