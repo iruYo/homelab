@@ -9,7 +9,6 @@ resource "authentik_source_oauth" "discord" {
   access_token_url    = "https://discord.com/api/oauth2/token"
   authorization_url   = "https://discord.com/api/oauth2/authorize"
   profile_url         = "https://discord.com/api/users/@me"
-  oidc_well_known_url = ""
 
   user_matching_mode = "email_link"
 
@@ -28,8 +27,6 @@ resource "authentik_source_oauth" "github" {
   access_token_url    = "https://github.com/login/oauth/access_token"
   authorization_url   = "https://github.com/login/oauth/authorize"
   profile_url         = "https://api.github.com/user"
-  oidc_well_known_url = ""
-
   user_matching_mode  = "email_link"
 
   authentication_flow = data.authentik_flow.default_source_auth.id
