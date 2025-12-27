@@ -4,3 +4,4 @@ k3s_packages:
   - open-iscsi
   - cryptsetup
   - iptables
+  - gdisk
