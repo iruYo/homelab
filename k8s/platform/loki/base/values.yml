@@ -75,6 +75,8 @@ backend:
   persistence:
     size: 1Gi
     storageClass: ceph-block
+  extraArgs: *extraArgs
+  extraEnv: *secretEnv
 
 resultsCache:
   affinity:
