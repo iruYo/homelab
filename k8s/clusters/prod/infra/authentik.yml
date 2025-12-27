@@ -37,6 +37,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: authentik
+    - name: gateway
     - name: tofu-controller
   path: ./k8s/platform/authentik/tf/overlays/prod
   prune: true
