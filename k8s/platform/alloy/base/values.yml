@@ -86,7 +86,7 @@ alloy:
 
       prometheus.remote_write "metrics_backend" {
         endpoint {
-          url = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc:9090/api/v1/write"
+          url = "http://kube-prometheus-stack-prometheus.kube-prometheus-stack.svc:9090/prometheus/api/v1/write"
         }
       }
 
