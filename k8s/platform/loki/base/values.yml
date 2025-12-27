@@ -93,5 +93,8 @@ resultsCache:
 gateway:
   enabled: false
 
+lokiCanary:
+  lokiurl: "cilium-gateway-gateway-internal.network.svc:80"
+
 test:
   enabled: false
