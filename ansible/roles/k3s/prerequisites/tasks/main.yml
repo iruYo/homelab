@@ -45,6 +45,16 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
 
+- name: Increase fsnotify limits
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: true
+  loop:
+    - { key: 'fs.inotify.max_user_watches', value: '1048576' }
+    - { key: 'fs.inotify.max_user_instances', value: '8192' }
+
 - name: Load iscsi_tcp module
   community.general.modprobe:
     name: iscsi_tcp
