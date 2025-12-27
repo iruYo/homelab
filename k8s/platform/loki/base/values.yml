@@ -22,9 +22,9 @@ loki:
   storage:
     type: s3
     bucketNames:
-      admin: loki-admin
-      chunks: loki-chunks
-      ruler: loki-ruler
+      admin: loki
+      chunks: loki
+      ruler: loki
     s3:
       endpoint: http://rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:80
       region: rook-ceph
