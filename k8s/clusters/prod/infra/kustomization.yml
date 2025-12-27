@@ -12,5 +12,6 @@ resources:
   - external-secrets.yml
   - flux-operator.yml
   - gateway.yml
+  - grafana.yml
   - kube-prometheus-stack.yml
   - loki.yml
