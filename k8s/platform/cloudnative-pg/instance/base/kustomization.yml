@@ -3,6 +3,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - cluster.yml
+  - database.yml
   - external-secret.yml
   - prometheus-rule.yml
   - push-secret.yml

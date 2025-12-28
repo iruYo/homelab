@@ -18,11 +18,6 @@ spec:
   path: ./k8s/platform/authentik/app/overlays/prod
   prune: true
   wait: true
-  healthCheckExprs:
-    - apiVersion: postgresql.cnpg.io/v1
-      kind: Database
-      current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
   postBuild:
     substituteFrom:
       - kind: ConfigMap
