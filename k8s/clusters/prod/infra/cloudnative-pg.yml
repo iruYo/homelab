@@ -23,7 +23,6 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  timeout: 10m
   targetNamespace: cloudnative-pg
   sourceRef:
     kind: GitRepository
@@ -35,8 +34,3 @@ spec:
   path: ./k8s/platform/cloudnative-pg/instance/overlays/prod
   prune: true
   wait: true
-  healthCheckExprs:
-    - apiVersion: postgresql.cnpg.io/v1
-      kind: Cluster
-      current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
