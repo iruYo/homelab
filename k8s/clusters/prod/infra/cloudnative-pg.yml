@@ -1,0 +1,41 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-operator
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: cloudnative-pg
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: grafana-operator
+  path: ./k8s/platform/cloudnative-pg/operator/overlays/prod
+  prune: true
+  wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cloudnative-pg-instance
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: cloudnative-pg
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: cloudnative-pg-operator
+    - name: external-secrets-config
+    - name: kube-prometheus-stack
+  path: ./k8s/platform/cloudnative-pg/instance/overlays/prod
+  prune: true
+  wait: true
+  healthCheckExprs:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Cluster
+      current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
+      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')

@@ -5,6 +5,7 @@ resources:
   - alloy.yml
   - amazon-eks-pod-identity-webhook.yml
   - authentik.yml
+  - cloudnative-pg.yml
   - rook-ceph.yml
   - cert-manager.yml
   - cilium.yml
