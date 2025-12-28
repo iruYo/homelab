@@ -89,7 +89,7 @@ spec:
   dependsOn:
     - name: authentik-tf
     - name: flux-operator
-    - name: gateway
+    - name: network
   path: ./k8s/platform/flux/webui/overlays/prod
   prune: true
   wait: true
