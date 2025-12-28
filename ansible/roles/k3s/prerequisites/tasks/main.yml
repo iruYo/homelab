@@ -55,6 +55,16 @@
     - { key: 'fs.inotify.max_user_watches', value: '1048576' }
     - { key: 'fs.inotify.max_user_instances', value: '8192' }
 
+- name: Set 2GB for hugepages
+  when:
+    - k3s_label is defined
+    - k3s_label.storage == "true"
+  ansible.posix.sysctl:
+    name: vm.nr_hugepages
+    value: '1024'
+    state: present
+    reload: true
+
 - name: Load iscsi_tcp module
   community.general.modprobe:
     name: iscsi_tcp
