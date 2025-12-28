@@ -16,10 +16,12 @@ spec:
   releaseName: cert-manager
   targetNamespace: cert-manager
   install:
+    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
+    crds: CreateReplace
     remediation:
       strategy: rollback
       retries: 3

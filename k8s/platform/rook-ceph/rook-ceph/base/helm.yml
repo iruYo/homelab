@@ -17,10 +17,12 @@ spec:
   releaseName: rook-ceph
   targetNamespace: rook-ceph
   install:
+    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
+    crds: CreateReplace
     remediation:
       strategy: rollback
       retries: 3

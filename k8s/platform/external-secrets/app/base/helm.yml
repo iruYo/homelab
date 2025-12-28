@@ -16,10 +16,12 @@ spec:
   releaseName: external-secrets
   targetNamespace: external-secrets
   install:
+    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
     cleanupOnFail: true
+    crds: CreateReplace
     remediation:
       strategy: rollback
       retries: 3
