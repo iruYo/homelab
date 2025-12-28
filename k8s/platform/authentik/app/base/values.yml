@@ -6,16 +6,6 @@ authentik:
     name: "authentik"
     port: 5432
 
-  envValueFrom:
-    AUTHENTIK_POSTGRESQL__USER:
-      secretKeyRef:
-        name: "authentik-postgres-credentials"
-        key: "AUTHENTIK_POSTGRESQL__USER"
-    AUTHENTIK_POSTGRESQL__PASSWORD:
-      secretKeyRef:
-        name: "authentik-postgres-credentials"
-        key: "AUTHENTIK_POSTGRESQL__PASSWORD"
-
 server:
   affinity:
     nodeAffinity:
@@ -41,7 +31,7 @@ global:
     - secretRef:
         name: authentik-secret-key
     - secretRef:
-        name: authentik-postgres-password
+        name: authentik-postgres-credentials
     - secretRef:
         name: authentik-bootstrap-token
 
