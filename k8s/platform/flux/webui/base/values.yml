@@ -1,3 +1,5 @@
+fullnameOverride: flux-webui
+
 installCRDs: false
 
 web:
