@@ -12,7 +12,7 @@ resources:
   - external-dns.yml
   - external-secrets.yml
   - flux-operator.yml
-  - gateway.yml
   - grafana.yml
   - kube-prometheus-stack.yml
+  - network.yml
   - loki.yml
