@@ -8,6 +8,20 @@ loki:
     ingestion_burst_size_mb: 12
     per_stream_rate_limit: 6MB
     per_stream_rate_limit_burst: 15MB
+    log_level_fields:
+      - level
+      - LEVEL
+      - Level
+      - Severity
+      - severity
+      - SEVERITY
+      - lvl
+      - LVL
+      - Lvl
+      - severity_text
+      - Severity_Text
+      - SEVERITY_TEXT
+      - error_severity # CNPG PostgreSQL Logs
 
   schemaConfig:
     configs:

@@ -4,6 +4,10 @@ crds:
 alloy:
   configMap:
     content: |-
+      livedebugging {
+        enabled = true
+      }
+
       discovery.kubernetes "pods" {
         role = "pod"
       }
@@ -38,12 +42,55 @@ alloy:
 
       loki.source.kubernetes "pods" {
         targets    = discovery.relabel.pods_processing.output
-        forward_to = [loki.process.logs_processing.receiver]
+        forward_to = [loki.process.cnpg_unwrap.receiver]
       }
 
       loki.source.journal "syslogs" {
         forward_to = [loki.process.logs_processing.receiver]
         labels = { job = "syslog" }
+      }
+
+      loki.process "cnpg_unwrap" {
+        stage.match {
+          selector = "{app=\"postgresql\"}"
+
+          stage.json {
+            expressions = { record = "" }
+          }
+
+          stage.json {
+            source = "record"
+
+            expressions = {
+              pg_session     = "session_id",
+              pg_transaction = "transaction_id",
+              pg_database    = "database_name",
+              pg_user        = "user_name",
+              pg_severity    = "error_severity",
+              pg_message     = "message",
+              pg_sql_state   = "sql_state_code",
+            }
+          }
+
+          stage.labels {
+            values = { database = "pg_database" }
+          }
+
+          stage.structured_metadata {
+            values = {
+              session_id     = "pg_session",
+              transaction_id = "pg_transaction",
+              sql_state      = "pg_sql_state",
+              user           = "pg_user",
+            }
+          }
+
+          stage.output {
+            source = "pg_message"
+          }
+        }
+
+        forward_to = [loki.process.logs_processing.receiver]
       }
 
       loki.process "logs_processing" {
@@ -71,7 +118,7 @@ alloy:
         }
 
         wal {
-          enabled          = true
+          enabled = true
         }
 
         external_labels = { job = "alloy" }
