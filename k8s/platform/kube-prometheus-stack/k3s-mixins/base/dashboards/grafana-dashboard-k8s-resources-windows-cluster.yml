@@ -1,6 +1,14 @@
-apiVersion: v1
-data:
-  k8s-resources-windows-cluster.json: |-
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: k8s-resources-windows-cluster
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  json: |-
     {
         "editable": false,
         "panels": [
@@ -676,9 +684,3 @@ data:
         "title": "Kubernetes / Compute Resources / Cluster(Windows)",
         "uid": "4d08557fd9391b100730f2494bccac68"
     }
-kind: ConfigMap
-metadata:
-  labels:
-    grafana_dashboard: "1"
-  name: grafana-dashboard-k8s-resources-windows-cluster
-  namespace: kube-prom-stack

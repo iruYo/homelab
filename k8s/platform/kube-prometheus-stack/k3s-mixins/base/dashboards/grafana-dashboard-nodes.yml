@@ -1,6 +1,14 @@
-apiVersion: v1
-data:
-  nodes.json: |-
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: nodes
+spec:
+  allowCrossNamespaceImport: true
+  instanceSelector:
+    matchLabels:
+      grafana.internal/instance: grafana
+  json: |-
     {
         "graphTooltip": 1,
         "panels": [
@@ -728,9 +736,3 @@ data:
         "title": "Node Exporter / Nodes",
         "uid": "7d57716318ee0dddbac5a7f451fb7753"
     }
-kind: ConfigMap
-metadata:
-  labels:
-    grafana_dashboard: "1"
-  name: grafana-dashboard-nodes
-  namespace: kube-prom-stack
