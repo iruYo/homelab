@@ -49,6 +49,14 @@ spec:
       cpu: 2000m
       memory: 8Gi
       hugepages-2Mi: 2Gi
+  # Todo: Wait for https://github.com/cloudnative-pg/cloudnative-pg/issues/5341
+  # and move to Authentik ns
+  managed:
+    roles:
+    - name: authentik
+      login: true
+      passwordSecret:
+        name: authentik-postgres-credentials
   monitoring:
     enablePodMonitor: true
 #  plugins:

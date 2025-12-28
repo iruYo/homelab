@@ -1,30 +1,20 @@
 authentik:
   secret_key: ""
 
-postgresql:
-  enabled: true
+  postgresql:
+    host: "postgres18-rw.cloudnative-pg.svc"
+    name: "authentik"
+    port: 5432
 
-  auth:
-    username: authentik
-    database: authentik
-
-    existingSecret: "authentik-postgres-password"
-    secretKeys:
-      adminPasswordKey: "AUTHENTIK_POSTGRESQL__PASSWORD"
-      userPasswordKey: "AUTHENTIK_POSTGRESQL__PASSWORD"
-
-  primary:
-    affinity:
-      nodeAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-          nodeSelectorTerms:
-            - matchExpressions:
-                - key: storage
-                  operator: In
-                  values:
-                    - "true"
-    persistence:
-      enabled: true
+  envValueFrom:
+    AUTHENTIK_POSTGRESQL__USER:
+      secretKeyRef:
+        name: "authentik-postgres-credentials"
+        key: "AUTHENTIK_POSTGRESQL__USER"
+    AUTHENTIK_POSTGRESQL__PASSWORD:
+      secretKeyRef:
+        name: "authentik-postgres-credentials"
+        key: "AUTHENTIK_POSTGRESQL__PASSWORD"
 
 server:
   affinity:
