@@ -2,7 +2,7 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: flux-operator-operator
+  name: flux-operator
   namespace: flux-system
 spec:
   interval: 30m
@@ -11,7 +11,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./k8s/platform/flux-operator/operator/overlays/prod
+  path: ./k8s/platform/flux/operator/overlays/prod
   prune: true
   wait: true
   healthChecks:
@@ -23,7 +23,7 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: flux-operator-instance
+  name: flux-instance
   namespace: flux-system
 spec:
   interval: 30m
@@ -32,8 +32,8 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
-    - name: flux-operator-operator
-  path: ./k8s/platform/flux-operator/instance/overlays/prod
+    - name: flux-operator
+  path: ./k8s/platform/flux/instance/overlays/prod
   prune: true
   wait: true
   healthChecks:
@@ -52,7 +52,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  path: ./k8s/platform/flux-operator/tofu-controller-namespaces/overlays/prod
+  path: ./k8s/platform/flux/tofu-controller-namespaces/overlays/prod
   prune: true
   wait: true
 ---
@@ -70,14 +70,15 @@ spec:
   dependsOn:
     - name: amazon-eks-pod-identity-webhook
     - name: external-secrets-config
-  path: ./k8s/platform/flux-operator/tofu-controller/overlays/prod
+    - name: tofu-controller-namespaces
+  path: ./k8s/platform/flux/tofu-controller/overlays/prod
   prune: true
   wait: true
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: flux-operator-webui
+  name: flux-webui
   namespace: flux-system
 spec:
   interval: 30m
@@ -87,9 +88,9 @@ spec:
     name: flux-system
   dependsOn:
     - name: authentik-tf
-    - name: flux-operator-operator
+    - name: flux-operator
     - name: gateway
-  path: ./k8s/platform/flux-operator/webui/overlays/prod
+  path: ./k8s/platform/flux/webui/overlays/prod
   prune: true
   wait: true
   postBuild:

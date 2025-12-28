@@ -11,7 +11,7 @@ resources:
   - cilium.yml
   - external-dns.yml
   - external-secrets.yml
-  - flux-operator.yml
+  - flux.yml
   - grafana.yml
   - kube-prometheus-stack.yml
   - network.yml
