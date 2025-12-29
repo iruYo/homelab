@@ -33,10 +33,10 @@ spec:
     name: flux-system
   dependsOn:
     - name: alloy
-#    - name: authentik-tf
-#    - name: gateway
+    - name: authentik-tf
     - name: kube-prometheus-stack
     - name: loki
+    - name: network
   path: ./k8s/platform/grafana/instance/overlays/prod
   prune: true
   wait: true

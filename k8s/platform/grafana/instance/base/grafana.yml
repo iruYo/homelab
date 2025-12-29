@@ -12,12 +12,20 @@ spec:
       check_for_plugin_updates: "false"
       feedback_links_enabled: "false"
       reporting_enabled: "false"
-    auth: # TEMP! Todo: Authentik
+    auth:
       disable_login_form: "true"
-    auth.anonymous:
+      signout_redirect_url: "https://auth.${DOMAIN}/application/o/grafana/end-session/"
+    auth.generic_oauth:
       enabled: "true"
-      org_role: "Admin"
-      org_name: "Main Org."
+      name: "Authentik"
+      scopes: "openid email profile"
+      auth_url: https://auth.${DOMAIN}/application/o/authorize/
+      token_url: https://auth.${DOMAIN}/application/o/token/
+      api_url: https://auth.${DOMAIN}/application/o/userinfo/
+      use_pkce: "true"
+    auth.generic_oauth.group_mapping:
+      role_attribute_path: |
+        contains(groups[*], 'authentik Admins') && 'Admin' || 'Viewer'
     log:
       mode: console
     metrics:
@@ -39,6 +47,17 @@ spec:
         spec:
           containers:
             - name: grafana
+              env:
+                - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-oauth-credentials
+                      key: client-id
+                - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-oauth-credentials
+                      key: client-secret
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
