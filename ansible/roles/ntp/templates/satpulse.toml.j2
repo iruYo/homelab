@@ -17,3 +17,7 @@ sock.path = "/var/run/chrony.satpulse.sock"
 [[proxy.tcp]]
 listen = ":{{ ntp_satpulse_proxy_port }}"
 protocol = "UBX"
+
+[[http]]
+listen = ":{{ ntp_satpulse_http_port }}"
+gui = false

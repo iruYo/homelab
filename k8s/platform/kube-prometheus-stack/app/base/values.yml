@@ -50,11 +50,14 @@ prometheus:
         params:
           format: ['prometheus']
         scheme: https
-
         # bearer_token: "" Todo: Add simple static token intstead of relying on unauthenticated metrics access
-
         static_configs:
           - targets: ['vault.${DOMAIN}:8200']
+
+      - job_name: satpulse
+        scrape_interval: 1s
+        static_configs:
+          - targets: ['ntp.${DOMAIN}:2000']
 
     affinity:
       nodeAffinity:
