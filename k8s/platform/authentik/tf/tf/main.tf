@@ -1,5 +1,9 @@
+data "authentik_certificate_key_pair" "this" {
+  name = "authentik Self-signed Certificate"
+}
+
 resource "authentik_brand" "this" {
-  domain         = var.authentik_url
+  domain         = "auth.${var.domain}"
   default        = false
 
   branding_title = "authentik"

@@ -12,14 +12,16 @@ spec:
     namespace: flux-system
   approvePlan: auto
   vars:
-    - name: authentik_url
-      value: "auth.${DOMAIN}"
+    - name: domain
+      value: "${DOMAIN}"
     - name: email
       value: "${EMAIL}"
   varsFrom:
     - kind: Secret
       name: authentik-bootstrap-token
     - kind: Secret
+      name: discord-oauth-secret
+    - kind: Secret
       name: github-oauth-secret
     - kind: Secret
-      name: discord-oauth-secret
+      name: grafana-oauth-secret
