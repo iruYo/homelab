@@ -29,6 +29,7 @@ spec:
   dependsOn:
     - name: csi-addons-crds
     - name: prometheus-operator-crds
+    - name: snapshot-controller
   path: ./k8s/platform/rook-ceph/rook-ceph/overlays/prod
   prune: true
   wait: true

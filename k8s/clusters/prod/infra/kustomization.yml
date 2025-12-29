@@ -16,3 +16,4 @@ resources:
   - kube-prometheus-stack.yml
   - network.yml
   - loki.yml
+  - snapshot-controller.yml
