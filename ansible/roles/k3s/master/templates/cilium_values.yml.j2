@@ -12,8 +12,6 @@ hubble:
 
 ipam:
   mode: kubernetes
-  operator:
-    clusterPoolIPv4PodCIDRList: "10.42.0.0/16" # K3s default range
 
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
 
@@ -28,6 +26,9 @@ loadBalancer:
 
 localRedirectPolicies:
   enabled: true
+
+operator:
+  replicas: 1
 
 pmtuDiscovery:
   enabled: true
