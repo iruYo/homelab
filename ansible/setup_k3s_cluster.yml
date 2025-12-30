@@ -13,6 +13,7 @@
       ansible.builtin.set_fact:
         ddns_key_secret: "{{ (ddns_key_file['content'] | b64decode | regex_search('secret\\s+\"(.*)\";', '\\1'))[0] }}"
       no_log: true
+  tags: always
 
 - name: Get OIDC endpoint from vault
   hosts: localhost
@@ -51,6 +52,7 @@
     - name: Revoke vault session
       community.hashi_vault.vault_write:
         path: "auth/token/revoke-self"
+  tags: always
 
 - name: Setup K3s master nodes
   hosts: k3s_master
@@ -102,6 +104,7 @@
           ContentType: "application/json"
         access_key: "{{ aws_access_key_id }}"
         secret_key: "{{ aws_secret_access_key }}"
+  tags: always
 
 - name: Get K3s join token data
   hosts: localhost
@@ -130,7 +133,7 @@
     - name: Revoke vault session
       community.hashi_vault.vault_write:
         path: "auth/token/revoke-self"
-  tags: always
+  tags: agent
 
 - name: Install K3s agent nodes
   hosts: k3s_agent
