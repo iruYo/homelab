@@ -43,9 +43,6 @@
   when:
     - (cilium_operator_status.resources | length == 0) or
       (cilium_operator_status.resources[0].status.readyReplicas | default(0) | int == 0)
-  module_defaults:
-    kubernetes.core.helm:
-      kubeconfig: "{{ k3s_kubeconfig_file }}"
   block:
     - name: Add cilium repository
       kubernetes.core.helm_repository:
@@ -56,18 +53,20 @@
       kubernetes.core.helm:
         name: cilium
         chart_ref: cilium/cilium
-        chart_version: 1.18.5
+        chart_version: 1.18.4
         namespace: kube-system
         values: "{{ lookup('template', 'cilium_values.yml.j2') | from_yaml }}"
+        kubeconfig: "{{ k3s_kubeconfig_file }}"
 
-    - name: Wait for cilium Operator
-      kubernetes.core.k8s_wait:
+    - name: Wait for cilium operator
+      kubernetes.core.k8s_info:
         kind: Pod
         namespace: kube-system
         label_selectors:
           - app.kubernetes.io/name=cilium-operator
-        condition: Ready
-        timeout: 120
+        wait: true
+        wait_timeout: 120
+        kubeconfig: "{{ k3s_kubeconfig_file }}"
 
 - name: Ensure control plane is available
   ansible.builtin.wait_for:
@@ -98,8 +97,6 @@
   module_defaults:
     kubernetes.core.helm:
       kubeconfig: "{{ k3s_kubeconfig_file }}"
-    kubernetes.core.k8s_info:
-      kubeconfig: "{{ k3s_kubeconfig_file }}"
   block:
     - name: Install flux-operator Helm chart
       kubernetes.core.helm:
@@ -116,17 +113,15 @@
               effect: NoSchedule
           hostNetwork: true
 
-    - name: Wait for fluxcd-operator fluxinstances CRD
+    - name: Wait for flux operator
       kubernetes.core.k8s_info:
-        api_version: apiextensions.k8s.io/v1
-        kind: CustomResourceDefinition
-        name: fluxinstances.fluxcd.controlplane.io
-      register: flux_operator_crd_status
-      until:
-        - flux_operator_crd_status.resources is defined
-        - flux_operator_crd_status.resources | length > 0
-      retries: 60
-      delay: 1
+        kind: Pod
+        namespace: kube-system
+        label_selectors:
+          - app.kubernetes.io/name=flux-operator
+        wait: true
+        wait_timeout: 120
+        kubeconfig: "{{ k3s_kubeconfig_file }}"
 
     - name: Install flux-instance Helm chart
       kubernetes.core.helm:
