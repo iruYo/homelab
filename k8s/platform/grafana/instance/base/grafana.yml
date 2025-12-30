@@ -39,6 +39,9 @@ spec:
     server:
       enable_gzip: "true"
       root_url: https://grafana.${DOMAIN}
+  service:
+    spec:
+      externalTrafficPolicy: Local
   deployment:
     spec:
       strategy:
