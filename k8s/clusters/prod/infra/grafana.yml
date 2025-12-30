@@ -10,8 +10,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
-  dependsOn:
-    - name: external-secrets-config
   path: ./k8s/platform/grafana/operator/overlays/prod
   prune: true
   wait: true

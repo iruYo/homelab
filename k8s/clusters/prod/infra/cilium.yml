@@ -12,6 +12,7 @@ spec:
     name: flux-system
   dependsOn:
     - name: gateway-api-crds
+    - name: grafana-operator
   path: ./k8s/platform/cilium/overlays/prod
   prune: true
   wait: true
