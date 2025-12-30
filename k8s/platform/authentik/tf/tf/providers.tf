@@ -10,6 +10,6 @@ terraform {
 }
 
 provider "authentik" {
-  url   = "https://auth.${var.domain}"
+  url   = "http://authentik-server.authentik.svc"
   token = var.AUTHENTIK_BOOTSTRAP_TOKEN
 }
