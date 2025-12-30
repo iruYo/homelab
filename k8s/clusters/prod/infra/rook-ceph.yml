@@ -27,6 +27,7 @@ spec:
     kind: GitRepository
     name: flux-system
   dependsOn:
+    - name: cilium
     - name: csi-addons-crds
     - name: prometheus-operator-crds
     - name: snapshot-controller
