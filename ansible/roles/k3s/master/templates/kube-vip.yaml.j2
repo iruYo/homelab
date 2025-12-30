@@ -1,16 +1,17 @@
+---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: kube-vip-ds
+  name: kube-vip
   namespace: kube-system
 spec:
   selector:
     matchLabels:
-      name: kube-vip-ds
+      name: kube-vip
   template:
     metadata:
       labels:
-        name: kube-vip-ds
+        name: kube-vip
     spec:
       affinity:
         nodeAffinity:
@@ -29,6 +30,10 @@ spec:
           value: "true"
         - name: port
           value: "{{ k3s_api_port }}"
+        - name: vip_nodename
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: vip_subnet
           value: "32"
         - name: cp_enable
@@ -50,8 +55,12 @@ spec:
           value: "{{ k3s_kubevipbgp_as }}"
         - name: bgp_peeras
           value: "{{ k3s_kubevipbgp_peeras }}"
-        - name: bgp_routerinterface
-          value: "{{ k3s_kubevipbgp_routerinterface }}"
+        - name: bgp_routerid
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: prometheus_server
+          value: :2112
         image: ghcr.io/kube-vip/kube-vip:{{ k3s_kubevip_version }}
         imagePullPolicy: IfNotPresent
         name: kube-vip

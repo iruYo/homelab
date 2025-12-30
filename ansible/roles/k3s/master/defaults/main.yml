@@ -18,4 +18,3 @@ k3s_kubevip_version: "v0.9.1"
 k3s_kubevipbgp_as: 64520
 k3s_kubevipbgp_peeras: 64521
 k3s_kubevipbgp_peeraddress: 10.0.1.1
-k3s_kubevipbgp_routerinterface: "{{ iface }}"
