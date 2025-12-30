@@ -47,7 +47,6 @@ spec:
     - apiVersion: infra.contrib.fluxcd.io/v1alpha2
       kind: Terraform
       current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
   postBuild:
     substituteFrom:
       - kind: ConfigMap
