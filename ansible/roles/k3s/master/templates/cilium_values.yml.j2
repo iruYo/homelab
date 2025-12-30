@@ -4,6 +4,11 @@ bpf:
   datapathMode: netkit
   masquerade: true
 
+cgroup:
+  automount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
 endpointRoutes:
   enabled: true
 
@@ -15,7 +20,7 @@ ipam:
 
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
 
-k8sServiceHost: localhost
+k8sServiceHost: {{ k3s_api_vip }}
 k8sServicePort: {{ k3s_api_port }}
 
 kubeProxyReplacement: true

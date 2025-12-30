@@ -1,56 +1,63 @@
-autoDirectNodeRoutes: false
-
+autoDirectNodeRoutes: true
 bandwidthManager:
-  enabled: false
-  bbr: false
-
-bpf:
-  masquerade: false
-
+  enabled: true
 bgpControlPlane:
   enabled: false
   secretsNamespace:
     create: false
     name: cilium-secrets
-
+bpf:
+  datapathMode: netkit
+  masquerade: true
+  tproxy: true
 bpfClockProbe: true
+cgroup:
+  automount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
 dashboards:
   enabled: true
-externalIPs:
+enableIPv4BIGTCP: true
+endpointRoutes:
+  enabled: true
+envoy:
   enabled: true
 gatewayAPI:
   enabled: true
 hubble:
   enabled: true
 ipam:
-  operator:
-    clusterPoolIPv4PodCIDRList: "10.42.0.0/16"
-
+  mode: kubernetes
+ipv4NativeRoutingCIDR: "10.42.0.0/16"
 k8sServiceHost: 10.0.20.10
 k8sServicePort: 6443
-
 kubeProxyReplacement: true
 kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256
-
 l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-nodePort:
+  mode: dsr
+  serviceTopology: true
+localRedirectPolicies:
   enabled: true
-
 operator:
   dashboards:
     enabled: true
-  serviceMonitor:
+  prometheus:
     enabled: true
+    serviceMonitor:
+      enabled: true
   replicas: 2
   rollOutPods: true
-
+pmtuDiscovery:
+  enabled: true
 prometheus:
   enabled: true
   serviceMonitor:
     enabled: true
     trustCRDsExist: true
-
 rollOutCiliumPods: true
+routingMode: native
+socketLB:
+  enabled: true
