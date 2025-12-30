@@ -30,6 +30,45 @@
     name: k3s
     state: started
 
+- name: Check if cilium operator is running
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: cilium-operator
+    namespace: kube-system
+    kubeconfig: "{{ k3s_kubeconfig_file }}"
+  register: cilium_operator_status
+
+- name: Bootstrap cilium
+  when:
+    - (cilium_operator_status.resources | length == 0) or
+      (cilium_operator_status.resources[0].status.readyReplicas | default(0) | int == 0)
+  module_defaults:
+    kubernetes.core.helm:
+      kubeconfig: "{{ k3s_kubeconfig_file }}"
+  block:
+    - name: Add cilium repository
+      kubernetes.core.helm_repository:
+        repo_name: cilium
+        repo_url: "https://helm.cilium.io/"
+
+    - name: Install cilium Helm chart
+      kubernetes.core.helm:
+        name: cilium
+        chart_ref: cilium/cilium
+        chart_version: 1.18.5
+        namespace: kube-system
+        values: "{{ lookup('template', 'cilium_values.yml.j2') | from_yaml }}"
+
+    - name: Wait for cilium Operator
+      kubernetes.core.k8s_wait:
+        kind: Pod
+        namespace: kube-system
+        label_selectors:
+          - app.kubernetes.io/name=cilium-operator
+        condition: Ready
+        timeout: 120
+
 - name: Ensure control plane is available
   ansible.builtin.wait_for:
     port: "{{ k3s_api_port }}"
@@ -95,33 +134,3 @@
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
         namespace: flux-system
         values: "{{ lookup('template', 'flux-instance_values.yml.j2') | from_yaml }}"
-
-- name: Check if cilium operator is running
-  kubernetes.core.k8s_info:
-    api_version: apps/v1
-    kind: Deployment
-    name: cilium-operator
-    namespace: kube-system
-    kubeconfig: "{{ k3s_kubeconfig_file }}"
-  register: cilium_operator_status
-
-- name: Bootstrap cilium
-  when:
-    - (cilium_operator_status.resources | length == 0) or
-      (cilium_operator_status.resources[0].status.readyReplicas | default(0) | int == 0)
-  module_defaults:
-    kubernetes.core.helm:
-      kubeconfig: "{{ k3s_kubeconfig_file }}"
-  block:
-    - name: Add cilium repository
-      kubernetes.core.helm_repository:
-        repo_name: cilium
-        repo_url: "https://helm.cilium.io/"
-
-    - name: Install cilium Helm chart
-      kubernetes.core.helm:
-        name: cilium
-        chart_ref: cilium/cilium
-        chart_version: 1.18.3
-        namespace: kube-system
-        values: "{{ lookup('template', 'cilium_values.yml.j2') | from_yaml }}"
