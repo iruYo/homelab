@@ -42,7 +42,7 @@
     path: /etc/default/named
     regexp: '^OPTIONS="-u bind"'
     line: 'OPTIONS="-u bind -4"'
-    notify: Reload bind9
+  notify: Reload bind9
 
 - name: Configure bind9 options
   ansible.builtin.template:
