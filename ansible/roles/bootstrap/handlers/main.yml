@@ -4,6 +4,13 @@
     name: ptp4l-client
     state: restarted
 
+- name: Restart jumbo-frames
+  ansible.builtin.systemd_service:
+    name: enable-jumbo-frames
+    state: restarted
+    enabled: true
+    daemon_reload: true
+
 - name: Restart networking
   ansible.builtin.service:
     name: networking

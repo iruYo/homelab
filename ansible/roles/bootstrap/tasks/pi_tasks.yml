@@ -43,12 +43,23 @@
   loop: "{{ bootstrap_pi_fan_curve }}"
   notify: Reboot
 
-- name: Add local DNS server
-  community.general.nmcli:
-    conn_name: "{{ nm_conn_name }}"
-    type: ethernet
-    dns4: "{{ bootstrap_dns_servers }}"
-    dns4_ignore_auto: true
-    state: present
-    conn_reload: true
-  notify: Reboot
+- name: Set local DNS server
+  community.general.ini_file:
+    path: "/etc/NetworkManager/system-connections/{{ nm_conn_name }}.nmconnection"
+    section: ipv4
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+    no_extra_spaces: "true"
+    mode: "0600"
+  loop:
+    - { option: "ignore-auto-dns", value: "true" }
+    - { option: "dns", value: "{{ bootstrap_dns_servers | join(';') }};" }
+
+- name: Add enable jumbo frames service
+  ansible.builtin.template:
+    src: "templates/enable-jumbo-frames.service.j2"
+    dest: /etc/systemd/system/enable-jumbo-frames.service
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart jumbo-frames

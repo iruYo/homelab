@@ -5,3 +5,11 @@
     regexp: "^static domain_name_servers="
     line: "static domain_name_servers={{ bootstrap_dns_servers | join(' ') }}"
   notify: Restart networking
+
+- name: Enable jumbo frames
+  ansible.builtin.lineinfile:
+    path: /etc/network/interfaces
+    insertafter: "^iface {{ iface }} inet dhcp"
+    regexp: '^\s*post-up ip link set {{ iface }} mtu \d+$'
+    line: "\tpost-up ip link set {{ iface }} mtu 9000"
+    state: present

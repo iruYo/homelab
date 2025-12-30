@@ -1,0 +1,14 @@
+[Unit]
+Description=Jumbo frames on primary interface
+After=network-pre.target
+Before=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ip link set dev {{ iface }} down
+ExecStart=/usr/bin/ip link set dev {{ iface }} mtu 9000
+ExecStart=/usr/bin/ip link set dev {{ iface }} up
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
