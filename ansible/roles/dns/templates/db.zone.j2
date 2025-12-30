@@ -27,3 +27,7 @@ $ORIGIN {{ zone.name }}.
 {%  set host = (groups[service] | first) %}
 {{ '%-12s' | format(service) }} IN      CNAME {{ hostvars[host].hostname }}.{{ zone.name }}.
 {% endfor %}
+
+{% for static in zone.static_services %}
+{{ '%-12s' | format(static.host) }} IN      A    {{ static.ip }}
+{% endfor %}

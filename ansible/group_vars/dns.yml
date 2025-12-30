@@ -9,3 +9,5 @@ dns_zones:
     services: # Corresponds to inventory group for CNAME records
       - vault
       - ntp
+    static_services:
+      - { host: "k3s",  ip: "{{ k3s_api_vip }}" }
