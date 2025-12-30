@@ -14,6 +14,7 @@ k3s_server_config:
   embedded-registry: true
   tls-san:
     - "{{ k3s_api_vip }}"
+    - "k3s.{{ domain }}"
   disable:
     - local-storage
     - servicelb
