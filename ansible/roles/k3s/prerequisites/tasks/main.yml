@@ -9,20 +9,6 @@
     update_cache: true
     state: present
 
-- name: Enable IPv4 forwarding
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: "1"
-    state: present
-    reload: true
-
-- name: Enable IPv6 forwarding
-  ansible.posix.sysctl:
-    name: net.ipv6.conf.all.forwarding
-    value: "1"
-    state: present
-    reload: true
-
 # Enable iptables to see bridged traffic
 - name: Add br_netfilter to /etc/modules-load.d/
   ansible.builtin.copy:
@@ -35,35 +21,12 @@
     name: br_netfilter
     state: present
 
-- name: Set bridge-nf-call-iptables
-  ansible.posix.sysctl:
-    name: "{{ item }}"
-    value: "1"
-    state: present
-    reload: true
-  loop:
-    - net.bridge.bridge-nf-call-iptables
-    - net.bridge.bridge-nf-call-ip6tables
-
-- name: Increase fsnotify limits
-  ansible.posix.sysctl:
-    name: "{{ item.key }}"
-    value: "{{ item.value }}"
-    state: present
-    reload: true
-  loop:
-    - { key: 'fs.inotify.max_user_watches', value: '1048576' }
-    - { key: 'fs.inotify.max_user_instances', value: '8192' }
-
-- name: Set 2GB for hugepages
-  when:
-    - k3s_label is defined
-    - k3s_label.storage == "true"
-  ansible.posix.sysctl:
-    name: vm.nr_hugepages
-    value: '1024'
-    state: present
-    reload: true
+- name: Configure sysctl
+  ansible.builtin.template:
+    src: 50-k8s-config.conf.j2
+    dest: /etc/sysctl.d/50-k8s-config.conf
+    mode: '0644'
+  notify: Reboot
 
 - name: Load iscsi_tcp module
   community.general.modprobe:
