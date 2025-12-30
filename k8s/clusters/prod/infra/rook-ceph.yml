@@ -10,7 +10,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: csi-addons
-  path: "./config/default"
+  path: "./config/crd"
   prune: true
   wait: true
 ---
