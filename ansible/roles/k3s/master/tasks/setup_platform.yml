@@ -55,7 +55,8 @@
         chart_ref: cilium/cilium
         chart_version: 1.18.4
         namespace: kube-system
-        values: "{{ lookup('template', 'cilium_values.yml.j2') | from_yaml }}"
+        values_files:
+        - ../../../../k8s/platform/cilium/base/values.yaml
         kubeconfig: "{{ k3s_kubeconfig_file }}"
 
     - name: Wait for cilium operator
