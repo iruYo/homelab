@@ -35,6 +35,14 @@
     group: root
     mode: "0644"
 
+- name: Copy kubelet configuration file
+  ansible.builtin.copy:
+    dest: "{{ k3s_config_dir }}/kubelet.config"
+    content: "{{ k3s_kubelet_config }}"
+    owner: root
+    group: root
+    mode: "0755"
+
 - name: Get K3s installed version
   ansible.builtin.command: k3s --version
   register: k3s_version_output

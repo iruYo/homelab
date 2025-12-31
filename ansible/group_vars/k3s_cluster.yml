@@ -24,8 +24,8 @@ k3s_server_config:
 #  node-taint:
 #    - 'node-role.kubernetes.io/control-plane:NoSchedule'
   etcd-expose-metrics: true
-#  kubelet-arg:
-#    - 'config=/etc/rancher/k3s/kubelet.config'
+  kubelet-arg:
+    - 'config=/etc/rancher/k3s/kubelet.config'
   kube-controller-manager-arg:
     - 'bind-address=0.0.0.0'
     - 'terminated-pod-gc-threshold=10'
@@ -34,6 +34,12 @@ k3s_server_config:
   kube-apiserver-arg:
     - service-account-issuer={{ k3s_oidc_endpoint }}
     - service-account-issuer=https://kubernetes.default.svc.cluster.local
+
+k3s_kubelet_config: |
+  apiVersion: kubelet.config.k8s.io/v1beta1
+  kind: KubeletConfiguration
+  shutdownGracePeriod: 30s
+  shutdownGracePeriodCriticalPods: 10s
 
 k3s_ca_lease_ttl: "87660h" # 10 years
 k3s_int_ca_lease_ttl: "26280h" # 3 years
