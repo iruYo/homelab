@@ -38,11 +38,11 @@ spec:
   path: ./k8s/platform/grafana/instance/overlays/prod
   prune: true
   wait: true
-  healthCheckExprs:
+  healthChecks:
     - apiVersion: grafana.integreatly.org/v1beta1
       kind: Grafana
-      current: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'True')
-      failed: status.conditions.exists(e, e.type == 'Ready') && status.conditions.filter(e, e.type == 'Ready').all(e, e.status == 'False')
+      name: grafana
+      namespace: grafana
   postBuild:
     substituteFrom:
       - kind: ConfigMap
