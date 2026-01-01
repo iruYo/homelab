@@ -138,7 +138,7 @@
       kubernetes.core.helm:
         name: flux-operator
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator
-        chart_version: 0.37.0
+        chart_version: 0.38.1
         namespace: flux-system
         create_namespace: true
         values:
@@ -163,5 +163,6 @@
       kubernetes.core.helm:
         name: flux-instance
         chart_ref: oci://ghcr.io/controlplaneio-fluxcd/charts/flux-instance
+        chart_version: 0.38.1
         namespace: flux-system
         values: "{{ lookup('template', 'flux-instance_values.yml.j2') | from_yaml }}"
