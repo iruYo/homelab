@@ -7,7 +7,7 @@ bgpControlPlane:
     create: false
     name: cilium-secrets
 bpf:
-  datapathMode: netkit
+  datapathMode: veth
   masquerade: true
   tproxy: true
 bpfClockProbe: true
