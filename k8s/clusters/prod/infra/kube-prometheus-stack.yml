@@ -28,6 +28,7 @@ spec:
   path: ./k8s/platform/kube-prometheus-stack/app/overlays/prod
   prune: true
   dependsOn:
+    - name: external-secrets-config
     - name: prometheus-operator-crds
     - name: rook-ceph-cluster
   wait: true

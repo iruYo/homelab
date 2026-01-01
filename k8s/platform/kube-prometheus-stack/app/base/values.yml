@@ -24,6 +24,8 @@ alertmanager:
                   values:
                     - "true"
 
+    alertmanagerConfiguration:
+      name: alertmanager
     externalUrl: https://monitoring.${DOMAIN}/alertmanager/
     routePrefix: /alertmanager/
     replicas: 3
