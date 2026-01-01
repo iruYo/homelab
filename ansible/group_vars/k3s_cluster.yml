@@ -16,6 +16,7 @@ k3s_server_config:
     - "{{ k3s_api_vip }}"
     - "k3s.{{ domain }}"
   disable:
+    - coredns
     - local-storage
     - servicelb
     - traefik

@@ -49,14 +49,28 @@
         repo_name: cilium
         repo_url: "https://helm.cilium.io/"
 
+    - name: Deploy prometheus-operator CRDs
+      kubernetes.core.helm:
+        name: coredns
+        chart_ref: prometheus-operator-crds
+        chart_repo_url: https://prometheus-community.github.io/helm-charts
+        chart_version: 25.0.0
+        release_namespace: kube-system
+        wait: true
+        kubeconfig: "{{ k3s_kubeconfig_file }}"
+
     - name: Install cilium Helm chart
       kubernetes.core.helm:
         name: cilium
         chart_ref: cilium/cilium
         chart_version: 1.18.4
         namespace: kube-system
-        values_files:
-        - ../../../../k8s/platform/cilium/base/values.yaml
+        values: >-
+          {{
+            lookup('file', playbook_dir ~ '/../k8s/platform/cilium/base/values.yml') | from_yaml
+            | combine({'operator': {'replicas': 1}}, recursive=True)
+          }}
+        wait: true
         kubeconfig: "{{ k3s_kubeconfig_file }}"
 
     - name: Wait for cilium operator
@@ -76,6 +90,27 @@
     delay: 5
     sleep: 5
     timeout: 300
+
+- name: Check if coredns is running
+  kubernetes.core.k8s_info:
+    api_version: apps/v1
+    kind: Deployment
+    name: coredns
+    namespace: kube-system
+    kubeconfig: "{{ k3s_kubeconfig_file }}"
+  register: coredns_status
+
+- name: Deploy coredns
+  when: coredns_status.resources | length == 0
+  kubernetes.core.helm:
+    name: coredns
+    chart_ref: coredns
+    chart_repo_url: https://coredns.github.io/helm
+    chart_version: 1.45.0
+    release_namespace: kube-system
+    values: "{{ lookup('file', playbook_dir ~ '/../k8s/platform/coredns/base/values.yml') | from_yaml }}"
+    wait: true
+    kubeconfig: "{{ k3s_kubeconfig_file }}"
 
 - name: Check if flux(operator) is running
   kubernetes.core.k8s_info:
