@@ -12,18 +12,18 @@ resources:
   - grafana-dashboard-coredns.yml
   - grafana-dashboard-etcd.yml
   - grafana-dashboard-grafana-overview.yml
-  - grafana-dashboard-k8s-resources-cluster.yml #!
+  - grafana-dashboard-k8s-resources-cluster.yml
   - grafana-dashboard-k8s-resources-namespace.yml
   - grafana-dashboard-k8s-resources-node.yml
   - grafana-dashboard-k8s-resources-pod.yml
-  - grafana-dashboard-k8s-resources-windows-cluster.yml #!
-  - grafana-dashboard-k8s-resources-windows-namespace.yml
-  - grafana-dashboard-k8s-resources-windows-pod.yml
-  - grafana-dashboard-k8s-resources-workload.yml #!
+#  - grafana-dashboard-k8s-resources-windows-cluster.yml
+#  - grafana-dashboard-k8s-resources-windows-namespace.yml
+#  - grafana-dashboard-k8s-resources-windows-pod.yml
+  - grafana-dashboard-k8s-resources-workload.yml
   - grafana-dashboard-k8s-resources-workloads-namespace.yml
-  - grafana-dashboard-k8s-windows-cluster-rsrc-use.yml
-  - grafana-dashboard-k8s-windows-node-rsrc-use.yml
-  - grafana-dashboard-kubelet.yml #!
+#  - grafana-dashboard-k8s-windows-cluster-rsrc-use.yml
+#  - grafana-dashboard-k8s-windows-node-rsrc-use.yml
+  - grafana-dashboard-kubelet.yml
   - grafana-dashboard-namespace-by-pod.yml
   - grafana-dashboard-namespace-by-workload.yml
   - grafana-dashboard-node-cluster-rsrc-use.yml
@@ -32,7 +32,7 @@ resources:
 #  - grafana-dashboard-nodes-darwin.yml
   - grafana-dashboard-nodes.yml
   - grafana-dashboard-persistentvolumesusage.yml
-  - grafana-dashboard-pod-total.yml #!
+  - grafana-dashboard-pod-total.yml
   - grafana-dashboard-prometheus-remote-write.yml
   - grafana-dashboard-prometheus.yml
   - grafana-dashboard-proxy.yml
