@@ -1,6 +1,6 @@
 autoDirectNodeRoutes: true
-bandwidthManager:
-  enabled: true
+#bandwidthManager:
+#  enabled: true
 bgpControlPlane:
   enabled: false
   secretsNamespace:
@@ -8,8 +8,8 @@ bgpControlPlane:
     name: cilium-secrets
 bpf:
   datapathMode: veth
-  masquerade: true
-  tproxy: true
+#  masquerade: true
+#  tproxy: true
 bpfClockProbe: true
 cgroup:
   automount:
@@ -24,7 +24,7 @@ envoy:
   enabled: true
 gatewayAPI:
   enabled: true
-  externalTrafficPolicy: Local
+#  externalTrafficPolicy: Local
 hubble:
   enabled: true
   metrics:
@@ -52,8 +52,8 @@ l2announcements:
   enabled: true
 loadBalancer:
   algorithm: maglev
-  mode: dsr
-  serviceTopology: true
+#  mode: dsr
+ # serviceTopology: true
 localRedirectPolicies:
   enabled: true
 operator:
@@ -74,5 +74,5 @@ prometheus:
     trustCRDsExist: true
 rollOutCiliumPods: true
 routingMode: native
-socketLB:
-  enabled: true
+#socketLB:
+#  enabled: true
