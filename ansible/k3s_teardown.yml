@@ -66,7 +66,7 @@
       notify: Reboot
 
 - hosts: localhost
-  gather_facts: no
+  gather_facts: false
   pre_tasks:
     - name: Get vault session token
       vars:
@@ -83,7 +83,7 @@
       community.hashi_vault.vault_list:
         path: "pki_int/issuers"
       register: pki_int_issuers
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Delete intermediate issuers
       ansible.builtin.uri:
