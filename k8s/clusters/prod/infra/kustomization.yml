@@ -6,6 +6,7 @@ resources:
   - amazon-eks-pod-identity-webhook.yml
   - authentik.yml
   - cloudnative-pg.yml
+  - coredns.yml
   - rook-ceph.yml
   - cert-manager.yml
   - cilium.yml
