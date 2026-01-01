@@ -13,6 +13,7 @@ spec:
   dependsOn:
     - name: kube-prometheus-stack
     - name: loki
+    - name: tempo
   path: ./k8s/platform/alloy/overlays/prod
   prune: true
   wait: true
