@@ -120,7 +120,7 @@ cephObjectStores:
             memory: "2Gi"
           requests:
             cpu: "1000m"
-            memory: "1Gi"
+            memory: "512Mi"
     storageClass:
       enabled: true
       name: ceph-bucket

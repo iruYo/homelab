@@ -103,6 +103,11 @@ resultsCache:
                 operator: In
                 values:
                   - "true"
+  resources:
+    requests:
+      memory: 500Mi
+    limits:
+      memory: 1Gi
 
 gateway:
   enabled: false
