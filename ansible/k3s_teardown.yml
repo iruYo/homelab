@@ -13,11 +13,32 @@
         removes: /var/lib/rancher/k3s/*
       notify: Reboot
 
-    - name: Run K3s uninstall script (agent)
+    - name: Uninstall K3s on agents
       when: "'k3s_agent' in group_names"
-      ansible.builtin.command:
-        cmd: k3s-agent-uninstall.sh
-        removes: /var/lib/rancher/k3s/*
+      block:
+        - name: Reboot
+          ansible.builtin.reboot:
+            msg: "Reboot initiated"
+
+        - name: Run K3s uninstall script (agent)
+          ansible.builtin.command:
+            cmd: k3s-agent-uninstall.sh
+            removes: /var/lib/rancher/k3s/*
+
+        - name: Discard rook-ceph partition
+          ansible.builtin.command: blkdiscard -f /dev/nvme0n1p3
+          register: blkdiscard_result
+          changed_when: blkdiscard_result.rc != 0
+
+        - name: Zap rook-ceph partition
+          ansible.builtin.command: sgdisk --zap-all /dev/nvme0n1p3
+          register: sgdisk_result
+          changed_when: sgdisk_result.rc != 0
+
+        - name: Wipe rook-ceph partition
+          ansible.builtin.command: wipefs --all --force /dev/nvme0n1p3
+          register: wipefs_result
+          changed_when: wipefs_result.rc != 0
       notify: Reboot
 
     - name: Remove user kube directory
@@ -44,26 +65,6 @@
       ansible.builtin.file:
         path: /etc/cni
         state: absent
-
-    - name: Zap rook-ceph partition clean
-      become: true
-      when: "'k3s_agent' in group_names"
-      block:
-        - name: Discard
-          ansible.builtin.command: blkdiscard -f /dev/nvme0n1p3
-          register: blkdiscard_result
-          changed_when: blkdiscard_result.rc != 0
-
-        - name: Zap
-          ansible.builtin.command: sgdisk --zap-all /dev/nvme0n1p3
-          register: sgdisk_result
-          changed_when: sgdisk_result.rc != 0
-
-        - name: Wipe
-          ansible.builtin.command: wipefs --all --force /dev/nvme0n1p3
-          register: wipefs_result
-          changed_when: wipefs_result.rc != 0
-      notify: Reboot
 
 - hosts: localhost
   gather_facts: false
