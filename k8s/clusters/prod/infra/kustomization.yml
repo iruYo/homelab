@@ -18,4 +18,3 @@ resources:
   - network.yml
   - loki.yml
   - snapshot-controller.yml
-  - tempo.yml
