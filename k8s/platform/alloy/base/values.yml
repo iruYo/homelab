@@ -40,32 +40,6 @@ alloy:
         }
       }
 
-      otelcol.receiver.otlp "default" {
-        grpc {
-          endpoint = "0.0.0.0:4317"
-        }
-
-        http {
-          endpoint = "0.0.0.0:4318"
-        }
-
-        output {
-          traces = [otelcol.processor.batch.default.input]
-        }
-      }
-
-      otelcol.processor.batch "default" {
-        output {
-          traces = [otelcol.exporter.otlp.tempo.input]
-        }
-      }
-
-      otelcol.exporter.otlp "tempo" {
-        client {
-          endpoint = "http://tempo-distributor.tempo.svc:4317"
-        }
-      }
-
       loki.source.kubernetes "pods" {
         targets    = discovery.relabel.pods_processing.output
         forward_to = [loki.process.cnpg_unwrap.receiver]
@@ -75,8 +49,6 @@ alloy:
         forward_to = [loki.process.logs_processing.receiver]
         labels = { job = "syslog" }
       }
-
-
 
       loki.process "cnpg_unwrap" {
         stage.match {
