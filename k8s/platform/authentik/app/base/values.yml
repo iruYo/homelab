@@ -17,6 +17,13 @@ server:
                 values:
                   - "true"
 
+  resources:
+    requests:
+      cpu: "25m"
+      memory: "512Mi"
+    limits:
+      memory: "672Mi"
+
   route:
     main:
       enabled: true
@@ -45,3 +52,9 @@ worker:
                 operator: In
                 values:
                   - "true"
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "512Mi"
+    limits:
+      memory: "512Mi"
