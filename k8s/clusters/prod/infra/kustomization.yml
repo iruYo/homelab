@@ -18,3 +18,4 @@ resources:
   - network.yml
   - loki.yml
   - snapshot-controller.yml
+  - volsync.yml
