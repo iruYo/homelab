@@ -2,8 +2,6 @@ crds:
   enabled: true
 
 csi:
-  csiAddons:
-    enabled: false
   cephFSKernelMountOptions: ms_mode=prefer-crc
   enableLiveness: true
   serviceMonitor:
