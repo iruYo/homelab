@@ -44,10 +44,10 @@ spec:
   resources:
     requests:
       cpu: 300m
-      memory: 1Gi
+      memory: 512Mi
     limits:
       cpu: 2000m
-      memory: 8Gi
+      memory: 4Gi
       hugepages-2Mi: 2Gi
   # Todo: Wait for https://github.com/cloudnative-pg/cloudnative-pg/issues/5341
   # and move to Authentik ns
