@@ -50,24 +50,24 @@ cephClusterSpec:
 
   resources:
     mgr:
-      limits:
-        memory: "1Gi"
       requests:
         cpu: "500m"
         memory: "512Mi"
+      limits:
+        memory: "1Gi"
     mon:
-      limits:
-        memory: "1Gi"
       requests:
         cpu: "500m"
         memory: "512Mi"
+      limits:
+        memory: "1Gi"
     osd:
+      requests:
+        cpu: "500m"
+        memory: "3Gi"
       limits:
         cpu: "2000m"
-        memory: "6Gi"
-      requests:
-        cpu: "500m"
-        memory: "4Gi"
+        memory: "5Gi"
 
   storage:
     useAllNodes: true
