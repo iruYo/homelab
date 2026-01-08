@@ -1,0 +1,27 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kopia
+spec:
+  interval: 30m
+  chartRef:
+    kind: OCIRepository
+    name: bjw-s-labs
+    namespace: flux-system
+  releaseName: kopia
+  targetNamespace: kopia
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    crds: CreateReplace
+    remediation:
+      strategy: rollback
+      retries: 3
+  valuesFrom:
+  - kind: ConfigMap
+    name: kopia-helm-values
+    valuesKey: base-values.yml
