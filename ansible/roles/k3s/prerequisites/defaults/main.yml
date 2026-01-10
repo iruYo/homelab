@@ -5,3 +5,4 @@ k3s_packages:
   - cryptsetup
   - iptables
   - gdisk
+  - nfs-common
