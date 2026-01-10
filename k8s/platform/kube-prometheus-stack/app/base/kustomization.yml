@@ -7,6 +7,7 @@ resources:
   - helm.yml
   - http-route.yml
   - namespace.yml
+  - replication-source.yml
 
 configMapGenerator:
   - name: kube-prometheus-stack-helm-values
