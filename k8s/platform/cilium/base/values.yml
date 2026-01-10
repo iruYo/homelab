@@ -26,7 +26,7 @@ gatewayAPI:
   enabled: true
 #  externalTrafficPolicy: Local
 hubble:
-  enabled: true
+  enabled: false
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: "10.42.0.0/16"
