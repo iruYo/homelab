@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
   - bjw-s-labs-repo.yml
   - grafana-operator-repo.yml
+  - home-operations-volsync-repo.yml
   - snapshot-controller-repo.yml
