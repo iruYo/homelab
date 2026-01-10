@@ -12,6 +12,31 @@ spec:
     name: flux-system
   dependsOn:
     - name: snapshot-controller
-  path: ./k8s/platform/volsync/overlays/prod
+  path: ./k8s/platform/volsync/app/overlays/prod
   prune: true
   wait: true
+  postBuild:
+    substitute:
+      BACKUP_PATH: /mnt/storagepool/backup
+      NAS_IP: 10.0.20.100
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: volsync-maintenance
+  namespace: flux-system
+spec:
+  interval: 30m
+  targetNamespace: volsync
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: volsync
+  path: ./k8s/platform/volsync/maintenance/overlays/prod
+  prune: true
+  wait: true
+  postBuild:
+    substitute:
+      BACKUP_PATH: /mnt/storagepool/backup
+      NAS_IP: 10.0.20.100

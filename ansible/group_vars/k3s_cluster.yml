@@ -33,6 +33,8 @@ k3s_server_config:
   kube-scheduler-arg:
     - 'bind-address=0.0.0.0'
   kube-apiserver-arg:
+    - feature-gates=MutatingAdmissionPolicy=true
+    - runtime-config=admissionregistration.k8s.io/v1beta1=true
     - service-account-issuer={{ k3s_oidc_endpoint }}
     - service-account-issuer=https://kubernetes.default.svc.cluster.local
 
