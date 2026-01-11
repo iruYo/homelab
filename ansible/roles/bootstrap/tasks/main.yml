@@ -102,9 +102,11 @@
   ansible.builtin.include_tasks: pi_tasks.yml
   when: "'pi' in group_names"
 
-- name: Bootstrap Tinys
-  ansible.builtin.include_tasks: tiny_tasks.yml
-  when: "'tiny' in group_names"
+- name: Bootstrap Debian
+  ansible.builtin.include_tasks: debian_tasks.yml
+  when:
+    - ansible_os_family == "Debian"
+    - "'pi' not in group_names"
 
 - name: Ensure changes stick for future roles
   ansible.builtin.meta: flush_handlers
