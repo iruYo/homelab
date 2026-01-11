@@ -5,8 +5,10 @@
     update_cache: true
     state: present
 
-- name: Setup clients to get time from ntp server
-  when: "'ntp' not in group_names"
+- name: Setup clients to get time from ptp server
+  when:
+    - "'ntp' not in group_names"
+    - "'vm' not in group_names"
   block:
     - name: Install ntp packages
       ansible.builtin.apt:
