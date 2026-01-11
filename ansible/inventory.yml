@@ -45,6 +45,20 @@ all:
           ip: 10.0.20.162
           ansible_host: 10.0.20.162
           mac: e8:6a:64:db:38:21
+    vm:
+      hosts:
+        vm0:
+          hostname: vm0
+          ip: 10.0.20.170
+          ansible_host: 10.0.20.170
+        vm1:
+          hostname: vm1
+          ip: 10.0.20.171
+          ansible_host: 10.0.20.171
+        vm2:
+          hostname: vm2
+          ip: 10.0.20.172
+          ansible_host: 10.0.20.172
     k3s_cluster:
       children:
         k3s_master:
@@ -53,6 +67,7 @@ all:
         k3s_agent:
           hosts:
             tiny[0:2]:
+            vm[0:2]:
     k3s_infra:
       hosts:
         localhost:

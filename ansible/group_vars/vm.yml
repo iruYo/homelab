@@ -1,0 +1,9 @@
+---
+ansible_user: vm
+ansible_port: 22
+ansible_python_interpreter: /usr/bin/python3
+
+iface: ens18
+
+k3s_label:
+  vm: "true"
