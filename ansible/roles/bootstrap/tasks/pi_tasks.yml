@@ -55,6 +55,11 @@
     - { option: "ignore-auto-dns", value: "true" }
     - { option: "dns", value: "{{ bootstrap_dns_servers | join(';') }};" }
 
+- name: Get hardware model
+  ansible.builtin.command: cat /sys/firmware/devicetree/base/model
+  register: hardware_model
+  changed_when: false
+
 - name: Add enable jumbo frames service
   ansible.builtin.template:
     src: "templates/enable-jumbo-frames.service.j2"
@@ -62,4 +67,7 @@
     owner: root
     group: root
     mode: "0755"
+  when:
+    - hardware_model.stdout is defined
+    - "'Raspberry Pi 5' in hardware_model.stdout"
   notify: Restart jumbo-frames
