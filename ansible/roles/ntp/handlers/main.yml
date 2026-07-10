@@ -11,5 +11,5 @@
 
 - name: Reload satpulse
   ansible.builtin.service:
-    name: satpulse
+    name: "satpulse@{{ ntp_device_tty }}"
     state: reloaded
