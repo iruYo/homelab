@@ -1,0 +1,18 @@
+---
+machine:
+  type: controlplane
+  install:
+    diskSelector:
+      serial: S6Z1NF0WA03793F
+  sysctls:
+    vm.nr_hugepages: "1024"
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: tiny0
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: net0
+selector:
+  match: mac(link.permanent_addr) == "3c:fd:fe:a8:6f:49"

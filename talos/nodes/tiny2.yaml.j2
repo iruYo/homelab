@@ -1,0 +1,12 @@
+---
+machine:
+  type: controlplane
+  install:
+    diskSelector:
+      model: 123
+  sysctls:
+    vm.nr_hugepages: "1024"
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: tiny2

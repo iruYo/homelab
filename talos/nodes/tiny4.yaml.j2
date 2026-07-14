@@ -1,0 +1,15 @@
+machine:
+  type: worker
+  install:
+    diskSelector:
+      model: 123
+---
+apiVersion: v1alpha1
+kind: HostnameConfig
+hostname: tiny4
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: net0
+selector:
+  match: link.driver == "r8169" && mac(link.permanent_addr).startsWith("xxxxx")
