@@ -92,3 +92,8 @@ releases:
   namespace: flux-system
   needs:
   - external-secrets/external-secrets
+
+- name: flux-instance
+  namespace: flux-system
+  needs:
+  - flux-system/flux-operator
