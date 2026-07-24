@@ -18,17 +18,22 @@ machine:
       port: 7445
     rbac: true
   files:
-    - op: overwrite
-      path: /etc/nfsmount.conf
-      permissions: 0o644
-      content: |
-        [ NFSMount_Global_Options ]
-        nfsvers=4.2
-        hard=True
-        nconnect=8
-        noatime=True
-        rsize=1048576
-        wsize=1048576
+  - op: create
+    path: /etc/cri/conf.d/20-customization.part
+    content: |
+      [plugins."io.containerd.cri.v1.images"]
+        discard_unpacked_layers = false
+  - op: overwrite
+    path: /etc/nfsmount.conf
+    permissions: 0o644
+    content: |
+      [ NFSMount_Global_Options ]
+      nfsvers=4.2
+      hard=True
+      nconnect=8
+      noatime=True
+      rsize=1048576
+      wsize=1048576
   install:
     image: factory.talos.dev/metal-installer/{{ ENV.SCHEMATIC }}:v1.13.6
     wipe: false
@@ -129,6 +134,15 @@ cluster:
     disabled: true
     image: registry.k8s.io/kube-proxy:v1.36.2
   scheduler:
+    config:
+      apiVersion: kubescheduler.config.k8s.io/v1
+      kind: KubeSchedulerConfiguration
+      profiles:
+      - schedulerName: default-scheduler
+        plugins:
+          score:
+            disabled:
+            - name: ImageLocality
     extraArgs:
       bind-address: 0.0.0.0
     image: registry.k8s.io/kube-scheduler:v1.36.2
