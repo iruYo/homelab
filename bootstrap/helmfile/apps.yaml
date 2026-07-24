@@ -87,3 +87,8 @@ releases:
     showlogs: true
   needs:
   - cert-manager/cert-manager
+
+- name: flux-operator
+  namespace: flux-system
+  needs:
+  - external-secrets/external-secrets
