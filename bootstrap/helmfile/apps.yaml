@@ -47,3 +47,8 @@ releases:
   namespace: kube-system
   needs:
   - kube-system/coredns
+
+- name: cert-manager
+  namespace: cert-manager
+  needs:
+  - kube-system/spegel
