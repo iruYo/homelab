@@ -1,0 +1,21 @@
+---
+# If a chart is managed by Flux and the CRD is used widely enough to create a dependsOn problem
+helmDefaults:
+  args:
+  - --include-crds
+  - --no-hooks
+
+bases:
+- default.yaml
+
+defaultInherit: default
+
+releases:
+- name: envoy-gateway
+  namespace: network
+
+- name: grafana-operator
+  namespace: o11y
+
+- name: kube-prometheus-stack
+  namespace: o11y
