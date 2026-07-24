@@ -37,3 +37,8 @@ releases:
       events:
       - postsync
       showlogs: true
+
+- name: coredns
+  namespace: kube-system
+  needs:
+  - kube-system/cilium
