@@ -1,0 +1,17 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: amazon-eks-pod-identity-webhook
+spec:
+  dependsOn:
+  - name: cert-manager
+    namespace: cert-manager
+  interval: 1h
+  path: ./k8s/apps/amazon-eks-pod-identity-webhook/amazon-eks-pod-identity-webhook/app
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: amazon-eks-pod-identity-webhook

@@ -1,6 +1,0 @@
-- op: add
-  path: /spec/valuesFrom/-
-  value:
-    kind: ConfigMap
-    name: amazon-eks-pod-identity-webhook-helm-values
-    valuesKey: overlay-values.yml

@@ -1,0 +1,21 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: amazon-eks-pod-identity-webhook
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: amazon-eks-pod-identity-webhook
+  interval: 1h
+  values:
+    config:
+      annotationPrefix: "eks.amazonaws.com"
+      defaultAwsRegion: "eu-central-1"
+      tokenAudience: "sts.amazonaws.com"
+    metrics:
+      serviceMonitor:
+        enabled: true
+    pki:
+      certManager:
+        enabled: true
