@@ -1,3 +1,8 @@
+data "vault_kv_secret_v2" "sa" {
+  mount = "secret"
+  name  = "k8s/talos/service-account"
+}
+
 resource "vault_kv_secret_v2" "oidc" {
   mount                      = "secret"
   name                       = "ansible/k3s/oidc"
