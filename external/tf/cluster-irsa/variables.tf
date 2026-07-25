@@ -14,3 +14,9 @@ variable "vault_token" {
   sensitive   = true
   description = "Token for authenticating to Vault"
 }
+
+variable "zone_name" {
+  type        = string
+  description = "Zone name"
+  default     = "youriulbri.ch."
+}

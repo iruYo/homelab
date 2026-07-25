@@ -1,5 +1,10 @@
 data "aws_caller_identity" "this" {}
 
+data "aws_route53_zone" "this" {
+  name         = var.zone_name
+  private_zone = false
+}
+
 data "aws_iam_policy_document" "iam_boundary" {
   statement {
     sid       = "AllowAll"
@@ -31,7 +36,6 @@ resource "aws_iam_policy" "iam_boundary" {
   path   = "/"
   policy = data.aws_iam_policy_document.iam_boundary.json
 }
-
 
 data "aws_iam_policy_document" "provision_iam" {
   statement {
@@ -102,5 +106,29 @@ module "irsa" {
 
   policies = {
     policy = aws_iam_policy.provision_iam.arn
+  }
+}
+
+module "cert_manager_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "~> 6.0.0"
+
+  name = "cert-manager"
+
+  attach_cert_manager_policy    = true
+  cert_manager_hosted_zone_arns = [
+    "arn:aws:route53:::hostedzone/${data.aws_route53_zone.this.zone_id}"
+  ]
+  permissions_boundary          = aws_iam_policy.iam_boundary.arn
+
+  oidc_providers = {
+    main = {
+      provider_arn               = data.vault_kv_secret_v2.oidc.data["provider_arn"]
+      namespace_service_accounts = ["cert-manager:cert-manager"]
+    }
+  }
+
+  tags = {
+    user = "cert-manager"
   }
 }
