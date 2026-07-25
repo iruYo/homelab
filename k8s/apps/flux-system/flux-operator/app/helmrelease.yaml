@@ -19,5 +19,12 @@ spec:
             username: flux
             groups:
               - flux-admin
+      httpRoute:
+        enabled: true
+        hostnames:
+        - flux.youriulbri.ch
+        parentRefs:
+        - name: gateway-internal
+          namespace: network
       networkPolicy:
         create: false

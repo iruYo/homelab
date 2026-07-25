@@ -1,9 +1,0 @@
-fullnameOverride: flux-webui
-
-installCRDs: false
-
-web:
-  enabled: true
-  networkPolicy:
-    create: false
-  serverOnly: true
