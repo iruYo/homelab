@@ -5,11 +5,12 @@ metadata:
   name: letsencrypt-issuer
 spec:
   acme:
-    email: ${EMAIL}
-    server: https://acme-v02.api.letsencrypt.org/directory
+    email: youri.ulbrich@web.de
     privateKeySecretRef:
       name: letsencrypt-prod-key
+    profile: shortlived
+    server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
-      - dns01:
-          route53:
-            region: eu-central-1
+    - dns01:
+        route53:
+          region: eu-central-1

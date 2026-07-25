@@ -17,6 +17,9 @@ spec:
       enabled: true
       servicemonitor:
         enabled: true
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: "${ROLE_ARN}"
     webhook:
       replicaCount: 2
       podDisruptionBudget:
