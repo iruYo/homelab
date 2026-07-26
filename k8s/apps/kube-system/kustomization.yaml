@@ -8,3 +8,4 @@ resources:
 - ./cilium/ks.yaml
 - ./coredns/ks.yaml
 - ./snapshot-controller/ks.yaml
+- ./spegel/ks.yaml
