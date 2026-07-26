@@ -13,3 +13,22 @@ spec:
     namespace: flux-system
   targetNamespace: o11y
   wait: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: grafana-instance
+spec:
+  dependsOn:
+  - name: grafana-operator
+  - name: rook-ceph-cluster
+    namespace: rook-ceph
+  interval: 1h
+  path: ./k8s/apps/o11y/grafana-operator/instance
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  targetNamespace: o11y
+  wait: false
