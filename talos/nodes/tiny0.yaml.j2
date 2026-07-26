@@ -4,6 +4,8 @@ machine:
   install:
     diskSelector:
       serial: S6Z1NF0WA03793F
+  nodeLabels:
+    storage: "true"
   sysctls:
     vm.nr_hugepages: "1024"
 ---
@@ -16,3 +18,11 @@ kind: LinkAliasConfig
 name: net0
 selector:
   match: mac(link.permanent_addr) == "3c:fd:fe:a8:6f:49"
+---
+apiVersion: v1alpha1
+kind: RawVolumeConfig
+name: storage
+provisioning:
+  diskSelector:
+    match: system_disk
+  minSize: 10GiB
