@@ -1,0 +1,15 @@
+---
+apiVersion: generators.external-secrets.io/v1alpha1
+kind: ClusterGenerator
+metadata:
+  name: password-gen
+spec:
+  kind: Password
+  generator:
+    passwordSpec:
+      length: 64
+      digits: 21
+      symbols: 21
+      symbolCharacters: "^_$@!?"
+      noUpper: false
+      allowRepeat: true
