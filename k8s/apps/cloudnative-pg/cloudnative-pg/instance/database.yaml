@@ -9,5 +9,5 @@ spec:
     name: postgres18
   owner: authentik
   extensions:
-    - name: pg_trgm
-      schema: public
+  - name: pg_trgm
+    schema: public

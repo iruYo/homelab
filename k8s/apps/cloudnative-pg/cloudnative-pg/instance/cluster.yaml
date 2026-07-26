@@ -8,17 +8,22 @@ spec:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-          - matchExpressions:
-              - key: storage
-                operator: In
-                values:
-                  - "true"
+        - matchExpressions:
+          - key: storage
+            operator: In
+            values:
+            - "true"
+  bootstrap:
+    initdb:
+      database: authentik_db
+      owner: authentik
+      secret:
+        name: authentik-pg-credentials
   instances: 3
-  storage:
-    size: 20Gi
-  enableSuperuserAccess: true
-  superuserSecret:
-    name: cloudnative-pg-credentials
+  # Todo: create authentik db role and pass creds in authentik namespace
+  # https://github.com/EnterpriseDB/cloudnative-pg/blob/f57d7410af4e1c7cf2447f1bc9d7a1d6cc3cb2a8/docs/src/samples/role-examples.yaml
+  monitoring:
+    enablePodMonitor: true
   postgresql:
     parameters:
       max_connections: "200"
@@ -46,19 +51,10 @@ spec:
       cpu: 300m
       memory: 512Mi
     limits:
-      cpu: 2000m
       memory: 4Gi
       hugepages-2Mi: 2Gi
-  # Todo: Wait for https://github.com/cloudnative-pg/cloudnative-pg/issues/5341
-  # and move to Authentik ns
-  managed:
-    roles:
-    - name: authentik
-      login: true
-      passwordSecret:
-        name: authentik-postgres-credentials
-  monitoring:
-    enablePodMonitor: true
+  storage:
+    size: 20Gi
 #  plugins:
 #    - name: &plugin barman-cloud.cloudnative-pg.io
 #      isWALArchiver: true
