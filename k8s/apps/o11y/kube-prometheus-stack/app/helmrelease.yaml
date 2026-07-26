@@ -8,4 +8,123 @@ spec:
     kind: OCIRepository
     name: kube-prometheus-stack
   interval: 1h
+  valuesFrom:
+  - kind: ConfigMap
+    name: flux-metrics-configmap
+    valuesKey: flux-metrics.yaml
   values:
+    cleanPrometheusOperatorObjectNames: true
+    alertmanager:
+      route:
+        main:
+          enabled: true
+          hostnames:
+          - alertmanager.youriulbri.ch
+          parentRefs:
+          - name: gateway-internal
+            namespace: network
+      alertmanagerSpec:
+        alertmanagerConfiguration:
+          name: alertmanager
+        externalUrl: https://alertmanager.youriulbri.ch
+        storage:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 1Gi
+    kubeEtcd:
+      service:
+        selector:
+          component: kube-apiserver # etcd runs on control plane nodes
+    kubeProxy:
+      enabled: false
+    prometheus:
+      route:
+        main:
+          enabled: true
+          hostnames:
+          - prometheus.youriulbri.ch
+          parentRefs:
+          - name: gateway-internal
+            namespace: network
+      prometheusSpec:
+        additionalScrapeConfigs:
+        - job_name: vault
+          metrics_path: "/v1/sys/metrics"
+          params:
+            format: ['prometheus']
+          scheme: https
+          # bearer_token: "" Todo: Add simple static token intstead of relying on unauthenticated metrics access
+          static_configs:
+          - targets: ['vault.youriulbri.ch:8200']
+        - job_name: satpulse
+          scrape_interval: 1s
+          static_configs:
+          - targets: ['ntp.youriulbri.ch:2000']
+        affinity:
+          nodeAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              nodeSelectorTerms:
+              - matchExpressions:
+                  - key: storage
+                    operator: In
+                    values:
+                    - "true"
+        externalUrl: https://prometheus.youriulbri.ch
+        enableRemoteWriteReceiver: false
+        podMonitorSelectorNilUsesHelmValues: false
+        probeSelectorNilUsesHelmValues: false
+        ruleSelectorNilUsesHelmValues: false
+        scrapeConfigSelectorNilUsesHelmValues: false
+        serviceMonitorSelectorNilUsesHelmValues: false
+        retention: 30d
+        retentionSize: 50GB
+        resources:
+          requests:
+            cpu: 100m
+          limits:
+            memory: 2Gi
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: ceph-block
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 50Gi
+    prometheus-node-exporter:
+      fullnameOverride: node-exporter
+    kube-state-metrics:
+      fullnameOverride: kube-state-metrics
+    grafana:
+      enabled: false
+      forceDeployDashboards: true
+      operator:
+        dashboardsConfigMapRefEnabled: true
+        folder: o11y
+        matchLabels:
+          dashboards: grafana
+    additionalPrometheusRulesMap:
+      dockerhub-rules:
+        groups:
+        - name: dockerhub
+          rules:
+          - alert: DockerhubRateLimitRisk
+            annotations:
+              summary: There are {{ $value }} containers pulling from Dockerhub. This may lead to rate limiting.
+            expr: count(time() - container_last_seen{image=~"(docker.io).*",container!=""} < 30) > 100
+            labels:
+              severity: critical
+      oom-rules:
+        groups:
+        - name: oom
+          rules:
+          - alert: OomKilled
+            annotations:
+              summary: Container {{ $labels.container }} in pod {{ $labels.namespace }}/{{ $labels.pod }} has been OOMKilled {{ $value }} times in the last 10 minutes.
+            expr: (kube_pod_container_status_restarts_total - kube_pod_container_status_restarts_total offset 10m >= 1) and ignoring (reason) min_over_time(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) == 1
+            labels:
+              severity: critical

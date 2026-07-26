@@ -6,3 +6,4 @@ namespace: o11y
 resources:
 - ./namespace.yaml
 - ./grafana-operator/ks.yaml
+- ./kube-prometheus-stack/ks.yaml
