@@ -75,13 +75,13 @@ releases:
     events:
     - postsync
     showlogs: true
-  - command: bash
+  - command: kubectl
     args:
-    - -c
-    - |
-      cat <<'EOF' | kubectl apply --server-side --force-conflicts -f -
-      {{ readFile (printf "../../k8s/apps/%s/%s/app/clustersecretstore.yaml" .Release.Namespace .Release.Name) | replace "${DOMAIN}" .Values.domain }}
-      EOF
+    - apply
+    - --namespace={{ .Release.Namespace }}
+    - --server-side
+    - --force-conflicts
+    - --filename=../../k8s/apps/{{ .Release.Namespace }}/{{ .Release.Name }}/app/clustersecretstore.yaml
     events:
     - postsync
     showlogs: true

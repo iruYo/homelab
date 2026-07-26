@@ -1,9 +1,4 @@
 ---
-environments:
-  default:
-    values:
-    - domain: youriulbri.ch
-
 templates:
   default:
     chart: '{{ (fromYaml (tpl (readFile "./templates/release.yaml.gotmpl") .)).chart }}'
