@@ -5,4 +5,5 @@ namespace: kube-system
 
 resources:
 - ./namespace.yaml
+- ./cilium/ks.yaml
 - ./snapshot-controller/ks.yaml
