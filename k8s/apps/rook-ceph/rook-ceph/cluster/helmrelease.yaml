@@ -52,12 +52,18 @@ spec:
                   - "true"
       resources:
         mgr:
+          requests:
+            cpu: 100m
           limits:
             memory: 1Gi
         mon:
+          requests:
+            cpu: 200m
           limits:
             memory: 1Gi
         osd:
+          requests:
+            cpu: 500m
           limits:
             memory: 5Gi
       storage:
