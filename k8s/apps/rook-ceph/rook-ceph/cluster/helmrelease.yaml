@@ -64,8 +64,9 @@ spec:
         osd:
           requests:
             cpu: 500m
+            memory: 2Gi
           limits:
-            memory: 5Gi
+            memory: 4Gi
       storage:
         devicePathFilter: "^/dev/disk/by-partlabel/r-storage$"
         useAllDevices: false
