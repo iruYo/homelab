@@ -2,10 +2,26 @@ machine:
   type: worker
   install:
     diskSelector:
-      model: 123
+      model: "SAMSUNG MZ7LN256"
+  nodeLabels:
+    storage: "true"
   sysctls:
     vm.nr_hugepages: "1024"
 ---
 apiVersion: v1alpha1
 kind: HostnameConfig
 hostname: tiny3
+---
+apiVersion: v1alpha1
+kind: LinkAliasConfig
+name: net0
+selector:
+  match: mac(link.permanent_addr) == "f8:f2:1e:61:1a:01"
+---
+apiVersion: v1alpha1
+kind: RawVolumeConfig
+name: storage
+provisioning:
+  diskSelector:
+    match: "!system_disk"
+  minSize: 10GiB
