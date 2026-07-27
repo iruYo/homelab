@@ -25,3 +25,9 @@ provisioning:
   diskSelector:
     match: "!system_disk"
   minSize: 10GiB
+---
+apiVersion: v1alpha1
+kind: TimeSyncConfig
+ptp:
+  devices:
+  - /dev/ptp2
