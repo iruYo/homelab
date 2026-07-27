@@ -28,7 +28,7 @@ spec:
     parameters:
       huge_pages: "off"
       max_connections: "200"
-      shared_buffers: 1GB
+      shared_buffers: 512MB
       effective_cache_size: 6GB
       work_mem: 12MB
       maintenance_work_mem: 512MB
