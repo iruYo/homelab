@@ -68,6 +68,9 @@ machine:
     net.ipv4.tcp_wmem: 4096 65536 33554432
     sunrpc.tcp_max_slot_table_entries: "128"
     sunrpc.tcp_slot_table_entries: "128"
+  time:
+    servers:
+    - ntp.youriulbri.ch
   token: ref+openbao://secret/k8s/talos/trustd#token
 cluster:
   ca:
