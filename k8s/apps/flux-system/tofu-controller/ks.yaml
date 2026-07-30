@@ -4,6 +4,9 @@ kind: Kustomization
 metadata:
   name: tofu-controller
 spec:
+  dependsOn:
+  - name: authentik
+    namespace: authentik
   interval: 1h
   path: ./k8s/apps/flux-system/tofu-controller/app
   prune: true

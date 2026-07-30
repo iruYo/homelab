@@ -1,0 +1,27 @@
+---
+apiVersion: infra.contrib.fluxcd.io/v1alpha2
+kind: Terraform
+metadata:
+  name: authentik-tf
+spec:
+  path: ./k8s/apps/authentik/authentik/config/tf
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  approvePlan: auto
+  vars:
+  - name: domain
+    value: "youriulbri.ch"
+  - name: email
+    value: "youri.ulbrich@web.de"
+  varsFrom:
+  - kind: Secret
+    name: authentik-bootstrap-token
+  - kind: Secret
+    name: discord-oauth-secret
+  - kind: Secret
+    name: github-oauth-secret
+  - kind: Secret
+    name: grafana-oauth-secret

@@ -1,0 +1,46 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: authentik
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: authentik
+  interval: 1h
+  values:
+    authentik:
+      postgresql:
+        host: "postgres18-rw.cloudnative-pg.svc.cluster.local"
+        name: authentik
+        port: 5432
+    global:
+      envFrom:
+      - secretRef:
+          name: authentik-bootstrap-token
+      - secretRef:
+          name: authentik-pg-credentials
+      - secretRef:
+          name: authentik-secret-key
+    server:
+      resources:
+        requests:
+          cpu: 25m
+          memory: 512Mi
+        limits:
+          memory: 512Mi
+      route:
+        main:
+          enabled: true
+          hostnames:
+          - "auth.youriulbri.ch"
+          parentRefs:
+          - name: gateway-internal
+            namespace: network
+    worker:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 512Mi
+        limits:
+          memory: 512Mi
