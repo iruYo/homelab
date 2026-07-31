@@ -10,6 +10,6 @@ spec:
       length: 64
       digits: 21
       symbols: 21
-      symbolCharacters: "^_$@!?"
+      symbolCharacters: "^_@!?"
       noUpper: false
       allowRepeat: true
