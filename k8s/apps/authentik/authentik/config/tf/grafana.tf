@@ -15,6 +15,8 @@ resource "authentik_provider_oauth2" "grafana" {
   authorization_flow         = data.authentik_flow.default-provider-authorization-implicit-consent.id
   invalidation_flow          = data.authentik_flow.default-provider-invalidation-flow.id
 
+  grant_types                = ["authorization_code", "refresh_token"]
+
   allowed_redirect_uris      = [
     {
       matching_mode = "strict",
