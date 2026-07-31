@@ -13,14 +13,9 @@ spec:
             operator: In
             values:
             - "true"
-  bootstrap:
-    initdb:
-      database: authentik_db
-      owner: authentik
-      secret:
-        name: authentik-pg-credentials
   instances: 3
   # Todo: create authentik db role and pass creds in authentik namespace
+  # https://github.com/cloudnative-pg/cloudnative-pg/issues/6043
   # https://github.com/EnterpriseDB/cloudnative-pg/blob/f57d7410af4e1c7cf2447f1bc9d7a1d6cc3cb2a8/docs/src/samples/role-examples.yaml
   monitoring:
     enablePodMonitor: true
