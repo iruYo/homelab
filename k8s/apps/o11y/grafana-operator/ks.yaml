@@ -20,6 +20,8 @@ metadata:
   name: grafana-instance
 spec:
   dependsOn:
+  - name: authentik-config
+    namespace: authentik
   - name: grafana-operator
   - name: rook-ceph-cluster
     namespace: rook-ceph

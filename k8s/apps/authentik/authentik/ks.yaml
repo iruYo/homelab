@@ -35,4 +35,4 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: authentik
-  wait: false
+  wait: true

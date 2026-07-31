@@ -13,20 +13,19 @@ spec:
       feedback_links_enabled: "false"
       reporting_enabled: "false"
     auth:
-      disable_login_form: "false"
-#      signout_redirect_url: "https://auth.youriulbri.ch/application/o/grafana/end-session/"
-    auth.anonymous:
+      disable_login_form: "true"
+      signout_redirect_url: "https://auth.youriulbri.ch/application/o/grafana/end-session/"
+    auth.generic_oauth:
       enabled: "true"
-      org_name: "Main Org."
-      org_role: "Admin"
-#    auth.generic_oauth:
-#      enabled: "true"
-#      name: "Authentik"
-#      scopes: "openid email profile"
-#      auth_url: https://auth.youriulbri.ch/application/o/authorize/
-#      token_url: https://auth.youriulbri.ch/application/o/token/
-#      api_url: https://auth.youriulbri.ch/application/o/userinfo/
-#      use_pkce: "true"
+      name: "Authentik"
+      scopes: "openid email profile"
+      auth_url: https://auth.youriulbri.ch/application/o/authorize/
+      token_url: https://auth.youriulbri.ch/application/o/token/
+      api_url: https://auth.youriulbri.ch/application/o/userinfo/
+      use_pkce: "true"
+    auth.generic_oauth.group_mapping:
+      role_attribute_path: |
+        contains(groups[*], 'authentik Admins') && 'Admin' || 'Viewer'
     log:
       mode: console
     metrics:
@@ -48,17 +47,17 @@ spec:
         spec:
           containers:
           - name: grafana
-#            env:
-#            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
-#              valueFrom:
-#                secretKeyRef:
-#                  name: grafana-oauth-credentials
-#                  key: client-id
-#            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
-#              valueFrom:
-#                secretKeyRef:
-#                  name: grafana-oauth-credentials
-#                  key: client-secret
+            env:
+            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-oauth-credentials
+                  key: client-id
+            - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-oauth-credentials
+                  key: client-secret
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
