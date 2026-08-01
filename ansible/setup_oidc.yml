@@ -1,4 +1,4 @@
-- name: Ensure external K3s OIDC endpoint
+- name: Ensure external k8s OIDC endpoint
   hosts: localhost
   environment:
     AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"

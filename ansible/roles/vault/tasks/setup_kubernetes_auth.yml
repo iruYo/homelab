@@ -6,20 +6,20 @@
       type: "kubernetes"
   when: "'kubernetes/' not in vault_auth_methods.data"
 
-- name: Create K3s cluster external-secret policy
+- name: Create k8s cluster external-secret policy
   community.hashi_vault.vault_write:
     path: sys/policies/acl/external-secrets-policy
     data:
       policy: |
-        path "secret/data/ansible/k3s/*" {
+        path "secret/data/ansible/k8s/*" {
           capabilities = ["read"]
         }
 
-        path "secret/data/k3s/*" {
+        path "secret/data/k8s/*" {
           capabilities = ["create", "read", "update", "delete"]
         }
 
-        path "secret/metadata/k3s/*" {
+        path "secret/metadata/k8s/*" {
           capabilities = ["create", "read", "update", "delete"]
         }
 

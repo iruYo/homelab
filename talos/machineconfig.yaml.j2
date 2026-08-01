@@ -116,7 +116,7 @@ cluster:
       enable-aggregator-routing: "true"
       feature-gates: "MutatingAdmissionPolicy=true"
       runtime-config: "admissionregistration.k8s.io/v1beta1=true"
-      service-account-issuer: ref+openbao://secret/ansible/k3s/oidc#url # Todo: fix path name
+      service-account-issuer: ref+openbao://secret/ansible/k8s/oidc
     image: registry.k8s.io/kube-apiserver:v1.36.2
   controllerManager:
     extraArgs:

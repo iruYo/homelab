@@ -1,4 +1,4 @@
-- name: Ensure provider IRSA for K3s cluster
+- name: Ensure provider IRSA for k8s cluster
   hosts: localhost
   environment:
     AWS_ACCESS_KEY_ID: "{{ aws_access_key_id }}"
@@ -20,6 +20,6 @@
         variables:
           vault_address: "https://{{ vault_dns }}:8200"
           vault_token: "{{ vault_session_token }}"
-          oidc_data_secret_path: "ansible/k3s/oidc"
+          oidc_data_secret_path: "ansible/k8s/oidc"
         state: present
       no_log: true
