@@ -44,7 +44,7 @@
 
         - name: Create vault root user credentials
           community.aws.iam_access_key:
-            user_name: "{{ aws_root_user }}"
+            user_name: "{{ vault_aws_root_user }}"
             access_key: "{{ vault_inital_aws_access_key.user_input }}"
             secret_key: "{{ vault_inital_aws_secret_key.user_input }}"
             state: present

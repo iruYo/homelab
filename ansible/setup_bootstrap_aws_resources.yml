@@ -16,7 +16,7 @@
         project_path: "{{ tf_dir }}/dns"
         variables:
           domain: "{{ domain }}"
-          dns01_user_name: "{{ aws_dns01_user }}"
+          dns01_user_name: "{{ vault_aws_dns01_user }}"
         state: present
       register: tf_aws_zones_result
 
@@ -25,6 +25,6 @@
       cloud.terraform.terraform:
         project_path: "{{ tf_dir }}/vault-aws"
         variables:
-          vault_root_username: "{{ aws_root_user }}"
+          vault_root_username: "{{ vault_aws_root_user }}"
         state: present
       register: tf_aws_admin_result

@@ -11,5 +11,7 @@ vault_version: 2.5.0-beta20251125
 #991732feb606737baf727cba0ffa99def84f440d50c21c12ff0c4e7c5bdcc0f1
 
 vault_key_label: "vault1"
+vault_aws_root_user: "vault-root"
+vault_aws_dns01_user: "vault-dns01"
 
 hsm_user_pin: "{{ vault_hsm_user_pin }}"
