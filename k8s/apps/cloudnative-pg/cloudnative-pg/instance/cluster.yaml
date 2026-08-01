@@ -13,6 +13,7 @@ spec:
             operator: In
             values:
             - "true"
+  failoverDelay: 30
   instances: 3
   # Todo: create authentik db role and pass creds in authentik namespace
   # https://github.com/cloudnative-pg/cloudnative-pg/issues/6043
@@ -48,6 +49,7 @@ spec:
       memory: 512Mi
     limits:
       memory: 2Gi
+  smartShutdownTimeout: 0
   storage:
     size: 20Gi
 #  plugins:
