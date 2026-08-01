@@ -258,10 +258,6 @@
             version: "2"
       when: "'secret/' not in vault_secret_engines.data"
       no_log: true
-
-    - name: Setup pki secrets for K3s
-      ansible.builtin.include_tasks: setup_pki_secrets.yml
-      no_log: true
   always:
     - name: Revoke vault session
       community.hashi_vault.vault_write:
