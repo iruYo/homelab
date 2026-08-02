@@ -5,7 +5,7 @@ data "vault_kv_secret_v2" "sa" {
 
 resource "vault_kv_secret_v2" "oidc" {
   mount                      = "secret"
-  name                       = "ansible/k8s/oidc"
+  name                       = "k8s/infra/oidc"
   data_json                  = jsonencode({
     bucket_name  = aws_s3_bucket.this.id
     provider_arn = module.iam_oidc_provider.arn,

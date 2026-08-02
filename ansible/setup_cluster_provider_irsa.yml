@@ -20,6 +20,6 @@
         variables:
           vault_address: "https://{{ vault_dns }}:8200"
           vault_token: "{{ vault_session_token }}"
-          oidc_data_secret_path: "ansible/k8s/oidc"
+          oidc_data_secret_path: "k8s/infra/oidc"
         state: present
       no_log: true
