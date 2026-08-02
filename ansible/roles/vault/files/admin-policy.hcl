@@ -52,3 +52,12 @@ path "sys/mounts"
 path "sys/plugins/catalog/*" {
   capabilities = ["create", "read", "update", "delete", "list", "sudo"]
 }
+
+path "aws/*" {
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}
+
+path "secret/*"
+{
+  capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+}

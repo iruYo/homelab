@@ -43,3 +43,349 @@ plugin "{{ plugin.type }}" "{{ plugin.name }}" {
   sha256sum   = "{{ plugin.sha256 }}"
 }
 {% endfor %}
+
+initialize "auth" {
+  request "approle" {
+    operation = "create"
+    path      = "sys/auth/approle"
+    data      = { type = "approle" }
+  }
+
+  request "kubernetes" {
+    operation = "create"
+    path      = "sys/auth/kubernetes"
+    data      = { type = "kubernetes" }
+  }
+
+  request "userpass" {
+    operation = "create"
+    path      = "sys/auth/userpass"
+    data = {
+      type = "userpass"
+      description = "Administrative access to OpenBao."
+    }
+  }
+}
+
+initialize "engines" {
+  request "secret" {
+    operation = "update"
+    path      = "sys/mounts/secret"
+    data      = {
+      type    = "kv"
+      options = { version = "2" }
+    }
+  }
+
+  request "aws" {
+    operation = "update"
+    path      = "sys/mounts/aws"
+    data      = { type = "aws" }
+  }
+}
+
+initialize "policies" {
+  request "k8s-talos-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/k8s-talos-policy"
+
+    data = {
+      policy = <<-EOT
+        path "secret/data/k8s/talos/*" {
+          capabilities = ["create", "read", "update", "delete"]
+        }
+
+        path "secret/metadata/k8s/talos/*" {
+          capabilities = ["read", "update"]
+        }
+      EOT
+    }
+  }
+
+  request "k8s-infra-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/k8s-infra-policy"
+
+    data = {
+      policy = <<-EOT
+        path "secret/data/k8s/infra/*" {
+          capabilities = ["create", "read", "update", "delete"]
+        }
+
+        path "secret/metadata/k8s/infra/*" {
+          capabilities = ["read", "update"]
+        }
+      EOT
+    }
+  }
+
+  request "k8s-external-secrets-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/k8s-external-secrets-policy"
+
+    data = {
+      policy = <<-EOT
+        path "secret/data/k8s/infra/irsa/cert-manager" {
+          capabilities = ["read"]
+        }
+
+        path "secret/data/k8s/namespaces/*" {
+          capabilities = ["create", "read", "update", "delete"]
+        }
+
+        path "secret/metadata/k8s/namespaces/*" {
+          capabilities = ["create", "read", "update", "delete"]
+        }
+      EOT
+    }
+  }
+
+  request "ansible-secret-id-generation-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/ansible-secret-id-generation-policy"
+    data = {
+      policy = <<-EOT
+        path "auth/approle/role/ansible/role-id" {
+          capabilities = ["read"]
+        }
+
+        path "auth/approle/role/ansible/secret-id" {
+          capabilities      = ["update", "read"]
+          min_wrapping_ttl  = "1s"
+          max_wrapping_ttl  = "300s"
+        }
+      EOT
+    }
+  }
+
+  request "admin-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/admin-policy"
+    data = {
+      policy = <<-EOT
+        {{ lookup('file', 'admin-policy.hcl') }}
+      EOT
+    }
+  }
+
+  request "admin-secret-id-generation-policy" {
+    operation = "update"
+    path      = "sys/policies/acl/admin-secret-id-generation-policy"
+
+    data = {
+      policy = <<-EOT
+        path "auth/approle/role/admin/role-id" {
+          capabilities = ["read"]
+        }
+
+        path "auth/approle/role/admin/secret-id" {
+          capabilities      = ["update", "read"]
+          min_wrapping_ttl  = "1s"
+          max_wrapping_ttl  = "300s"
+        }
+      EOT
+    }
+  }
+}
+
+initialize "approles" {
+  request "ansible-approle" {
+    operation = "update"
+    path      = "auth/approle/role/ansible"
+    data = {
+      token_policies          = ["k8s-talos-policy", "k8s-infra-policy"]
+      bind_secret_id          = true
+      secret_id_bound_cidrs   = ["{{ cidr_block }}"]
+      secret_id_num_uses      = 1
+      secret_id_ttl           = "5m"
+      token_ttl               = "30m"
+      token_max_ttl           = "30m"
+      token_strictly_bind_ip  = true
+    }
+  }
+
+  request "admin-approle" {
+    operation = "update"
+    path      = "auth/approle/role/admin"
+    data = {
+      token_policies          = ["admin-policy"]
+      bind_secret_id          = true
+      secret_id_bound_cidrs   = ["{{ cidr_block }}"]
+      secret_id_num_uses      = 1
+      secret_id_ttl           = "5m"
+      token_ttl               = "30m"
+      token_max_ttl           = "30m"
+      token_strictly_bind_ip  = true
+    }
+  }
+}
+
+initialize "kubernetes-roles" {
+  request "kubernetes-approle" {
+    operation = "update"
+    path      = "auth/kubernetes/role/external-secrets"
+    data = {
+      bound_service_account_names       = ["external-secrets"]
+      bound_service_account_namespaces  = ["external-secrets"]
+      policies                          = ["k8s-external-secrets-policy"]
+      ttl                               = "12h"
+    }
+  }
+}
+
+initialize "tokens" {
+  request "ansible-secret-id-generation-token" {
+    operation = "update"
+    path      = "auth/token/create"
+    data = {
+      policies         = ["ansible-secret-id-generation-policy"]
+      no_parent        = true
+      id = {
+        eval_source = "env"
+        eval_type = "string"
+        env_var = "ANSIBLE_SECRET_ID_GEN_TOKEN"
+        require_present = true
+      }
+      renewable        = true
+      period           = "120d"
+      explicit_max_ttl = "360d"
+    }
+  }
+
+  request "admin-secret-id-generation-token" {
+    operation = "update"
+    path      = "auth/token/create"
+    data = {
+      policies         = ["admin-secret-id-generation-policy"]
+      no_parent        = true
+      id = {
+        eval_source = "env"
+        eval_type = "string"
+        env_var = "ADMIN_SECRET_ID_GEN_TOKEN"
+        require_present = true
+      }
+      renewable        = true
+      period           = "120d"
+      explicit_max_ttl = "360d"
+    }
+  }
+}
+
+initialize "admin-auth" {
+  request "admin-user" {
+    operation = "create"
+    path      = "auth/userpass/users/admin"
+    data = {
+      password = {
+        eval_source = "env"
+        eval_type = "string"
+        env_var = "INITIAL_VAULT_ADMIN_PASSWORD"
+        require_present = true
+      }
+
+      token_policies = ["admin-policy"]
+    }
+  }
+
+  request "admin-entity" {
+    operation = "update"
+    path      = "identity/entity/name/admin"
+    data = {
+      policies = ["admin-policy"]
+    }
+  }
+
+  request "userpass" {
+    operation = "read"
+    path      = "sys/auth/userpass"
+  }
+
+  request "admin-alias" {
+    operation = "create"
+    path      = "identity/entity-alias"
+    data = {
+      name = "admin"
+      canonical_id = {
+        eval_source     = "response"
+        eval_type       = "string"
+        initialize_name = "admin-auth"
+        response_name   = "admin-entity"
+        field_selector  = ["data", "id"]
+      }
+      mount_accessor = {
+        eval_source     = "response"
+        eval_type       = "string"
+        initialize_name = "admin-auth"
+        response_name   = "userpass"
+        field_selector  = ["data", "accessor"]
+      }
+    }
+  }
+
+  request "totp-method" {
+    operation = "create"
+    path      = "identity/mfa/method/totp"
+    data = {
+      issuer    = "OpenBao"
+      period    = 30
+      digits    = 6
+      algorithm = "SHA256"
+      skew      = 1
+      key_size  = 20
+    }
+  }
+
+  request "totp" {
+    operation = "update"
+    path      = "identity/mfa/method/totp/admin-generate"
+    data = {
+      method_id = {
+        eval_source     = "response"
+        eval_type       = "string"
+        initialize_name = "admin-auth"
+        response_name   = "totp-method"
+        field_selector  = ["data", "method_id"]
+      }
+      entity_id = {
+        eval_source     = "response"
+        eval_type       = "string"
+        initialize_name = "admin-auth"
+        response_name   = "admin-entity"
+        field_selector  = ["data", "id"]
+      }
+    }
+  }
+
+  request "userpass-mfa" {
+    operation = "create"
+    path      = "identity/mfa/login-enforcement/admin-userpass"
+    data = {
+      auth_method_types = ["userpass"]
+      mfa_method_ids = [
+        {
+          eval_source     = "response"
+          eval_type       = "string"
+          initialize_name = "admin-auth"
+          response_name   = "totp-method"
+          field_selector  = ["data", "method_id"]
+        }
+      ]
+    }
+  }
+
+  request "totp-enrollment" {
+    operation = "create"
+    path      = "secret/data/bootstrap/admin-totp"
+    data = {
+      data = {
+        url = {
+          eval_source     = "response"
+          eval_type       = "string"
+          initialize_name = "admin-auth"
+          response_name   = "totp"
+          field_selector  = ["data", "url"]
+        }
+      }
+    }
+  }
+}
