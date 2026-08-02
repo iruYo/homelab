@@ -30,9 +30,6 @@ telemetry {
 
 seal "pkcs11" {
   lib = "{{ vault_pkcs11_lib }}"
-  token_label = "{{ vault_token_label }}"
-  key_label = "{{ vault_key_label }}"
-  pin = "{{ hsm_user_pin }}"
 }
 
 {% for plugin in vault_plugins %}
@@ -279,7 +276,7 @@ initialize "admin-auth" {
       password = {
         eval_source = "env"
         eval_type = "string"
-        env_var = "INITIAL_VAULT_ADMIN_PASSWORD"
+        env_var = "VAULT_ADMIN_PASSWORD"
         require_present = true
       }
 
