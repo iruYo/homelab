@@ -1,6 +1,6 @@
 variable "oidc_data_secret_path" {
   type        = string
-  description = "Path to the OIDC data in Vault secrets"
+  description = "Path to the OIDC data stored in Vault"
   sensitive   = true
 }
 

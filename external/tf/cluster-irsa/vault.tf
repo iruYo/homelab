@@ -13,7 +13,7 @@ resource "vault_kv_secret_v2" "oidc_provisioner" {
 
 resource "vault_kv_secret_v2" "cert_manager_irsa" {
   mount      = "secret"
-  name       = "ansible/k8s/irsa/cert-manager"
+  name       = "k8s/infra/irsa/cert-manager"
   data_json  = jsonencode({
     role_arn = module.cert_manager_irsa.arn
   })
