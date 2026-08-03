@@ -132,3 +132,27 @@ module "cert_manager_irsa" {
     user = "cert-manager"
   }
 }
+
+module "external_dns_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  version = "~> 6.0.0"
+
+  name = "external-dns"
+
+  attach_external_dns_policy    = true
+  external_dns_hosted_zone_arns = [
+    "arn:aws:route53:::hostedzone/${data.aws_route53_zone.this.zone_id}"
+  ]
+  permissions_boundary          = aws_iam_policy.iam_boundary.arn
+
+  oidc_providers = {
+    main = {
+      provider_arn               = data.vault_kv_secret_v2.oidc.data["provider_arn"]
+      namespace_service_accounts = ["network:external-dns"]
+    }
+  }
+
+  tags = {
+    user = "external-dns"
+  }
+}

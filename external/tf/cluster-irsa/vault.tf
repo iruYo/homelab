@@ -18,3 +18,11 @@ resource "vault_kv_secret_v2" "cert_manager_irsa" {
     role_arn = module.cert_manager_irsa.arn
   })
 }
+
+resource "vault_kv_secret_v2" "external_dns_irsa" {
+  mount      = "secret"
+  name       = "k8s/infra/irsa/external-dns"
+  data_json  = jsonencode({
+    role_arn = module.external_dns_irsa.arn
+  })
+}
