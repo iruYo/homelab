@@ -15,3 +15,4 @@ spec:
     name: flux-system
     namespace: flux-system
   targetNamespace: amazon-eks-pod-identity-webhook
+  wait: true
