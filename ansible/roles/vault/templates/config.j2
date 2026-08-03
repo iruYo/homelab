@@ -122,7 +122,7 @@ initialize "policies" {
 
     data = {
       policy = <<-EOT
-        path "secret/data/k8s/infra/irsa/cert-manager" {
+        path "secret/data/k8s/infra/irsa/*" {
           capabilities = ["read"]
         }
 
