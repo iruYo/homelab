@@ -11,6 +11,8 @@ spec:
   values:
     crds:
       enabled: true
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: "cert-manager-role-arn"
     dns01RecursiveNameservers: https://8.8.8.8:443/dns-query,https://8.8.4.4:443/dns-query,https://1.1.1.1:443/dns-query,https://1.0.0.1:443/dns-query
     dns01RecursiveNameserversOnly: true
     prometheus:

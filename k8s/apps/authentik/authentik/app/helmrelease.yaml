@@ -15,6 +15,8 @@ spec:
         name: authentik
         port: 5432
     global:
+      deploymentAnnotations:
+        reloader.stakater.com/auto: "true"
       envFrom:
       - secretRef:
           name: authentik-bootstrap-token
