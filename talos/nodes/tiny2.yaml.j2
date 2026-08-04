@@ -3,11 +3,9 @@ machine:
   type: controlplane
   install:
     diskSelector:
-      serial: S3EUNB0J410152N
+      serial: 50SPD2C5PAZ1
   nodeLabels:
     storage: "true"
-#  sysctls:
-#    vm.nr_hugepages: "1024"
 ---
 apiVersion: v1alpha1
 kind: HostnameConfig
@@ -24,5 +22,13 @@ kind: RawVolumeConfig
 name: storage
 provisioning:
   diskSelector:
-    match: system_disk
+    match: disk.serial == "S3EUNB0J410152N"
+  minSize: 10GiB
+---
+apiVersion: v1alpha1
+kind: RawVolumeConfig
+name: local
+provisioning:
+  diskSelector:
+    match: disk.model == "SAMSUNG MZ7TY256"
   minSize: 10GiB
