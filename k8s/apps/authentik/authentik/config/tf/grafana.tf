@@ -3,7 +3,8 @@ data "authentik_property_mapping_provider_scope" "this" {
     "goauthentik.io/providers/oauth2/scope-email",
     "goauthentik.io/providers/oauth2/scope-profile",
     "goauthentik.io/providers/oauth2/scope-openid",
-    "goauthentik.io/providers/oauth2/scope-offline_access"
+    "goauthentik.io/providers/oauth2/scope-offline_access",
+    "goauthentik.io/providers/oauth2/scope-entitlements"
   ]
 }
 
@@ -37,4 +38,15 @@ resource "authentik_application" "grafana" {
   meta_icon         = "https://raw.githubusercontent.com/grafana/grafana/main/public/img/icons/mono/grafana.svg"
   meta_launch_url   = "https://grafana.${var.domain}"
   open_in_new_tab   = true
+}
+
+resource "authentik_application_entitlement" "grafana_admins" {
+  name        = "Grafana Admin"
+  application = authentik_application.grafana.uuid
+}
+
+resource "authentik_policy_binding" "grafana_admins" {
+  target = authentik_application_entitlement.grafana_admins.id
+  group  = authentik_group.grafana_admins.id
+  order  = 0
 }

@@ -18,7 +18,7 @@ spec:
     auth.generic_oauth:
       enabled: "true"
       name: "Authentik"
-      scopes: "openid email profile"
+      scopes: "openid email profile entitlements"
       auth_url: https://auth.youriulbri.ch/application/o/authorize/
       token_url: https://auth.youriulbri.ch/application/o/token/
       api_url: https://auth.youriulbri.ch/application/o/userinfo/
@@ -27,7 +27,7 @@ spec:
       use_pkce: "true"
     auth.generic_oauth.group_mapping:
       role_attribute_path: |
-        contains(groups[*], 'authentik Admins') && 'Admin' || 'Viewer'
+        contains(entitlements[*], 'Grafana Admin') && 'Admin' || 'Viewer'
     log:
       mode: console
     metrics:

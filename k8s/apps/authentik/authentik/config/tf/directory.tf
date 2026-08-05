@@ -2,10 +2,14 @@ data "authentik_group" "admins" {
   name = "authentik Admins"
 }
 
+resource "authentik_group" "grafana_admins" {
+  name = "Grafana Admins"
+}
+
 resource "authentik_user" "this" {
   username = "iruYo"
   name     = "Youri"
   email    = var.email
   type     = "internal"
-  groups   = [data.authentik_group.admins.id]
+  groups   = [data.authentik_group.admins.id, authentik_group.grafana_admins.id]
 }
