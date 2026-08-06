@@ -1,0 +1,53 @@
+---
+- name: Set configured ssh port
+  set_fact:
+    ssh_port: "{{ ansible_port }}"
+
+- name: Check if default SSH port is in use
+  ansible.builtin.wait_for:
+    port: "22"
+    state: "started"
+    host: "{{ ansible_host }}"
+    connect_timeout: "5"
+    timeout: "10"
+  delegate_to: "localhost"
+  ignore_errors: "yes"
+  register: default_ssh_port
+
+- name: Set ansible_port back to default
+  set_fact:
+    ansible_port: "22"
+  when:
+    - default_ssh_port is defined
+    - default_ssh_port.state | default('') == 'started'
+
+- name: Harden sshd config
+  ansible.builtin.include_tasks: sshd.yml
+
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    password: "*"
+    shell: "{{ item.shell }}"
+    groups: "{{ item.groups }}"
+    append: true
+    create_home: true
+    state: present
+  no_log: true
+  loop: "{{ users }}"
+
+- name: Setup fail2ban
+  ansible.builtin.include_tasks: fail2ban.yml
+
+- name: Update unattended-upgrades origins to secruity only
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+    content: |
+      Unattended-Upgrade::Origins-Pattern {
+              "origin=Debian,codename=${distro_codename},label=Debian-Security";
+              "origin=Debian,codename=${distro_codename}-security,label=Debian-Security";
+      };
+      Unattended-Upgrade::Automatic-Reboot "false";
+    owner: root
+    group: root
+    mode: "0644"

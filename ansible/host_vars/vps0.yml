@@ -1,0 +1,7 @@
+---
+users:
+  - name: "towonel"
+    shell: /bin/bash
+    groups: []
+
+docker_users: ["towonel"]

@@ -1,0 +1,35 @@
+---
+- name: Setup alternate SSH port
+  ansible.builtin.lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^#?Port"
+    line: "Port {{ ssh_port }}"
+    validate: '/usr/sbin/sshd -t -f %s'
+  notify: Restart sshd
+
+- name: Ensure SSH is reloaded
+  meta: flush_handlers
+
+- name: Ensure configured SSH port is set
+  ansible.builtin.set_fact:
+    ansible_port: "{{ ssh_port }}"
+
+- name: Ensure sshd_config.d directory
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Disable root and password authentication
+  ansible.builtin.copy:
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      PubkeyAuthentication yes
+    dest: /etc/ssh/sshd_config.d/99-auth.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart sshd
