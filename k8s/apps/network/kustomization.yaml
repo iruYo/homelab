@@ -8,4 +8,5 @@ resources:
 - ./certificates/ks.yaml
 - ./envoy-gateway/ks.yaml
 - ./external-dns/ks.yaml
+- ./towonel-agent/ks.yaml
 - ./unifi-dns/ks.yaml

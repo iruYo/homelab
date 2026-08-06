@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: towonel-agent
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: towonel-agent
+  interval: 1h
+  values:
+    agent:
+      services:
+      - hostname: "*.youriulbri.ch"
+        origin: gateway-external:443
+      inviteTokenSecret:
+        name: towonel-agent-secret
+    controllers:
+      main:
+        replicas: 2
+    serviceMonitor:
+      main:
+        enabled: true
