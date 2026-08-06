@@ -126,6 +126,10 @@ initialize "policies" {
           capabilities = ["read"]
         }
 
+        path "secret/data/k8s/infra/exit-node" {
+          capabilities = ["read"]
+        }
+
         path "secret/data/k8s/namespaces/*" {
           capabilities = ["create", "read", "update", "delete"]
         }
